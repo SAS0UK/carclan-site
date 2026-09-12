@@ -460,6 +460,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
   signWall.position.set(0, 9, LOT.signZ - 1.2);
   const signGlow = new THREE.PointLight(0xe6b8a2, 0, 50, 2);
   signGlow.position.set(0, LOT.signY, LOT.signZ + 4);
+  signWall.visible = false; // le mur dessinait un rectangle sombre devant l'horizon pendant l'approche
   scene.add(sign, signWall, signGlow);
 
   document.fonts.ready.then(() => {
