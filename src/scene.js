@@ -245,7 +245,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
   renderer.toneMapping = THREE.NoToneMapping;
   renderer.setClearColor(FOG, 1);
   // Résolution par budget de pixels : un grand écran ne coûte pas plus qu'un petit.
-  const pixelBudget = lite ? 1.15e6 : 2.4e6;
+  const pixelBudget = lite ? 1.0e6 : 1.9e6;
   const pickDpr = () => Math.min(window.devicePixelRatio || 1, lite ? 1.3 : 1.5, Math.sqrt(pixelBudget / (window.innerWidth * window.innerHeight)));
   let dpr = pickDpr();
   let degraded = false;
@@ -292,8 +292,8 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
   if (!lite) {
     reflector = new Reflector(floorGeo, {
       clipBias: 0.004,
-      textureWidth: Math.round(window.innerWidth * dpr * 0.4),
-      textureHeight: Math.round(window.innerHeight * dpr * 0.4),
+      textureWidth: Math.round(window.innerWidth * dpr * 0.35),
+      textureHeight: Math.round(window.innerHeight * dpr * 0.35),
       color: 0x0e0e11,
       shader: wetShader(),
     });
@@ -515,22 +515,23 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
     return g;
   });
 
-  const particles = makeParticles(lite ? 700 : 1500);
+  const particles = makeParticles(lite ? 600 : 1100);
   particles.material.uniforms.uPixelRatio.value = dpr;
   scene.add(particles);
 
   // Post-traitement
   // Pas de MSAA sur le tampon HalfFloat : mesuré ici, il rend l'image noire
   // avec le Reflector qui change de cible en pleine passe. SMAA fait le travail.
+  let lensPass = null;
   const composer = new EffectComposer(renderer, { frameBufferType: THREE.HalfFloatType });
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new BloomEffect({ intensity: lite ? 0.85 : 1.05, luminanceThreshold: 0.62, luminanceSmoothing: 0.3, mipmapBlur: true, radius: 0.7, levels: lite ? 5 : 7 });
+  const bloom = new BloomEffect({ intensity: lite ? 0.85 : 1.05, luminanceThreshold: 0.62, luminanceSmoothing: 0.3, mipmapBlur: true, radius: 0.7, levels: lite ? 5 : 6 });
   const tone = new ToneMappingEffect({ mode: ToneMappingMode.ACES_FILMIC });
   const vignette = new VignetteEffect({ eskil: false, offset: 0.22, darkness: 0.58 });
   // La loupe déforme les UV : elle ne peut pas partager la passe du bloom
   // (convolution), elle a la sienne, juste avant.
   const lens = !lite && !touch ? new LensEffect() : null;
-  if (lens) composer.addPass(new EffectPass(camera, lens));
+  if (lens) { lensPass = new EffectPass(camera, lens); composer.addPass(lensPass); }
   const effects = [bloom];
   if (!lite) effects.push(new ChromaticAberrationEffect({ offset: new THREE.Vector2(0.0008, 0.0008), radialModulation: true, modulationOffset: 0.4 }));
   effects.push(tone, vignette);
@@ -571,20 +572,28 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
   }
   // Des gares : la caméra s'arrête pendant qu'une section se lit, et file
   // entre deux. Les bornes viennent de la mise en page (main.js).
+  // Pendant qu'une section se lit, la caméra continue d'avancer doucement
+  // (DRIFT) : un arrêt complet donne l'impression que le défilement bloque.
+  const DRIFT = 0.07;
+  const holdA = (sta) => Math.max(0, sta.t - DRIFT * 0.5);
+  const holdB = (sta) => Math.min(1, sta.t + DRIFT * 0.5);
   function stationT(p) {
     if (!stations) return p;
     for (let i = 0; i < stations.length; i++) {
       const sta = stations[i];
       if (p <= sta.p1) {
-        if (p >= sta.p0 || i === 0) return sta.t;
+        if (p >= sta.p0 || i === 0) {
+          const k = THREE.MathUtils.clamp((p - sta.p0) / Math.max(1e-6, sta.p1 - sta.p0), 0, 1);
+          return THREE.MathUtils.lerp(holdA(sta), holdB(sta), k);
+        }
         const prev = stations[i - 1];
-        return prev.t + (sta.t - prev.t) * THREE.MathUtils.smoothstep(p, prev.p1, sta.p0);
+        return holdB(prev) + (holdA(sta) - holdB(prev)) * THREE.MathUtils.smoothstep(p, prev.p1, sta.p0);
       }
     }
     return 1;
   }
   function updateCamera(dt) {
-    st.progress += (st.target - st.progress) * Math.min(1, dt * 8);
+    st.progress += (st.target - st.progress) * Math.min(1, dt * 12);
     const p = THREE.MathUtils.clamp(st.progress, 0, 1);
     const t = stationT(p);
     st.t = t;
@@ -716,7 +725,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
     composer.setSize(w, h);
-    if (reflector) reflector.getRenderTarget().setSize(Math.round(w * dpr * 0.4), Math.round(h * dpr * 0.4));
+    if (reflector) reflector.getRenderTarget().setSize(Math.round(w * dpr * 0.35), Math.round(h * dpr * 0.35));
     particles.material.uniforms.uPixelRatio.value = dpr;
     if (flashes) flashes.material.uniforms.uPixelRatio.value = dpr;
   }
@@ -733,6 +742,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
   function degrade() {
     degraded = true;
     resize();
+    if (lensPass) { composer.removePass(lensPass); lensPass = null; }
     if (smaaPass) { composer.removePass(smaaPass); smaaPass = null; }
     if (noise) noise.blendMode.opacity.value = 0;
     bloom.intensity = 0.8;

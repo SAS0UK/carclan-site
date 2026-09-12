@@ -107,7 +107,7 @@ html:not(.touch) a, html:not(.touch) button, html:not(.touch) input, html:not(.t
   pointer-events: none;
 }
 .panel > * { pointer-events: auto; }
-.panel:not(.hero):not(.final) { min-height: 170svh; align-items: start; }
+.panel:not(.hero):not(.final) { min-height: 140svh; align-items: start; }
 .panel:not(.hero):not(.final) .copy { position: sticky; top: 25svh; }
 .panel.final { align-items: end; padding-bottom: 12svh; }
 .panel[data-side='right'] .copy { justify-self: end; }

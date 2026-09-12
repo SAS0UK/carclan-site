@@ -27,7 +27,7 @@ const canvas = document.getElementById('scene');
 const world = createScene(canvas, { lite, reduced, touch: isTouch, onProgress: (p) => { const bar = document.querySelector('.entry-progress span'); if (bar) bar.style.transform = `scaleX(${0.15 + p * 0.75})`; } });
 
 // Lenis lisse la molette et le trackpad ; ScrollTrigger lit la position native.
-const lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.95, smoothWheel: true });
+const lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1, smoothWheel: true });
 lenis.stop();
 lenis.on('scroll', (e) => { ScrollTrigger.update(); world.setVelocity(e.velocity || 0); });
 gsap.ticker.lagSmoothing(0);
@@ -44,7 +44,7 @@ gsap.ticker.add((time, delta) => {
   if (fpsWindow >= 0.5) {
     const fps = frames / fpsWindow;
     if (stats) stats.textContent = `${fps.toFixed(0)} fps · dpr ${world.dpr} · ${world.lite ? 'lite' : 'full'}`;
-    if (watching) { fpsAccum += fps; watchFrames++; if (time - watchStart > 5) { watching = false; if (fpsAccum / watchFrames < 46) world.degrade(); } }
+    if (watching) { fpsAccum += fps; watchFrames++; if (time - watchStart > 4) { watching = false; if (fpsAccum / watchFrames < 52) world.degrade(); } }
     frames = 0; fpsWindow = 0;
   }
 });

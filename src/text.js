@@ -36,7 +36,7 @@ export function setupText({ lite = false, reduced = false } = {}) {
     // vers sa place, tenir pendant qu'il est collé au centre, décomposer quand
     // il repart. Pas de flou par lettre ici : trop cher en scrub.
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: panel, start: 'top 80%', end: isFinal ? 'bottom bottom' : 'bottom 20%', scrub: 0.45 },
+      scrollTrigger: { trigger: panel, start: 'top 80%', end: isFinal ? 'bottom bottom' : 'bottom 20%', scrub: 0.3 },
     });
     if (head.length) tl.fromTo(head, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.1, ease: 'none' }, 0.03);
     tl.fromTo(chars, { opacity: 0, yPercent: 60, scale: 0.94, rotateX: -70, transformPerspective: 800 }, { opacity: 1, yPercent: 0, scale: 1, rotateX: 0, transformPerspective: 800, duration: 0.2, stagger: { each: each * 0.7, from: 'start' }, ease: 'power3.out' }, 0.06);
