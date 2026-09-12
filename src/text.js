@@ -10,6 +10,7 @@ export function setupText({ lite = false, reduced = false } = {}) {
   let hero = null;
 
   panels.forEach((panel, i) => {
+    if (panel.classList.contains('travel')) return;
     const title = panel.querySelector('.split');
     const lede = panel.querySelector('.split-words');
     const eyebrow = panel.querySelector('.eyebrow');

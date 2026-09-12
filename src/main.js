@@ -88,11 +88,14 @@ function computeStations() {
   const max = Math.max(1, document.getElementById('tour').offsetHeight - vh);
   const list = [{ p0: 0, p1: 0.012, t: 0 }];
   const panels = Array.from(document.querySelectorAll('.panel'));
-  panels.forEach((panel, i) => {
+  let n = 0;
+  panels.forEach((panel) => {
+    if (panel.classList.contains('travel')) return; // le plan de transition n'a pas de gare
+    const i = n++;
     if (i === 0) return;
     const top = panel.getBoundingClientRect().top + window.scrollY;
     const h = panel.offsetHeight;
-    if (panel.classList.contains('final')) { list.push({ p0: Math.min(1, (top - vh * 0.7) / max), p1: 1, t: 1 }); return; }
+    if (panel.classList.contains('final')) { list.push({ p0: Math.min(1, (top - vh * 0.6) / max), p1: 1, t: 1 }); return; }
     const start = top - vh * 0.8, end = top + h - vh * 0.2;
     list.push({ p0: (start + 0.3 * (end - start)) / max, p1: (start + 0.76 * (end - start)) / max, t: i / 5 });
   });

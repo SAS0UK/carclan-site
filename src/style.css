@@ -110,6 +110,7 @@ html:not(.touch) a, html:not(.touch) button, html:not(.touch) input, html:not(.t
 .panel:not(.hero):not(.final) { min-height: 140svh; align-items: start; }
 .panel:not(.hero):not(.final) .copy { position: sticky; top: 25svh; }
 .panel.final { align-items: end; padding-bottom: 12svh; }
+.panel.travel { min-height: 110svh; padding: 0; }
 .panel[data-side='right'] .copy { justify-self: end; }
 .panel[data-side='center'] .copy { justify-self: center; text-align: center; }
 .copy { max-width: 36rem; position: relative; }

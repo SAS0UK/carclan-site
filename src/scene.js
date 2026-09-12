@@ -492,9 +492,10 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
     new THREE.Vector3(1.0, 1.8, -46),
     new THREE.Vector3(-0.8, 1.65, -76),
     new THREE.Vector3(0.9, 1.9, -104),
-    new THREE.Vector3(-0.3, 2.2, -128),
-    new THREE.Vector3(0, 2.6, -146),
-    new THREE.Vector3(0, 3.0, -157),
+    new THREE.Vector3(-0.3, 2.0, -128),
+    new THREE.Vector3(0.2, 2.3, -140),
+    new THREE.Vector3(0, 2.9, -151),
+    new THREE.Vector3(0, 3.3, -158),
   ], false, 'catmullrom', 0.5);
   const signLook = new THREE.Vector3(0, LOT.signY - 5.6, LOT.signZ);
 
@@ -548,7 +549,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
     progress: 0, target: 0, intro: 1, time: 0,
     pointer: new THREE.Vector2(0, 0), ps: new THREE.Vector2(0, 0),
     cursor: new THREE.Vector3(0, 0, 9999), cursorTarget: new THREE.Vector3(0, 0, 9999), cursorSeen: false,
-    vel: 0, velTarget: 0, t: 0,
+    vel: 0, velTarget: 0, t: 0, endK: 0,
   };
   let stations = null;
   const pos = new THREE.Vector3(), look = new THREE.Vector3();
@@ -600,7 +601,11 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
     path.getPointAt(t, pos);
     path.getPointAt(Math.min(t + 0.03, 1), look);
     look.y = pos.y - 0.12;
-    const endK = THREE.MathUtils.smoothstep(t, 0.83, 1);
+    // Le dernier plan : pendant le trajet vers l'enseigne (t 0,835 à 0,97), le
+    // regard glisse de l'allée vers l'enseigne, la caméra monte, le champ se
+    // resserre comme un travelling avant.
+    const endK = THREE.MathUtils.smoothstep(t, 0.835, 0.97);
+    st.endK = endK;
     const lx = lookAtT(t) * (1 - endK);
     look.x += lx;
     pos.x -= lx * 0.22;
@@ -615,7 +620,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
     if (reflector) reflector.material.uniforms.uFogDensity.value = scene.fog.density;
     coneMat.uniforms.uFogDensity.value = scene.fog.density;
     // L'enseigne s'allume en arrivant, avec un grésillement de néon.
-    const ignite = THREE.MathUtils.smoothstep(t, 0.84, 0.96);
+    const ignite = THREE.MathUtils.smoothstep(t, 0.86, 0.94);
     const flick = ignite > 0 && ignite < 0.999 ? (Math.sin(st.time * 41) * Math.sin(st.time * 13) > -0.15 ? 1 : 0.3) : 1;
     sign.material.opacity = ignite * flick;
     signGlow.intensity = 90 * ignite * flick;
@@ -631,7 +636,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
     // La vitesse de défilement ouvre le champ : on sent qu'on avance.
     st.velTarget *= Math.exp(-dt * 3);
     st.vel += (st.velTarget - st.vel) * Math.min(1, dt * 5);
-    const fov = (camera.aspect < 0.85 ? 74 : 58) + st.vel * 7;
+    const fov = (camera.aspect < 0.85 ? 74 : 58) - 7 * st.endK + st.vel * 7;
     if (Math.abs(camera.fov - fov) > 0.02) { camera.fov = fov; camera.updateProjectionMatrix(); }
     if (lens) { lens.uniforms.get('uCursor').value.set(st.ps.x * 0.5 + 0.5, st.ps.y * 0.5 + 0.5); }
   }
