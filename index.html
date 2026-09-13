@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>CarClan, les rassos près de chez vous</title>
+    <meta name="description" content="CarClan est l'application des rassemblements automobiles. Trouver, y aller, revivre. Bientôt sur iPhone et Android, on démarre dans les Hauts-de-France." />
+    <meta name="theme-color" content="#0b0b0d" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="canonical" href="https://carclan.fr/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CarClan" />
+    <meta property="og:title" content="CarClan, les rassos près de chez vous" />
+    <meta property="og:description" content="L'application des rassemblements automobiles. Bientôt sur iPhone et Android, on démarre dans les Hauts-de-France." />
+    <meta property="og:image" content="https://carclan.fr/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://carclan.fr/" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="/fonts/FamiljenGrotesk-SemiBold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/InstrumentSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <style>html{background:#0b0b0d}body{margin:0}#entry{z-index:50;background:#0b0b0d;position:fixed;inset:0}</style>
+    <script type="module" crossorigin src="/assets/index-Bp7sHoRU.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-x2jtY5aS.css">
+  </head>
+  <body>
+    <canvas id="scene" aria-hidden="true"></canvas>
+
+    <div id="entry" role="dialog" aria-label="Entrée du site">
+      <div class="entry-inner">
+        <div class="wordmark">CARCLAN</div>
+        <p class="entry-line">Un rasso, de nuit, quelque part dans le Nord.</p>
+        <div class="entry-progress"><span></span></div>
+        <button id="enter" class="btn btn-primary" type="button" data-cursor="Entrer" disabled>
+          <svg class="ic" aria-hidden="true"><use href="#cc-point" /></svg>
+          <span>Entrer</span>
+        </button>
+        <p class="entry-hint">Avancez à la molette, ou au doigt</p>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <a class="wordmark small" href="#tour">CARCLAN</a>
+      <div class="status">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Bientôt sur iPhone et Android</span>
+        <a class="btn btn-ghost" href="#liste">Être prévenu</a>
+      </div>
+    </header>
+
+    <main id="tour">
+      <section class="panel hero" data-side="left">
+        <div class="copy">
+          <p class="eyebrow">Bientôt sur iPhone et Android</p>
+          <h1 class="display split">Les rassos près de chez vous.</h1>
+          <p class="lede split-words">CarClan est l’application des rassemblements automobiles. Trouver, y aller, revivre. On démarre dans les Hauts-de-France.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#liste" data-cursor="Liste d’attente">Être prévenu à la sortie <svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></a>
+          </div>
+        </div>
+        <div class="scroll-hint" aria-hidden="true"><span class="line"></span><span>Avancez</span></div>
+      </section>
+
+      <section class="panel" data-side="right">
+        <div class="copy">
+          <p class="eyebrow"><span class="num">01</span> Trouver</p>
+          <h2 class="title split">Tous les rassos du coin, sur une carte.</h2>
+          <p class="lede split-words">Expos, rassos statiques, sorties, trackdays, balades. Le calendrier du clan, filtrable par type et par organisateur. Plus jamais un rasso découvert le lendemain.</p>
+          <ul class="tags">
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-lieu" /></svg>Carte</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-dates" /></svg>Dates</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-filtres" /></svg>Filtres</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="panel" data-side="left">
+        <div class="copy">
+          <p class="eyebrow"><span class="num">02</span> Y aller</p>
+          <h2 class="title split">Un geste pour dire « j’y vais », un autre pour partir.</h2>
+          <p class="lede split-words">Inscription en un tap, itinéraire dans Waze, Google Maps ou Plans. Vos amis voient que vous y serez, et vous voyez qui vient.</p>
+          <ul class="tags">
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-participer" /></svg>J’y vais</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-itineraire" /></svg>Itinéraire</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-amis" /></svg>Amis</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="panel" data-side="right">
+        <div class="copy">
+          <p class="eyebrow"><span class="num">03</span> Revivre</p>
+          <h2 class="title split">Les photos du rasso, le soir même.</h2>
+          <p class="lede split-words">Le fil des participants, les avis, les prochaines dates du même organisateur. Un rassemblement ne s’arrête pas quand les moteurs se coupent.</p>
+          <ul class="tags">
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-camera" /></svg>Photos</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-commenter" /></svg>Avis</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#cc-communaute" /></svg>Clans</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="panel" data-side="left">
+        <div class="copy">
+          <p class="eyebrow">Le territoire</p>
+          <h2 class="title split">On démarre dans les Hauts-de-France.</h2>
+          <p class="lede split-words">Lille, Villeneuve-d’Ascq, Tourcoing, Dunkerque, Valenciennes, et la Belgique d’à côté : la région la plus dense de France en rassos. Le reste du pays suivra, organisateur par organisateur.</p>
+        </div>
+      </section>
+
+      <!-- Le plan de transition : pas de texte, la caméra avance vers l'enseigne. -->
+      <section class="panel travel" aria-hidden="true"></section>
+
+      <section class="panel final" id="liste" data-side="center">
+        <div class="copy">
+          <p class="eyebrow">Liste d’attente</p>
+          <h2 class="title split">Soyez prévenu à la sortie.</h2>
+          <form id="waitlist" class="waitlist" novalidate>
+            <label class="sr-only" for="email">Adresse e-mail</label>
+            <div class="field-row">
+              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="votre@adresse.fr" required />
+              <button class="btn btn-primary" type="submit" data-cursor="Envoyer"><span>Me prévenir</span><svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></button>
+            </div>
+            <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <p class="form-note">Votre adresse sert à une chose : vous prévenir quand CarClan sort. Pas de newsletter, pas de revente. Effacement sur simple demande à contact@carclan.fr.</p>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="foot-row">
+        <span class="wordmark small">CARCLAN</span>
+        <nav aria-label="Liens">
+          <a href="mailto:contact@carclan.fr">contact@carclan.fr</a>
+          <a href="https://youtube.com/@sasouk" rel="noopener" target="_blank">YouTube</a>
+          <a href="#legal">Mentions légales</a>
+        </nav>
+      </div>
+      <details id="legal" class="legal">
+        <summary>Mentions légales et confidentialité</summary>
+        <div class="legal-body">
+          <p><strong>Éditeur.</strong> Mathys Liénart, personne physique, Tourcoing, France. Contact : contact@carclan.fr.</p>
+          <p><strong>Hébergeur.</strong> GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis (GitHub Pages).</p>
+          <p><strong>Données personnelles.</strong> Le seul traitement de ce site est la liste d’attente : l’adresse e-mail que vous saisissez, la date de la saisie et la version de ce texte à ce moment-là. Finalité : vous prévenir de la sortie de l’application. Base légale : votre consentement. Les adresses sont stockées chez Supabase, Inc., sur des serveurs situés dans l’Union européenne (Francfort), et conservées jusqu’à la sortie de l’application, puis trois mois au plus. Aucun cookie, aucun traceur, aucune mesure d’audience. Vous pouvez demander l’accès, la rectification ou l’effacement de votre adresse à contact@carclan.fr, et introduire une réclamation auprès de la CNIL.</p>
+          <p><strong>Modèles 3D.</strong> Voitures issues du Car Kit et du Racing Kit de Kenney (kenney.nl) et du pack Cars de Quaternius, publiés sous licence CC0. Polices Familjen Grotesk et Instrument Sans, licence SIL Open Font.</p>
+          <p class="legal-date">Version du 12 septembre 2026.</p>
+        </div>
+      </details>
+    </footer>
+
+    <noscript><div class="nojs"><p>CarClan, l’application des rassemblements automobiles, arrive bientôt sur iPhone et Android. Pour être prévenu : contact@carclan.fr.</p></div></noscript>
+  </body>
+</html>

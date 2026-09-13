@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CarClan</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0b0b0d" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!--
+      La page de secours de GitHub Pages, servie pour toute adresse inconnue.
+      Elle sert a une chose : /rasso/<id> quand la page statique de ce rasso
+      n a pas encore ete pre-rendue (voir tools/build-rassos.mjs). Elle lit
+      alors la fiche depuis la base, avec la cle publiable, et la rend ici.
+      Les robots d apercu ne voient rien : c est la page statique qui porte
+      les balises Open Graph. Une personne, elle, voit la fiche.
+    -->
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #0b0b0d; color: #f2ece6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.5; }
+      a { color: #e6b8a2; }
+      .page { max-width: 640px; margin: 0 auto; padding: 16px 16px 40px; }
+      .cover { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 16px; background: linear-gradient(135deg, #2b2b31, #1a1a1f); }
+      .card { margin-top: 16px; background: #1a1a1f; border: 1px solid rgba(230, 184, 162, 0.08); border-radius: 16px; padding: 24px; }
+      .overline { margin: 0 0 12px; color: #e6b8a2; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+      h1 { margin: 0 0 20px; font-size: 30px; line-height: 1.15; letter-spacing: -0.01em; }
+      h2 { margin: 24px 0 8px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #c9b8a6; font-weight: 600; }
+      .facts { margin: 0; display: grid; gap: 12px; }
+      .facts div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; border-top: 1px solid rgba(230, 184, 162, 0.08); padding-top: 12px; }
+      .facts dt { margin: 0; color: #c9b8a6; font-size: 14px; }
+      .facts dd { margin: 0; font-size: 16px; }
+      .actions { display: grid; gap: 10px; margin-top: 24px; }
+      .button { display: block; text-align: center; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(230, 184, 162, 0.48); color: #f2ece6; text-decoration: none; font-weight: 600; }
+      .button.primary { background: #8e1d2d; border-color: #8e1d2d; }
+      .button.download { margin-top: 12px; }
+      .description p { margin: 0 0 12px; }
+      .note { margin: 24px 0 0; color: #c9b8a6; font-size: 14px; }
+      footer { margin-top: 24px; text-align: center; color: #c9b8a6; font-size: 13px; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <img id="cover" class="cover" alt="" hidden />
+      <article class="card">
+        <p class="overline" id="overline">CarClan</p>
+        <h1 id="title">Un instant…</h1>
+        <p id="message" class="note">La fiche arrive.</p>
+        <dl class="facts" id="facts" hidden></dl>
+        <div class="actions" id="actions" hidden></div>
+        <section class="description" id="description" hidden><h2>Description</h2></section>
+        <p class="note" id="note" hidden>La liste des inscrits, les photos et les avis se voient dans l’application.</p>
+        <a class="button download" href="/" rel="noopener">Télécharger CarClan</a>
+      </article>
+      <footer>Publié sur CarClan · <a href="/">carclan.fr</a></footer>
+    </main>
+    <script>
+      (function () {
+        var SUPABASE_URL = 'https://zheixbgssdfquresgtai.supabase.co';
+        var SUPABASE_KEY = 'sb_publishable_5BXrkwGrcB-YXA2uN5UqAA_mAY3iScd';
+        var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        var TYPES = { gathering: 'Rassemblement', official_motorsport: 'Motorsport officiel', track_day: 'Track day', exhibition: 'Exposition', legal_rally: 'Rallye', convoy: 'Balade', photo_session: 'Session photo', brand_meet: 'Rencontre marque', community_meet: 'Rencontre communauté' };
+        var ENTRIES = { free_entry: 'Entrée libre', registration: 'Sur inscription', paid_external: 'Payant, voir le site' };
+        var EXTERNAL = { registration: 'S’inscrire sur le site', paid_external: 'Billets sur le site', free_entry: 'Site de l’organisateur' };
+
+        var byId = function (id) { return document.getElementById(id); };
+        var text = function (id, value) { byId(id).textContent = value; };
+
+        function notFound(heading, message) {
+          text('overline', 'CarClan');
+          text('title', heading || 'Page introuvable');
+          text('message', message || 'Cette adresse ne mène nulle part. Le site, lui, est à un tap.');
+          document.title = (heading || 'Page introuvable') + ' · CarClan';
+        }
+
+        function idFromLocation() {
+          var match = location.pathname.match(/\/rasso\/([^/?#]+)\/?$/i);
+          var id = match ? match[1] : new URLSearchParams(location.search).get('id');
+          return id && UUID.test(id) ? id : null;
+        }
+
+        function formatDate(startsAt, endsAt) {
+          var starts = new Date(startsAt);
+          if (isNaN(starts.getTime())) return 'Date à confirmer';
+          var day = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(starts);
+          day = day.charAt(0).toUpperCase() + day.slice(1);
+          var time = function (d) { return new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).format(d).replace(' ', ''); };
+          var line = day + ' · ' + time(starts);
+          var ends = endsAt ? new Date(endsAt) : null;
+          if (ends && !isNaN(ends.getTime())) {
+            var short = function (d) { return new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', dateStyle: 'short' }).format(d); };
+            line += short(ends) === short(starts)
+              ? ' à ' + time(ends)
+              : ', jusqu’au ' + new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long' }).format(ends) + ' ' + time(ends);
+          }
+          return line;
+        }
+
+        function price(data) {
+          if (data.is_free === true) return 'Gratuit';
+          var amount = Number(data.price_amount);
+          if (!isFinite(amount) || data.price_amount === null) return 'Payant';
+          return (Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2).replace('.', ',')) + ' ' + (data.currency || 'EUR');
+        }
+
+        // Jamais « 0 inscrit ».
+        function participants(count) {
+          var joined = Math.max(0, Math.trunc(Number(count) || 0));
+          return joined <= 0 ? 'Soyez le premier' : joined + ' inscrit' + (joined === 1 ? '' : 's');
+        }
+
+        function externalUrl(value) {
+          if (!value || /\s/.test(value)) return null;
+          try { var u = new URL(value); return (u.protocol === 'https:' || u.protocol === 'http:') ? u.toString() : null; } catch (e) { return null; }
+        }
+
+        function fact(label, value) {
+          var row = document.createElement('div');
+          var dt = document.createElement('dt'); dt.textContent = label;
+          var dd = document.createElement('dd'); dd.textContent = value;
+          row.appendChild(dt); row.appendChild(dd);
+          byId('facts').appendChild(row);
+        }
+
+        function button(label, href, primary, nofollow) {
+          var a = document.createElement('a');
+          a.className = 'button' + (primary ? ' primary' : '');
+          a.href = href; a.rel = nofollow ? 'noopener nofollow' : 'noopener'; a.textContent = label;
+          byId('actions').appendChild(a);
+        }
+
+        function render(data) {
+          var title = (data.title || '').trim() || 'Rasso';
+          document.title = title + ' · CarClan';
+          text('overline', TYPES[data.type] || 'Rassemblement');
+          text('title', title);
+          byId('message').hidden = true;
+
+          if (data.cover_image_path) {
+            var cover = byId('cover');
+            cover.src = SUPABASE_URL + '/storage/v1/object/public/event-covers/' + data.cover_image_path.split('/').map(encodeURIComponent).join('/');
+            cover.hidden = false;
+          }
+
+          fact('Quand', formatDate(data.starts_at, data.ends_at));
+          if (data.address) fact('Où', data.address);
+          fact('Organisé par', (data.organizer || '').trim() || 'Organisateur');
+          fact('Entrée', (ENTRIES[data.entry_mode] || 'Entrée libre') + ' · ' + price(data));
+          fact('Inscrits', participants(data.participant_count));
+          var rating = Number(data.average_rating);
+          if (isFinite(rating) && data.average_rating !== null && Number(data.review_count) > 0) {
+            fact('Avis', rating.toFixed(1).replace('.', ',') + ' sur ' + Number(data.review_count) + ' avis');
+          }
+          if (data.venue_authorized) fact('Lieu', 'Lieu privé ou autorisé');
+          byId('facts').hidden = false;
+
+          button('Ouvrir dans CarClan', 'carclan://events/' + data.id, true, false);
+          var lat = Number(data.latitude), lng = Number(data.longitude);
+          if (data.latitude !== null && data.longitude !== null && isFinite(lat) && isFinite(lng)) {
+            button('Y aller', 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng, false, false);
+          }
+          var link = externalUrl(data.external_url);
+          if (link) button(EXTERNAL[data.entry_mode] || 'Site de l’organisateur', link, false, true);
+          byId('actions').hidden = false;
+
+          var description = (data.description || '').trim();
+          if (description) {
+            var section = byId('description');
+            description.split(/\r?\n\s*\r?\n/).forEach(function (block) {
+              var p = document.createElement('p');
+              block.split(/\r?\n/).forEach(function (line, index) {
+                if (index > 0) p.appendChild(document.createElement('br'));
+                p.appendChild(document.createTextNode(line));
+              });
+              section.appendChild(p);
+            });
+            section.hidden = false;
+          }
+          byId('note').hidden = false;
+        }
+
+        var id = idFromLocation();
+        if (!id) { notFound(); return; }
+
+        fetch(SUPABASE_URL + '/rest/v1/rpc/public_event_page', {
+          method: 'POST',
+          headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_event_id: id })
+        }).then(function (res) { return res.ok ? res.json() : null; })
+          .then(function (data) {
+            if (!data || typeof data !== 'object' || !data.id) {
+              notFound('Ce rasso n’est pas disponible', 'Il n’est pas publié, ou son organisateur l’a retiré.');
+              return;
+            }
+            render(data);
+          })
+          .catch(function () { notFound('Réessayez dans un instant', 'La fiche n’a pas pu être chargée.'); });
+      })();
+    </script>
+  </body>
+</html>
