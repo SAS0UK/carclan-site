@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node tools/build-rassos.mjs",
     "preview": "vite preview --port 4173",
     "deploy": "bash tools/deploy.sh"
   },
