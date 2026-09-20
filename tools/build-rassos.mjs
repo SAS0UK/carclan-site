@@ -23,6 +23,10 @@ const SUPABASE_KEY = 'sb_publishable_5BXrkwGrcB-YXA2uN5UqAA_mAY3iScd';
 const SITE_URL = 'https://carclan.fr';
 const DEFAULT_IMAGE = `${SITE_URL}/og.png`;
 const OUT_DIR = path.resolve('dist', 'rasso');
+// A remplacer par le vrai lien de la fiche App Store des la publication
+// (TestFlight puis App Store, prevue le 25 octobre 2026). Meme repli que
+// public/404.html.
+const APP_STORE_URL = SITE_URL;
 
 const TYPE_LABELS = {
   gathering: 'Rassemblement',
@@ -254,7 +258,7 @@ export function renderRassoPage(page) {
       ${page.venue_authorized ? '<div><dt>Lieu</dt><dd>Lieu privé ou autorisé</dd></div>' : ''}
     </dl>
     <div class="actions">
-      <a class="button primary" href="carclan://events/${escapeHtml(page.id)}">Ouvrir dans CarClan</a>
+      <a class="button primary" id="open-app" href="carclan://events/${escapeHtml(page.id)}">Ouvrir dans CarClan</a>
       ${mapsUrl ? `<a class="button" href="${escapeHtml(mapsUrl)}" rel="noopener">Y aller</a>` : ''}
       ${externalUrl ? `<a class="button" href="${escapeHtml(externalUrl)}" rel="noopener nofollow">${escapeHtml(EXTERNAL_LABELS[page.entry_mode] ?? 'Site de l’organisateur')}</a>` : ''}
     </div>
@@ -264,6 +268,27 @@ export function renderRassoPage(page) {
   </article>
   <footer>Publié sur CarClan · <a href="${SITE_URL}">carclan.fr</a></footer>
 </main>
+<script>
+  // Ouvre l'app par son schema, et si rien n'a pris la main (la page reste
+  // visible passe un delai court), retombe sur l'App Store. Meme mecanique
+  // que public/404.html, voir son commentaire pour le detail.
+  (function () {
+    var a = document.getElementById('open-app');
+    if (!a) return;
+    a.addEventListener('click', function (event) {
+      event.preventDefault();
+      var scheme = a.getAttribute('href');
+      var tookOver = false;
+      function onHide() { if (document.hidden) tookOver = true; }
+      document.addEventListener('visibilitychange', onHide);
+      window.location.href = scheme;
+      setTimeout(function () {
+        document.removeEventListener('visibilitychange', onHide);
+        if (!tookOver) window.location.href = ${JSON.stringify(APP_STORE_URL)};
+      }, 1500);
+    });
+  })();
+</script>
 </body>
 </html>
 `;

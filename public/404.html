@@ -60,7 +60,29 @@
       (function () {
         var SUPABASE_URL = 'https://zheixbgssdfquresgtai.supabase.co';
         var SUPABASE_KEY = 'sb_publishable_5BXrkwGrcB-YXA2uN5UqAA_mAY3iScd';
+        // A remplacer par le vrai lien de la fiche App Store des la publication
+        // (TestFlight puis App Store, prevue le 25 octobre 2026). En attendant,
+        // quelqu'un sans l'app retombe sur le site plutot que sur une erreur.
+        var APP_STORE_URL = 'https://carclan.fr';
         var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+        // Ouvre l'app par son schema `carclan://`, et si rien n'a pris la main
+        // (la page reste visible passe un delai court), retombe sur l'App
+        // Store. Aucun besoin d'Associated Domains ni de compte payant : c'est
+        // une bascule cote page web, pas un lien universel iOS. Le seul signal
+        // fiable sur iOS Safari est que l'onglet passe en arriere-plan quand
+        // l'app prend le relais ; sans ce signal dans le delai, on suppose
+        // qu'elle n'est pas installee.
+        function openAppOrStore(scheme) {
+          var tookOver = false;
+          function onHide() { if (document.hidden) tookOver = true; }
+          document.addEventListener('visibilitychange', onHide);
+          window.location.href = scheme;
+          setTimeout(function () {
+            document.removeEventListener('visibilitychange', onHide);
+            if (!tookOver) window.location.href = APP_STORE_URL;
+          }, 1500);
+        }
         var TYPES = { gathering: 'Rassemblement', official_motorsport: 'Motorsport officiel', track_day: 'Track day', exhibition: 'Exposition', legal_rally: 'Rallye', convoy: 'Balade', photo_session: 'Session photo', brand_meet: 'Rencontre marque', community_meet: 'Rencontre communauté' };
         var ENTRIES = { free_entry: 'Entrée libre', registration: 'Sur inscription', paid_external: 'Payant, voir le site' };
         var EXTERNAL = { registration: 'S’inscrire sur le site', paid_external: 'Billets sur le site', free_entry: 'Site de l’organisateur' };
@@ -135,6 +157,21 @@
           byId('actions').appendChild(a);
         }
 
+        // Le bouton d'ouverture de l'app garde son `href` en `carclan://`
+        // (un lien copiable, un clic du milieu ou un navigateur sans JS
+        // l'ouvrent quand meme), mais un clic normal passe par le bascule
+        // avec repli App Store.
+        function appButton(label, scheme) {
+          var a = document.createElement('a');
+          a.className = 'button primary';
+          a.href = scheme; a.rel = 'noopener'; a.textContent = label;
+          a.addEventListener('click', function (event) {
+            event.preventDefault();
+            openAppOrStore(scheme);
+          });
+          byId('actions').appendChild(a);
+        }
+
         function render(data) {
           var title = (data.title || '').trim() || 'Rasso';
           document.title = title + ' · CarClan';
@@ -160,7 +197,7 @@
           if (data.venue_authorized) fact('Lieu', 'Lieu privé ou autorisé');
           byId('facts').hidden = false;
 
-          button('Ouvrir dans CarClan', 'carclan://events/' + data.id, true, false);
+          appButton('Ouvrir dans CarClan', 'carclan://events/' + data.id);
           var lat = Number(data.latitude), lng = Number(data.longitude);
           if (data.latitude !== null && data.longitude !== null && isFinite(lat) && isFinite(lng)) {
             button('Y aller', 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng, false, false);
