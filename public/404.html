@@ -75,10 +75,14 @@
           document.title = (heading || 'Page introuvable') + ' · CarClan';
         }
 
-        function idFromLocation() {
+        // Deux formes : /rasso/<uuid>, et /r/<code> a six caracteres, celle que
+        // la carte de story grave en clair et en QR (migration 0063).
+        function targetFromLocation() {
+          var byCode = location.pathname.match(/\/r\/([23456789A-HJKMNP-Za-hjkmnp-z]{6})\/?$/);
+          if (byCode) return { code: byCode[1].toUpperCase() };
           var match = location.pathname.match(/\/rasso\/([^/?#]+)\/?$/i);
           var id = match ? match[1] : new URLSearchParams(location.search).get('id');
-          return id && UUID.test(id) ? id : null;
+          return id && UUID.test(id) ? { id: id } : null;
         }
 
         function formatDate(startsAt, endsAt) {
@@ -181,13 +185,13 @@
           byId('note').hidden = false;
         }
 
-        var id = idFromLocation();
-        if (!id) { notFound(); return; }
+        var target = targetFromLocation();
+        if (!target) { notFound(); return; }
 
-        fetch(SUPABASE_URL + '/rest/v1/rpc/public_event_page', {
+        fetch(SUPABASE_URL + '/rest/v1/rpc/' + (target.code ? 'public_event_page_by_code' : 'public_event_page'), {
           method: 'POST',
           headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ target_event_id: id })
+          body: JSON.stringify(target.code ? { target_code: target.code } : { target_event_id: target.id })
         }).then(function (res) { return res.ok ? res.json() : null; })
           .then(function (data) {
             if (!data || typeof data !== 'object' || !data.id) {
