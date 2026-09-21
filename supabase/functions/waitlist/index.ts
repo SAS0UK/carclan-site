@@ -15,6 +15,10 @@
 const URL_SUPABASE = Deno.env.get('SUPABASE_URL')!;
 const CLE_PUBLIABLE = Deno.env.get('SUPABASE_ANON_KEY')!;
 const CLE_RESEND = Deno.env.get('RESEND_API_KEY') ?? '';
+// `noreply@carclan.fr` n'est PAS une boîte aux lettres : c'est une identité
+// d'expédition, autorisée parce que le domaine carclan.fr est vérifié chez
+// Resend. Rien n'arrive jamais à cette adresse, d'où le `reply_to` plus bas
+// qui renvoie vers la vraie boîte OVH. Se change ici sans redéploiement.
 const EXPEDITEUR = Deno.env.get('WAITLIST_FROM') ?? 'CarClan <noreply@carclan.fr>';
 
 // Le site est la seule origine attendue. `null` couvre les ouvertures de
@@ -54,8 +58,8 @@ const OBJET = "C’est noté, vous êtes sur la liste";
 
 const TEXTE = `Bienvenue dans le clan.
 
-Le jour où CarClan sort sur iPhone et Android, on écrit à cette adresse.
-Un message, et rien d’autre.
+Merci d’être là avant tout le monde. On vous écrit dès que CarClan arrive
+sur iPhone et Android.
 
 Vous organisez des rassos, vous tenez un garage ou une enseigne ? Répondez
 simplement à ce message.
@@ -112,7 +116,7 @@ const html = () => `<!doctype html>
 <title>C’est not\u00e9</title>
 </head>
 <body style="margin:0;padding:0;background:${NUIT};">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">On vous \u00e9crit le jour o\u00f9 CarClan sort. Un message, et rien d’autre.</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">On vous \u00e9crit d\u00e8s que CarClan arrive sur iPhone et Android.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NUIT};">
 <tr><td style="height:3px;font-size:0;line-height:3px;background:${AMBRE};">&nbsp;</td></tr>
 ${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>`)}
@@ -131,7 +135,7 @@ ${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBR
 
   ${air(22)}
   <tr><td align="center" style="padding:0 24px;">
-    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Le jour o\u00f9 CarClan sort sur iPhone et Android, on vous \u00e9crit. Un message, et rien d’autre.</p>
+    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Merci d’\u00eatre l\u00e0 avant tout le monde. On vous \u00e9crit d\u00e8s que CarClan arrive sur iPhone et Android.</p>
   </td></tr>
 
   ${air(38)}
