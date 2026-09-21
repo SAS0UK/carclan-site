@@ -1,158 +1,94 @@
-import './style.css';
-import 'lenis/dist/lenis.css';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
-import Lenis from 'lenis';
+// L'accueil de carclan.fr. Le HTML se suffit : tout ce qui suit est un
+// supplément, jamais une condition pour lire la page. La scène 3D se charge
+// après le contenu, dans un temps mort du navigateur, et n'existe pas pour
+// qui a demandé moins de mouvement.
+import './tokens.css';
+import './site.css';
 import { mountIcons } from './icons.js';
-import { createScene } from './scene.js';
-import { setupText } from './text.js';
 import { setupWaitlist } from './waitlist.js';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
 mountIcons();
-
-if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-window.scrollTo(0, 0);
-
-const html = document.documentElement;
-const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const cores = navigator.hardwareConcurrency || 8;
-const lite = isTouch || cores < 4 || new URLSearchParams(location.search).has('lite');
-html.classList.add('locked');
-if (isTouch) html.classList.add('touch');
-
-const canvas = document.getElementById('scene');
-const world = createScene(canvas, { lite, reduced, touch: isTouch, onProgress: (p) => { const bar = document.querySelector('.entry-progress span'); if (bar) bar.style.transform = `scaleX(${0.15 + p * 0.75})`; } });
-
-// Lenis lisse la molette et le trackpad ; ScrollTrigger lit la position native.
-const lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1, smoothWheel: true });
-lenis.stop();
-lenis.on('scroll', (e) => { ScrollTrigger.update(); world.setVelocity(e.velocity || 0); });
-gsap.ticker.lagSmoothing(0);
-ScrollTrigger.config({ ignoreMobileResize: true });
-
-let frames = 0, fpsAccum = 0, fpsWindow = 0, watching = false, watchStart = 0, watchFrames = 0;
-const stats = new URLSearchParams(location.search).has('stats') ? makeStats() : null;
-
-gsap.ticker.add((time, delta) => {
-  lenis.raf(time * 1000);
-  const dt = Math.min(delta / 1000, 0.05);
-  world.update(dt);
-  frames++; fpsWindow += dt;
-  if (fpsWindow >= 0.5) {
-    const fps = frames / fpsWindow;
-    if (stats) stats.textContent = `${fps.toFixed(0)} fps · dpr ${world.dpr} · ${world.lite ? 'lite' : 'full'}`;
-    if (watching) { fpsAccum += fps; watchFrames++; if (time - watchStart > 4) { watching = false; if (fpsAccum / watchFrames < 52) world.degrade(); } }
-    frames = 0; fpsWindow = 0;
-  }
-});
-
-ScrollTrigger.create({
-  trigger: '#tour', start: 'top top', end: 'bottom bottom',
-  onUpdate: (self) => world.setProgress(self.progress),
-});
-
-let text = null;
 setupWaitlist(document.getElementById('waitlist'));
 
-// Curseur
-const cursor = document.createElement('div');
-cursor.className = 'cursor';
-document.body.appendChild(cursor);
-gsap.set(cursor, { xPercent: -50, yPercent: -50, x: -100, y: -100 });
-const cursorX = gsap.quickTo(cursor, 'x', { duration: 0.32, ease: 'power3' });
-const cursorY = gsap.quickTo(cursor, 'y', { duration: 0.32, ease: 'power3' });
-document.addEventListener('pointerover', (e) => {
-  const hot = e.target.closest('a, button, input, summary');
-  cursor.classList.toggle('hot', !!hot);
-  const labelled = e.target.closest('[data-cursor]');
-  cursor.dataset.label = labelled ? labelled.dataset.cursor : '';
-  cursor.classList.toggle('labelled', !!labelled);
-});
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const touch = matchMedia('(hover: none), (pointer: coarse)').matches;
+const cores = navigator.hardwareConcurrency || 8;
+const params = new URLSearchParams(location.search);
+const lite = touch || cores < 4 || params.has('lite');
 
-window.addEventListener('pointermove', (e) => {
-  world.setPointer((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
-  cursorX(e.clientX); cursorY(e.clientY);
-}, { passive: true });
-let resizeTimer = 0;
-window.addEventListener('resize', () => { world.resize(); clearTimeout(resizeTimer); resizeTimer = setTimeout(computeStations, 200); });
-
-// Les gares de la caméra suivent la mise en page : arrivée quand le texte a
-// fini de se composer, départ quand il commence à se défaire.
-function computeStations() {
-  const vh = window.innerHeight;
-  // Même dénominateur que le ScrollTrigger de #tour (qui s'arrête avant le
-  // pied de page), sinon les gares glissent.
-  const max = Math.max(1, document.getElementById('tour').offsetHeight - vh);
-  const list = [{ p0: 0, p1: 0.012, t: 0 }];
-  const panels = Array.from(document.querySelectorAll('.panel'));
-  let n = 0;
-  panels.forEach((panel) => {
-    if (panel.classList.contains('travel')) return; // le plan de transition n'a pas de gare
-    const i = n++;
-    if (i === 0) return;
-    const top = panel.getBoundingClientRect().top + window.scrollY;
-    const h = panel.offsetHeight;
-    if (panel.classList.contains('final')) { list.push({ p0: Math.min(1, (top - vh * 0.6) / max), p1: 1, t: 1 }); return; }
-    const start = top - vh * 0.8, end = top + h - vh * 0.2;
-    list.push({ p0: (start + 0.3 * (end - start)) / max, p1: (start + 0.76 * (end - start)) / max, t: i / 5 });
-  });
-  world.setStations(list);
+// Les apparitions : une fois, à l'entrée dans l'écran, huit pixels de
+// translation. Sans JavaScript, ou en mouvement réduit, tout est visible
+// d'emblée (voir site.css, html.js [data-reveal]).
+if (!reduced && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+} else {
+  document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in'));
 }
 
-// Ancres en défilement doux
-document.querySelectorAll('a[href^="#"]').forEach((a) => {
-  a.addEventListener('click', (e) => {
-    const target = document.querySelector(a.getAttribute('href'));
-    if (!target) return;
-    e.preventDefault();
-    lenis.scrollTo(target, { duration: 2.4, easing: (t) => 1 - Math.pow(1 - t, 3) });
-  });
-});
-
-// L'entrée
-const entry = document.getElementById('entry');
-const bar = entry.querySelector('.entry-progress span');
-const enterBtn = document.getElementById('enter');
+// La barre haute se remplit d'un voile dès qu'on quitte le haut de page.
 const topbar = document.querySelector('.topbar');
+const onScroll = () => topbar && topbar.classList.toggle('on', window.scrollY > 24);
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
-async function load() {
-  bar.style.transform = 'scaleX(.15)';
-  await document.fonts.ready;
-  text = setupText({ lite, reduced });
-  await world.ready;
-  bar.style.transform = 'scaleX(1)';
-  entry.classList.add('ready');
-  enterBtn.disabled = false;
+// ---- La scène ------------------------------------------------------------------
+const canvas = document.getElementById('scene');
+
+async function mountScene() {
+  if (!canvas || params.has('noscene')) return;
+  let world;
+  try {
+    const { createScene } = await import('./scene.js');
+    world = createScene(canvas, { lite, reduced, touch });
+  } catch (err) {
+    // Pas de WebGL, ou un pilote qui refuse : la page reste entière.
+    console.warn('Scène indisponible :', err);
+    canvas.remove();
+    return;
+  }
+
+  const doc = document.documentElement;
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+    world.setProgress(window.scrollY / max);
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  window.addEventListener('resize', () => { world.resize(); update(); });
+  update();
+  world.start();
+
+  // Quatre secondes de mesure après le départ : sous 45 images par
+  // seconde, on dégrade une fois, sans le dire.
+  if (!reduced) {
+    let frames = 0;
+    const t0 = performance.now();
+    const count = () => {
+      frames++;
+      const t = performance.now() - t0;
+      if (t < 4000) requestAnimationFrame(count);
+      else if (frames / (t / 1000) < 45) world.degrade();
+    };
+    requestAnimationFrame(count);
+  }
 }
 
-function enter() {
-  gsap.set(entry, { pointerEvents: 'none' });
-  gsap.timeline()
-    .to(entry.querySelector('.wordmark'), { letterSpacing: '0.9em', duration: 1.3, ease: 'power3.in' }, 0)
-    .to(entry.querySelector('.entry-inner'), { opacity: 0, scale: 1.1, filter: reduced ? 'blur(0px)' : 'blur(12px)', duration: 1.1, ease: 'power3.in' }, 0)
-    .to(entry, { opacity: 0, duration: 0.8, ease: 'power2.inOut' }, 0.5);
-  world.enter();
-  gsap.delayedCall(reduced ? 0.2 : 3.1, () => text && text.playHero());
-  gsap.delayedCall(reduced ? 0.5 : 4.6, () => {
-    html.classList.remove('locked');
-    lenis.start();
-    ScrollTrigger.refresh();
-    computeStations();
-    topbar.classList.add('on');
-  });
-  setTimeout(() => entry.remove(), 1700);
-  watching = true; watchStart = gsap.ticker.time; fpsAccum = 0; watchFrames = 0;
+// La scène ne démarre qu'une fois la page entièrement chargée, puis dans un
+// temps mort du navigateur. Monter trois cents objets et compiler leurs
+// shaders coûte près de deux secondes de fil principal : fait plus tôt, ce
+// travail retarde le premier clic possible sur « Être prévenu », qui est la
+// seule chose que la page ait à faire. La scène est un décor, elle passe
+// après.
+function planifierScene() {
+  if ('requestIdleCallback' in window) requestIdleCallback(mountScene, { timeout: 3000 });
+  else setTimeout(mountScene, 600);
 }
 
-enterBtn.addEventListener('click', enter, { once: true });
-load();
-
-function makeStats() {
-  const el = document.createElement('div');
-  el.className = 'stats';
-  document.body.appendChild(el);
-  return el;
-}
+if (document.readyState === 'complete') planifierScene();
+else window.addEventListener('load', planifierScene, { once: true });

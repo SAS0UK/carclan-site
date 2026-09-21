@@ -1,6 +1,6 @@
 // Sous-ensemble du jeu d'icônes CarClan (tools/carclan-icons.js du dépôt de
 // l'application) : grille 24, trait 2, bouts ronds, le « point » comme motif.
-const S = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const S = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"';
 const dot = (x, y, r = 2.5) => `<circle cx="${x}" cy="${y}" r="${r}" fill="currentColor" stroke="none"/>`;
 
 const ICONS = {
@@ -16,6 +16,7 @@ const ICONS = {
   communaute: `<circle cx="9" cy="12" r="5.5" ${S}/><circle cx="15" cy="12" r="5.5" ${S}/>`,
   suivant: `<path d="M4 12h16M14 6l6 6-6 6" ${S}/>`,
   check: `<path d="M5 12l5 5 9-10" ${S}/>`,
+  lien: `<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" ${S}/>`,
   chevron: `<path d="M9 5l7 7-7 7" ${S}/>`,
 };
 

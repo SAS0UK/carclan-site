@@ -1,0 +1,374 @@
+/* L'accueil de carclan.fr, sur les jetons de tokens.css.
+   Le rythme de la page : la scène en ouverture, le produit posé dedans ;
+   puis des sections sur fond nuit plein, où l'on lit ; puis la scène
+   revient pour la fin. Le texte n'est jamais posé directement sur la
+   lumière : là où la scène est visible, il a son voile, et le contraste ne
+   dépend pas de ce qui passe derrière. Sans JavaScript, la scène n'existe
+   pas et tout se lit sur le fond nuit. */
+
+/* ---- La scène ----------------------------------------------------------------- */
+
+#scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+
+#scene.on { opacity: 1; }
+
+/* ---- La barre haute ------------------------------------------------------------ */
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: 12px var(--page);
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.topbar.on {
+  background: var(--nuit-heavy);
+  border-color: var(--filet);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+
+.topbar nav { display: flex; align-items: center; gap: var(--s-5); }
+.topbar nav > a:not(.btn) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--bitume-clair);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+.topbar nav > a:not(.btn):hover { color: var(--craie); }
+
+/* ---- Les éléments de texte ---------------------------------------------------------- */
+
+main { position: relative; z-index: 10; }
+
+.surtitre { display: flex; align-items: center; gap: 10px; margin: 0 0 var(--s-4); }
+.surtitre .num { color: var(--craie); font-feature-settings: 'tnum'; }
+.surtitre .puce { width: 8px; height: 8px; border-radius: var(--r-sm); background: var(--ambre); flex: none; }
+
+.lede {
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.5;
+  color: var(--bitume-clair);
+  margin: 0;
+  max-width: 34rem;
+}
+
+.para { font-size: 15px; line-height: 22px; color: var(--bitume-clair); margin: 0; max-width: 30rem; }
+
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; }
+
+/* Les chips : hauteur 36, pilule, contour clair. */
+.chips { list-style: none; padding: 0; margin: var(--s-5) 0 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--h-chip);
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--filet-clair);
+  color: var(--craie);
+  font-size: 13px;
+  line-height: 16px;
+}
+.chips .ic { color: var(--ambre); width: 18px; height: 18px; }
+
+/* ---- Le téléphone ------------------------------------------------------------------ */
+
+/* Un cadre en CSS, pas une image de téléphone : il suit la couleur du site
+   et n'appartient à personne. Rayon large, bord clair, ombre longue. */
+.tel {
+  position: relative;
+  width: min(320px, 74vw);
+  aspect-ratio: 9 / 19.5;
+  margin: 0 auto;
+  padding: 10px;
+  border-radius: 46px;
+  background: var(--surface-2);
+  border: 1px solid var(--filet-clair);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 60px 90px -30px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.tel .ecran { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; background: var(--surface); }
+.tel img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- Le premier écran -------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  padding: 150px var(--page) 0;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--s-7);
+}
+
+/* Le voile sous le texte : un dégradé vertical, dense en haut, qui se
+   dissipe sur le téléphone pour laisser passer la lumière. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--nuit-dense) 0%, var(--nuit-heavy) 32%, rgba(15, 14, 12, 0.35) 62%, rgba(15, 14, 12, 0) 100%);
+  pointer-events: none;
+}
+
+.hero-texte { position: relative; max-width: 46rem; display: grid; justify-items: center; }
+.hero-texte .surtitre { justify-content: center; }
+.hero-texte h1 { margin: 0 0 var(--s-5); }
+.hero-texte .lede { margin: 0 auto var(--s-6); }
+.hero-texte .actions { justify-content: center; }
+
+.tel-hero { width: min(360px, 78vw); }
+
+/* Le reflet du téléphone dans le bitume : sa propre image retournée,
+   noyée dans un dégradé, comme la lampe dans la flaque. */
+.tel-hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  height: 46%;
+  border-radius: 46px 46px 0 0;
+  background: linear-gradient(180deg, rgba(226, 162, 31, 0.16), rgba(226, 162, 31, 0) 80%);
+  filter: blur(14px);
+  pointer-events: none;
+}
+
+/* ---- Les sections pleines --------------------------------------------------------- */
+
+.section { position: relative; }
+.section.pleine { background: var(--nuit); padding: 120px 0; }
+.section.pleine + .section.pleine { padding-top: 0; }
+.cadre { max-width: 1160px; margin: 0 auto; padding: 0 var(--page); }
+
+.intro { max-width: 44rem; margin-bottom: var(--s-7); }
+.intro h2 { margin: 0 0 var(--s-4); }
+
+.rangee-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s-7);
+  align-items: center;
+  padding: var(--s-7) 0;
+  border-top: 1px solid var(--filet);
+}
+
+.rangee-2 .texte h3 { margin: 0 0 var(--s-4); }
+.rangee-2.inverse .texte { order: 2; }
+.rangee-2 .tel { width: min(300px, 70vw); }
+
+.etapes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.etapes li {
+  padding: var(--s-5);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--r-lg);
+}
+
+.etapes h3 { margin: var(--s-4) 0 var(--s-2); }
+
+.etape-n {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--ambre);
+  color: var(--nuit);
+  font-size: 18px;
+  font-variation-settings: 'wght' 800, 'wdth' 100;
+}
+
+.publics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); }
+
+.carte {
+  display: grid;
+  align-content: start;
+  gap: var(--s-4);
+  padding: var(--s-6);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--r-xl);
+}
+
+.carte .surtitre { margin: 0; }
+.carte h3 { margin: 0; }
+.carte .btn { justify-self: start; margin-top: var(--s-2); }
+
+.territoire { max-width: 44rem; padding-top: var(--s-7); border-top: 1px solid var(--filet); }
+.territoire h2 { margin: 0 0 var(--s-4); }
+
+/* ---- La fin, sur la scène ------------------------------------------------------------ */
+
+.section.finale {
+  min-height: 100svh;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  padding: 120px var(--page);
+  text-align: center;
+}
+
+/* Le bloc de texte, sur son voile : nuit à 72 % et un flou, un filet, le
+   rayon des feuilles. Sur le voile, la craie tient 12:1 même devant une
+   lampe : le contraste ne dépend pas de la scène. */
+.bloc {
+  width: min(40rem, 100%);
+  padding: var(--s-6);
+  background: var(--nuit-heavy);
+  border: 1px solid var(--filet);
+  border-radius: var(--r-xl);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.bloc .surtitre { justify-content: center; }
+.bloc h2 { margin: 0 0 var(--s-5); }
+
+/* ---- La liste d'attente --------------------------------------------------------------- */
+
+.attente { display: grid; gap: var(--s-3); text-align: left; position: relative; }
+.rangee { display: flex; gap: 10px; }
+
+.rangee input {
+  flex: 1;
+  min-width: 0;
+  height: var(--h-champ);
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  color: var(--craie);
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rangee input:focus { border-color: var(--ambre); box-shadow: 0 0 0 4px rgba(226, 162, 31, 0.24); }
+.rangee input:focus-visible { outline: none; }
+.rangee input::placeholder { color: var(--bitume); }
+
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+.note { margin: 0; font-size: 13px; line-height: 18px; color: var(--bitume-clair); }
+.note a { color: var(--craie); text-underline-offset: 3px; }
+
+.etat-envoi { min-height: 20px; margin: 0; font-size: 14px; line-height: 20px; color: var(--craie); display: flex; align-items: center; gap: 8px; }
+.etat-envoi:empty { display: none; }
+.etat-envoi.erreur::before { content: '!'; flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: var(--r-sm); background: var(--danger); color: var(--craie); font-size: 12px; }
+.attente.done .rangee { display: none; }
+.attente.done .etat-envoi { font-size: 18px; line-height: 24px; font-variation-settings: 'wght' 700, 'wdth' 100; }
+
+.magasins { list-style: none; padding: 0; margin: var(--s-5) 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2); }
+.magasin {
+  display: inline-flex;
+  align-items: center;
+  height: var(--h-chip);
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--filet-clair);
+  color: var(--bitume-clair);
+  font-size: 13px;
+}
+
+/* ---- Les apparitions --------------------------------------------------------------- */
+
+html.js [data-reveal] { opacity: 0; transform: translateY(10px); transition: opacity 0.7s ease, transform 0.7s var(--courbe); }
+html.js [data-reveal].in { opacity: 1; transform: none; }
+
+/* ---- Sans JavaScript ---------------------------------------------------------------- */
+
+noscript .sansjs { padding: 12px var(--page); background: var(--surface); border-bottom: 1px solid var(--filet); color: var(--bitume-clair); font-size: 14px; position: relative; z-index: 30; }
+
+/* ---- Écrans moyens et petits ------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .rangee-2 { grid-template-columns: 1fr; gap: var(--s-6); }
+  .rangee-2.inverse .texte { order: 0; }
+  .etapes { grid-template-columns: 1fr; }
+  .publics { grid-template-columns: 1fr; }
+  .topbar nav > a:not(.btn) { display: none; }
+}
+
+@media (max-width: 720px) {
+  .hero { padding-top: 120px; gap: var(--s-6); }
+  .section.pleine { padding: 88px 0; }
+  .bloc { padding: var(--s-5); }
+  .rangee { flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .btn, .topbar { transition: none; }
+}
+
+/* ---- La planche d'affiches ---------------------------------------------- */
+
+/* Les affiches de rasso : nos propres visuels, en Sodium. Elles remplacent
+   une capture là où l'app afficherait des photos qui ne nous appartiennent
+   pas, et elles disent ce qu'est un rasso mieux qu'une liste. */
+.affiches {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3);
+}
+
+.affiches li { margin: 0; }
+
+.affiches img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--filet);
+}
+
+/* La première affiche déborde légèrement : la planche respire au lieu de
+   former un bloc de quatre carrés identiques. */
+.affiches li:nth-child(1) { transform: translateY(-14px); }
+.affiches li:nth-child(4) { transform: translateY(14px); }
+
+@media (max-width: 900px) {
+  .affiches li:nth-child(1), .affiches li:nth-child(4) { transform: none; }
+}

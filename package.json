@@ -1,26 +1,23 @@
 {
   "name": "carclan-site",
   "version": "1.0.0",
-  "description": "",
+  "description": "Site vitrine de CarClan : carclan.fr",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node tools/build-rassos.mjs",
+    "dev": "node tools/build-legal.mjs && vite",
+    "build": "node tools/build-legal.mjs && vite build && node tools/build-rassos.mjs && node tools/check-trackers.mjs && node tools/check-alt.mjs && node tools/check-contrast.mjs && node tools/check-legal.mjs",
     "preview": "vite preview --port 4173",
-    "deploy": "bash tools/deploy.sh"
+    "deploy": "bash tools/deploy.sh",
+    "sync-legal": "$HOME/DEV/FLUTTER/flutter/bin/dart run tools/sync-legal.dart > src/legal/app-documents.json"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "gsap": "^3.15.0",
-    "lenis": "^1.3.26",
     "postprocessing": "^6.39.5",
     "three": "^0.186.0"
   },
   "devDependencies": {
-    "@gltf-transform/cli": "^4.5.0",
-    "meshoptimizer": "^1.2.0",
     "vite": "^8.3.0"
   },
   "private": true

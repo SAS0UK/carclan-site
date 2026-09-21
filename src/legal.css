@@ -1,0 +1,110 @@
+/* Les pages légales : mentions, confidentialité, conditions, cookies.
+   Une colonne de lecture, pas de scène, pas de mouvement. Ces pages se
+   lisent et se citent ; tout ce qui distrait en sort. Le sommaire est une
+   vraie navigation, la date de version est en tête, et chaque section a son
+   ancre pour qu'un lien pointe au bon endroit. */
+
+.legal-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: 12px var(--page);
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  background: var(--nuit-dense);
+  border-bottom: 1px solid var(--filet);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.legal-topbar .marque { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; }
+.legal-topbar .marque img { width: 28px; height: 28px; display: block; }
+.legal-topbar .retour { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--bitume-clair); text-decoration: none; font-size: 14px; }
+.legal-topbar .retour:hover { color: var(--craie); }
+.legal-topbar .retour .ic { width: 18px; height: 18px; transform: rotate(180deg); }
+
+.doc { max-width: 1080px; margin: 0 auto; padding: var(--s-7) var(--page) var(--s-7); }
+
+/* Deux colonnes sur grand écran : le sommaire tient tout seul à gauche,
+   le texte garde sa mesure à droite. */
+.doc-grille { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--s-7); align-items: start; }
+
+.doc-tete { margin-bottom: var(--s-6); }
+.doc-tete h1 { margin: var(--s-3) 0 var(--s-3); }
+.doc-tete .version { margin: 0; color: var(--bitume); font-size: 14px; line-height: 20px; }
+.doc-tete .chapeau { margin: var(--s-4) 0 0; font-size: 16px; line-height: 24px; color: var(--bitume-clair); max-width: 40rem; }
+
+/* Le sommaire : collé en haut, discret, l'entrée courante en craie. */
+.sommaire { position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); }
+.sommaire h2 { margin: 0 0 var(--s-3); }
+.sommaire ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: s; }
+.sommaire a {
+  display: block;
+  padding: 7px 10px;
+  margin-left: -10px;
+  border-radius: var(--r-sm);
+  color: var(--bitume);
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 20px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.sommaire a:hover { color: var(--craie); background: var(--surface); }
+.sommaire a[aria-current='true'] { color: var(--craie); background: var(--surface); }
+
+.doc-corps { max-width: 40rem; }
+.doc-corps section { padding-top: var(--s-6); scroll-margin-top: 80px; }
+.doc-corps section + section { border-top: 1px solid var(--filet); margin-top: var(--s-6); }
+.doc-corps h2 { margin: 0 0 var(--s-4); }
+.doc-corps h3 { margin: var(--s-5) 0 var(--s-2); }
+.doc-corps p { margin: 0 0 var(--s-4); color: var(--bitume-clair); font-size: 15px; line-height: 24px; }
+.doc-corps p:last-child { margin-bottom: 0; }
+.doc-corps strong { color: var(--craie); font-variation-settings: 'wght' 700, 'wdth' 100; }
+.doc-corps a { color: var(--craie); text-underline-offset: 3px; }
+.doc-corps ul { margin: 0 0 var(--s-4); padding: 0; list-style: none; display: grid; gap: var(--s-3); }
+.doc-corps ul li { position: relative; padding-left: 20px; color: var(--bitume-clair); font-size: 15px; line-height: 24px; }
+.doc-corps ul li::before { content: ''; position: absolute; left: 0; top: 9px; width: 6px; height: 6px; border-radius: var(--r-sm); background: var(--ambre); }
+
+/* Un encadré : ce qu'il faut retenir d'une section, ou un avertissement. */
+.encadre {
+  padding: var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-left: 2px solid var(--ambre);
+  border-radius: var(--r-md);
+  margin: 0 0 var(--s-4);
+}
+.encadre p { margin: 0; }
+.encadre p + p { margin-top: var(--s-3); }
+
+/* Une définition : le terme, puis ce qu'il recouvre. Sert aux données
+   collectées et aux durées de conservation. */
+.defs { margin: 0 0 var(--s-4); display: grid; gap: var(--s-4); }
+.defs > div { display: grid; gap: var(--s-1); padding-bottom: var(--s-4); border-bottom: 1px solid var(--filet); }
+.defs > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.defs dt { color: var(--craie); font-variation-settings: 'wght' 700, 'wdth' 100; font-size: 15px; line-height: 20px; }
+.defs dd { margin: 0; color: var(--bitume-clair); font-size: 15px; line-height: 24px; }
+
+/* Le tableau des données : trois colonnes sur grand écran, empilé au
+   téléphone, avec les intitulés répétés. */
+.tableau { width: 100%; border-collapse: collapse; margin: 0 0 var(--s-4); font-size: 14px; line-height: 20px; }
+.tableau th, .tableau td { text-align: left; padding: var(--s-3); border-bottom: 1px solid var(--filet); vertical-align: top; color: var(--bitume-clair); }
+.tableau th { color: var(--craie); font-variation-settings: 'wght' 700, 'wdth' 100; }
+.tableau thead th { border-bottom-color: var(--trait); }
+
+@media (max-width: 900px) {
+  .doc-grille { grid-template-columns: 1fr; gap: var(--s-6); }
+  .sommaire { position: static; }
+  .sommaire ol { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .tableau, .tableau thead, .tableau tbody, .tableau tr, .tableau th, .tableau td { display: block; }
+  .tableau thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tableau tr { border-bottom: 1px solid var(--filet); padding: var(--s-3) 0; }
+  .tableau td { border: 0; padding: 2px 0; }
+  .tableau td::before { content: attr(data-col) ' · '; color: var(--craie); }
+}

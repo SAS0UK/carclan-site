@@ -1,0 +1,48 @@
+# CarClan
+
+> CarClan est une application mobile française (iOS et Android) dédiée aux
+> rassemblements automobiles : trouver les rassos autour de soi, s'y inscrire,
+> et retrouver les photos et les participants après coup. Le projet démarre
+> dans les Hauts-de-France. L'application n'est pas encore publiée ; le site
+> permet de s'inscrire pour être prévenu de sa sortie.
+
+CarClan est édité par Mathys Liénart, personne physique, à Tourcoing (France).
+Contact : contact@carclan.fr. L'application est gratuite et ne gère aucun
+paiement : elle n'encaisse rien, ne vend aucun billet et n'est partie à aucune
+transaction. Quand une fiche de rassemblement indique un tarif, ce montant est
+réglé auprès de l'organisateur, hors de CarClan.
+
+Ce que fait l'application :
+- Trouver : les rassemblements sur une carte et dans un calendrier, filtrables
+  par type, par date et par organisateur. Types couverts : rassos statiques,
+  expositions, balades, trackdays, sessions photo, rencontres de marque,
+  rallyes et sport automobile.
+- Y aller : inscription en un geste, itinéraire délégué à Waze, Google Maps ou
+  Plans, et la liste de qui vient avec quelle voiture.
+- Revivre : le fil de photos des participants, les avis, le garage de chacun,
+  et les prochaines dates du même organisateur.
+- Organisateurs : chaque rassemblement publié a une page publique consultable
+  sans compte, avec une adresse courte partageable. Un organisateur peut
+  revendiquer une fiche saisie pour lui.
+
+## Pages
+
+- [Accueil](https://carclan.fr/) : ce qu'est CarClan, comment ça marche, et le
+  formulaire pour être prévenu de la sortie.
+- [Mentions légales](https://carclan.fr/mentions-legales/) : éditeur,
+  directeur de la publication, hébergeurs, propriété intellectuelle.
+- [Politique de confidentialité](https://carclan.fr/confidentialite/) : ce que
+  le site collecte (une adresse e-mail, si vous la saisissez), puis la
+  politique complète de l'application.
+- [Conditions d'utilisation](https://carclan.fr/cgu/) : conditions du site,
+  puis conditions générales de l'application.
+- [Cookies](https://carclan.fr/cookies/) : le site n'en dépose aucun, et
+  pourquoi il n'y a donc pas de bandeau de consentement.
+
+## Données
+
+Le site ne dépose aucun cookie, n'utilise aucun traceur et ne mesure pas son
+audience. Le seul traitement est la liste d'attente : une adresse e-mail, la
+date de saisie et la version du texte accepté, conservées jusqu'à la sortie de
+l'application puis trois mois au plus, hébergées chez Supabase à Francfort
+(Union européenne). Effacement sur simple demande à contact@carclan.fr.

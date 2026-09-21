@@ -1,3 +1,10 @@
 node_modules
 dist
 .DS_Store
+
+# Les pages légales sont générées par tools/build-legal.mjs à chaque build,
+# depuis src/legal/. Les versionner ferait diverger deux sources.
+/mentions-legales/
+/confidentialite/
+/cgu/
+/cookies/
