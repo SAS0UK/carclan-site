@@ -39,9 +39,6 @@ const entetes = (origine: string | null) => ({
 const ressembleAUnEmail = (v: string) =>
   /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) && v.length >= 6 && v.length <= 254;
 
-const echapper = (v: string) =>
-  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
 // Le message. Deux contraintes d'e-mail commandent tout le reste : aucune
 // police chargee ne survit (Archivo est donc impossible, on tombe sur la
 // police systeme, SF Pro sur iPhone), et toute image est bloquee par defaut.
@@ -74,9 +71,39 @@ Pour sortir de la liste, écrivez à contact@carclan.fr, l’adresse est effacé
 const filet = () =>
   `<tr><td style="padding:0 32px;"><div style="height:1px;font-size:0;line-height:1px;background:${FILET};">&nbsp;</div></td></tr>`;
 
+// La lueur du lampadaire, en bandes de couleurs pleines. Gmail supprime les
+// degrades CSS et les images de fond : un vrai degrade est donc impossible.
+// Les paliers sont CALCULES, pas choisis : l'ambre fondu dans la nuit de 6 % a
+// zero sur quatorze pas, ce qui fait exactement une unite RVB d'ecart par pas.
+// Sur un fond sombre, deux unites se voient encore comme une bande, une non.
+// La lueur occupe TOUTE la largeur du message : bornee a la colonne de 560,
+// elle avait deux aretes verticales et se lisait comme un panneau colle.
+const melange = (a: number) => {
+  const A = [226, 162, 31], N = [15, 14, 12];
+  return '#' + A.map((c, i) => Math.round(a * c + (1 - a) * N[i]).toString(16).padStart(2, '0')).join('');
+};
+const PAS = 14;
+const LUEUR = Array.from({ length: PAS }, (_, i) => melange(0.06 * (1 - i / (PAS - 1))));
+
+// Les bandes s'epaississent en descendant : pres de la lampe la lumiere change
+// vite, loin d'elle elle traine. Des hauteurs egales donnaient une rampe qui
+// se terminait trop net.
+const bande = (h: number, fond: string) =>
+  `<tr><td height="${h}" style="height:${h}px;font-size:0;line-height:${h}px;background:${fond};">&nbsp;</td></tr>`;
+
+// Le mot-symbole vit dans le quatrieme palier, la ou la lumiere est encore
+// pleine sans ecraser l'ambre du texte.
+const RANG_MARQUE = 3;
+const lueurHaut = (marque: string) =>
+  LUEUR.map((fond, i) =>
+    i === RANG_MARQUE
+      ? `<tr><td align="center" style="padding:18px 24px 20px;background:${fond};">${marque}</td></tr>`
+      : bande(8 + i, fond),
+  ).join('\n');
+
 const air = (h: number) => `<tr><td style="height:${h}px;font-size:0;line-height:${h}px;">&nbsp;</td></tr>`;
 
-const html = (email: string) => `<!doctype html>
+const html = () => `<!doctype html>
 <html lang="fr"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -87,17 +114,12 @@ const html = (email: string) => `<!doctype html>
 <body style="margin:0;padding:0;background:${NUIT};">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">On vous \u00e9crit le jour o\u00f9 CarClan sort. Un message, et rien d’autre.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NUIT};">
-<tr><td align="center" style="padding:28px 12px 56px;">
+<tr><td style="height:3px;font-size:0;line-height:3px;background:${AMBRE};">&nbsp;</td></tr>
+${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>`)}
+
+<tr><td align="center" style="padding:34px 12px 56px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
 
-  <tr><td style="height:3px;font-size:0;line-height:3px;background:${AMBRE};">&nbsp;</td></tr>
-
-  ${air(40)}
-  <tr><td align="center" style="padding:0 24px;">
-    <span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>
-  </td></tr>
-
-  ${air(60)}
   <tr><td align="center" style="padding:0 24px;">
     <span style="font:600 11px/1 ${P};letter-spacing:.2em;text-transform:uppercase;color:${BITUME};">Liste d’attente</span>
   </td></tr>
@@ -109,7 +131,7 @@ const html = (email: string) => `<!doctype html>
 
   ${air(22)}
   <tr><td align="center" style="padding:0 24px;">
-    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Le jour o\u00f9 CarClan sort sur iPhone et Android, on \u00e9crit \u00e0 <span style="color:${CRAIE};">${echapper(email)}</span>. Un message, et rien d’autre.</p>
+    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Le jour o\u00f9 CarClan sort sur iPhone et Android, on vous \u00e9crit. Un message, et rien d’autre.</p>
   </td></tr>
 
   ${air(38)}
@@ -156,7 +178,7 @@ async function prevenir(email: string) {
         reply_to: 'contact@carclan.fr',
         subject: OBJET,
         text: TEXTE,
-        html: html(email),
+        html: html(),
         headers: { 'List-Unsubscribe': '<mailto:contact@carclan.fr?subject=Desinscription>' },
       }),
     });
