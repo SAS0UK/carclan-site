@@ -42,74 +42,104 @@ const ressembleAUnEmail = (v: string) =>
 const echapper = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-// Un seul message, en texte et en HTML. Le texte n'est pas un repli poli :
-// c'est ce que lisent les clients qui bloquent le HTML, et son absence est un
-// signal de courrier indésirable.
-const TEXTE = `C'est noté.
+// Le message. Deux contraintes d'e-mail commandent tout le reste : aucune
+// police chargee ne survit (Archivo est donc impossible, on tombe sur la
+// police systeme, SF Pro sur iPhone), et toute image est bloquee par defaut.
+// Le caractere ne peut donc venir ni de la typo ni d'un visuel : il vient de
+// l'espace, de l'echelle, et de l'ambre pose exactement trois fois — le filet
+// du haut, le mot-symbole, le bouton. Zero image aussi veut dire zero pixel
+// espion, ce que la politique de confidentialite promet deja.
+const P = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+const NUIT = '#0f0e0c', CRAIE = '#f3efe8', BITUME = '#8e897f', BITUME_CLAIR = '#aba69c';
+const AMBRE = '#e2a21f', TRAIT = '#6e6a62', FILET = '#211f1d';
 
-Vous êtes sur la liste d'attente de CarClan. Le jour où l'application sort sur
-iPhone et Android, vous recevez un message. Un seul, et rien d'autre : pas de
-lettre d'information, pas de relance, aucune adresse transmise à qui que ce soit.
+const OBJET = "C’est noté, vous êtes sur la liste";
 
-CarClan, c'est tous les rassos près de chez vous sur une carte, l'inscription en
-un geste, et le fil du rasso qui continue après le rasso. On démarre dans les
-Hauts-de-France.
+const TEXTE = `Bienvenue dans le clan.
 
-Vous organisez des rassos, vous tenez un garage ou une enseigne, ou vous voulez
-juste nous signaler les rendez-vous de votre coin ? Répondez à ce message, il
-arrive sur contact@carclan.fr.
+Le jour où CarClan sort sur iPhone et Android, on écrit à cette adresse.
+Un message, et rien d’autre.
 
-Pour sortir de la liste, il suffit de le demander à contact@carclan.fr, et
-l'adresse est effacée.
+Vous organisez des rassos, vous tenez un garage ou une enseigne ? Répondez
+simplement à ce message.
 
 https://carclan.fr
-Tous les rassos. Un seul clan.`;
+Tous les rassos. Un seul clan.
+
+Vous recevez ce message parce que cette adresse a été laissée sur carclan.fr.
+Pour sortir de la liste, écrivez à contact@carclan.fr, l’adresse est effacée.`;
+
+// Un filet d'un pixel, pas une bordure : les bordures de tableau se dedoublent
+// d'un client a l'autre, une rangee de 1 px de haut ne bouge jamais.
+const filet = () =>
+  `<tr><td style="padding:0 32px;"><div style="height:1px;font-size:0;line-height:1px;background:${FILET};">&nbsp;</div></td></tr>`;
+
+const air = (h: number) => `<tr><td style="height:${h}px;font-size:0;line-height:${h}px;">&nbsp;</td></tr>`;
 
 const html = (email: string) => `<!doctype html>
-<html lang="fr"><head><meta charset="utf-8" /><meta name="color-scheme" content="dark light" />
-<title>C'est noté</title></head>
-<body style="margin:0;padding:0;background:#0f0e0c;">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Vous êtes sur la liste d'attente de CarClan. On vous écrit le jour de la sortie, et rien d'autre.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0f0e0c;">
-<tr><td align="center" style="padding:40px 16px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
-  <tr><td style="padding-bottom:28px;">
-    <span style="font:700 15px/1 Archivo,Helvetica,Arial,sans-serif;letter-spacing:.14em;color:#E2A21F;">CARCLAN</span>
+<html lang="fr"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<meta name="supported-color-schemes" content="dark" />
+<title>C’est not\u00e9</title>
+</head>
+<body style="margin:0;padding:0;background:${NUIT};">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">On vous \u00e9crit le jour o\u00f9 CarClan sort. Un message, et rien d’autre.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NUIT};">
+<tr><td align="center" style="padding:28px 12px 56px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+
+  <tr><td style="height:3px;font-size:0;line-height:3px;background:${AMBRE};">&nbsp;</td></tr>
+
+  ${air(40)}
+  <tr><td align="center" style="padding:0 24px;">
+    <span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>
   </td></tr>
-  <tr><td style="padding-bottom:12px;">
-    <span style="font:600 11px/1.4 Helvetica,Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#E2A21F;">Liste d'attente</span>
+
+  ${air(60)}
+  <tr><td align="center" style="padding:0 24px;">
+    <span style="font:600 11px/1 ${P};letter-spacing:.2em;text-transform:uppercase;color:${BITUME};">Liste d’attente</span>
   </td></tr>
-  <tr><td style="padding-bottom:18px;">
-    <h1 style="margin:0;font:700 30px/1.15 Helvetica,Arial,sans-serif;color:#F5F1E8;">C'est noté.</h1>
+
+  ${air(18)}
+  <tr><td align="center" style="padding:0 20px;">
+    <h1 style="margin:0;font:700 36px/1.06 ${P};letter-spacing:-.03em;color:${CRAIE};">Bienvenue<br />dans le clan.</h1>
   </td></tr>
-  <tr><td style="padding-bottom:18px;font:400 16px/1.6 Helvetica,Arial,sans-serif;color:#CFC8BA;">
-    Le jour où CarClan sort sur iPhone et Android, on écrit à
-    <strong style="color:#F5F1E8;">${echapper(email)}</strong>.
-    Un message, et rien d'autre : pas de lettre d'information, pas de relance,
-    aucune adresse transmise à qui que ce soit.
+
+  ${air(22)}
+  <tr><td align="center" style="padding:0 24px;">
+    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Le jour o\u00f9 CarClan sort sur iPhone et Android, on \u00e9crit \u00e0 <span style="color:${CRAIE};">${echapper(email)}</span>. Un message, et rien d’autre.</p>
   </td></tr>
-  <tr><td style="padding:22px 0;border-top:1px solid #2A2621;border-bottom:1px solid #2A2621;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#CFC8BA;">
-    CarClan, c'est tous les rassos près de chez vous sur une carte, l'inscription
-    en un geste, et le fil du rasso qui continue après le rasso. On démarre dans
-    les Hauts-de-France.
+
+  ${air(38)}
+  <tr><td align="center" style="padding:0 24px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td align="center" bgcolor="${AMBRE}" style="border-radius:999px;">
+        <a href="https://carclan.fr" style="display:inline-block;padding:16px 34px;font:700 15px/1 ${P};letter-spacing:-.01em;color:#17140e;text-decoration:none;">Voir le site</a>
+      </td>
+    </tr></table>
   </td></tr>
-  <tr><td style="padding:22px 0 26px;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#CFC8BA;">
-    Vous organisez des rassos, vous tenez un garage ou une enseigne, ou vous
-    voulez nous signaler les rendez-vous de votre coin ? Répondez simplement à
-    ce message.
+
+  ${air(56)}
+  ${filet()}
+  ${air(30)}
+  <tr><td align="center" style="padding:0 28px;">
+    <p style="margin:0;font:400 15px/1.7 ${P};color:${BITUME};">Vous organisez des rassos, vous tenez un garage ou une enseigne&nbsp;? R\u00e9pondez simplement \u00e0 ce message.</p>
   </td></tr>
-  <tr><td style="padding-bottom:30px;">
-    <a href="https://carclan.fr" style="display:inline-block;background:#E2A21F;color:#17140E;font:700 15px/1 Helvetica,Arial,sans-serif;text-decoration:none;padding:15px 26px;border-radius:999px;">Voir le site</a>
+
+  ${air(38)}
+  ${filet()}
+  ${air(30)}
+  <tr><td align="center" style="padding:0 24px;">
+    <span style="font:600 11px/1.6 ${P};letter-spacing:.2em;text-transform:uppercase;color:${TRAIT};">Tous les rassos. Un seul clan.</span>
   </td></tr>
-  <tr><td style="padding-top:22px;border-top:1px solid #2A2621;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8C8579;">
-    Tous les rassos. Un seul clan.<br />
-    Vous recevez ce message parce que cette adresse a été laissée sur
-    <a href="https://carclan.fr" style="color:#E2A21F;">carclan.fr</a>.
-    Pour sortir de la liste, demandez-le à
-    <a href="mailto:contact@carclan.fr" style="color:#E2A21F;">contact@carclan.fr</a>
-    et l'adresse est effacée.
-    <a href="https://carclan.fr/confidentialite/" style="color:#8C8579;">Confidentialité</a>
+
+  ${air(18)}
+  <tr><td align="center" style="padding:0 28px;">
+    <p style="margin:0;font:400 12px/1.8 ${P};color:${TRAIT};">Vous recevez ce message parce que cette adresse a \u00e9t\u00e9 laiss\u00e9e sur <a href="https://carclan.fr" style="color:${BITUME};text-decoration:none;">carclan.fr</a>. Pour sortir de la liste, \u00e9crivez \u00e0 <a href="mailto:contact@carclan.fr" style="color:${BITUME};text-decoration:none;">contact@carclan.fr</a>, l’adresse est effac\u00e9e.</p>
   </td></tr>
+
 </table>
 </td></tr></table>
 </body></html>`;
@@ -124,7 +154,7 @@ async function prevenir(email: string) {
         from: EXPEDITEUR,
         to: [email],
         reply_to: 'contact@carclan.fr',
-        subject: "C'est noté, on vous prévient à la sortie de CarClan",
+        subject: OBJET,
         text: TEXTE,
         html: html(email),
         headers: { 'List-Unsubscribe': '<mailto:contact@carclan.fr?subject=Desinscription>' },
