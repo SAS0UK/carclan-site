@@ -286,6 +286,10 @@ export function renderRassoPage(page) {
 <meta name="theme-color" content="#0F0E0C">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+<link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96">
+<link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/Archivo-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
 <meta property="og:type" content="website">

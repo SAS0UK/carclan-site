@@ -3,7 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>CarClan, les rassos près de chez vous</title>
+    <!-- Le titre porte les DEUX mots : « rasso » est celui du public, mais
+         personne ne tape « rasso » sans le connaitre deja, et c est
+         « rassemblement automobile » qu on cherche quand on decouvre.
+         58 caracteres, sous la coupe de Google. -->
+    <title>CarClan, les rassos et rassemblements auto près de chez vous</title>
     <meta name="description" content="CarClan est l'application des rassemblements automobiles : trouver les rassos autour de soi, y aller, revivre la soirée. Sortie cet hiver sur iPhone et Android, on démarre dans les Hauts-de-France." />
     <!-- Preuve de propriete pour la Search Console. Ce jeton est fait pour etre
          public : il ne donne acces a rien, il atteste seulement qu'on peut ecrire
@@ -15,7 +19,15 @@
     <meta name="theme-color" content="#0f0e0c" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- ⚠️ Google n affiche PAS le favicon d un resultat depuis un SVG seul :
+         il veut un fichier carre d au moins 48 px, de preference un multiple
+         de 48. Le globe gris a la place du logo dans les resultats vient de
+         la. Le SVG reste en premier pour les navigateurs, qui le preferent. -->
+    <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="https://carclan.fr/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="CarClan" />
