@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>CarClan, les rassos près de chez vous</title>
-    <meta name="description" content="CarClan est l'application des rassemblements automobiles : trouver les rassos autour de soi, y aller, revivre la soirée. Bientôt sur iPhone et Android, on démarre dans les Hauts-de-France." />
+    <meta name="description" content="CarClan est l'application des rassemblements automobiles : trouver les rassos autour de soi, y aller, revivre la soirée. Sortie cet hiver sur iPhone et Android, on démarre dans les Hauts-de-France." />
     <meta name="theme-color" content="#0f0e0c" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -13,7 +13,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="CarClan" />
     <meta property="og:title" content="CarClan, les rassos près de chez vous" />
-    <meta property="og:description" content="L'application des rassemblements automobiles. Bientôt sur iPhone et Android, on démarre dans les Hauts-de-France." />
+    <meta property="og:description" content="L'application des rassemblements automobiles. Sortie cet hiver sur iPhone et Android, on démarre dans les Hauts-de-France." />
     <meta property="og:image" content="https://carclan.fr/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -80,7 +80,7 @@
                                       "name": "Quand est-ce que ça sort ?",
                                       "acceptedAnswer": {
                                                 "@type": "Answer",
-                                                "text": "L’application est en préparation. Laissez votre adresse sur cette page : vous recevrez un message le jour de la sortie, et rien d’autre."
+                                                "text": "L’application sort cet hiver. Laissez votre adresse sur cette page : vous recevrez un message le jour de la sortie, et rien d’autre."
                                       }
                             },
                             {
@@ -163,7 +163,7 @@
            centrés, comme une voiture garée face à l'objectif. -->
       <section class="hero" aria-labelledby="titre">
         <div class="hero-texte">
-          <p class="surtitre t-surtitre"><span class="puce" aria-hidden="true"></span>Bientôt sur iPhone et Android</p>
+          <p class="surtitre t-surtitre"><span class="puce" aria-hidden="true"></span>Cet hiver sur iPhone et Android</p>
           <h1 id="titre" class="t-enseigne">Les rassos près de chez vous.</h1>
           <p class="lede">CarClan est l’application des rassemblements automobiles. Trouver, y aller, revivre. On démarre dans les Hauts-de-France.</p>
           <div class="actions">
@@ -192,7 +192,7 @@
             <div class="texte">
               <p class="surtitre t-surtitre"><span class="num">01</span> Trouver</p>
               <h3 class="t-display">Tous les rassos du coin, sur une carte.</h3>
-              <p class="para">Expos, rassos statiques, sorties, trackdays, balades. Le calendrier du clan, filtrable par type, par date et par organisateur. Plus jamais un rasso découvert le lendemain.</p>
+              <p class="para">Expos, rassos statiques, sorties, trackdays, balades. Un calendrier filtrable par type, par date et par organisateur. Plus jamais un rasso découvert le lendemain.</p>
               <ul class="chips" aria-label="Ce que vous trouvez">
                 <li><svg class="ic" aria-hidden="true"><use href="#cc-lieu" /></svg>Carte</li>
                 <li><svg class="ic" aria-hidden="true"><use href="#cc-dates" /></svg>Dates</li>
@@ -224,7 +224,7 @@
             <div class="texte">
               <p class="surtitre t-surtitre"><span class="num">03</span> Revivre</p>
               <h3 class="t-display">Le rasso continue après le rasso.</h3>
-              <p class="para">Le fil des participants, les avis, le garage de chacun et les prochaines dates du même organisateur. Un rassemblement ne s’arrête pas quand les moteurs se coupent.</p>
+              <p class="para">Le fil des participants, les avis, le garage de chacun. Un clan, c’est un organisateur et ses habitués : il y poste ses annonces, le reste suit. Un rassemblement ne s’arrête pas quand les moteurs se coupent.</p>
               <ul class="chips" aria-label="Ce que vous retrouvez">
                 <li><svg class="ic" aria-hidden="true"><use href="#cc-camera" /></svg>Photos</li>
                 <li><svg class="ic" aria-hidden="true"><use href="#cc-commenter" /></svg>Avis</li>
@@ -302,7 +302,7 @@
             </details>
             <details class="qr">
               <summary><span>Quand est-ce que ça sort ?</span><svg class="ic" aria-hidden="true"><use href="#cc-chevron" /></svg></summary>
-              <div class="qr-corps"><p>L’application est en préparation. Laissez votre adresse sur cette page : vous recevrez un message le jour de la sortie, et rien d’autre.</p></div>
+              <div class="qr-corps"><p>L’application sort cet hiver. Laissez votre adresse sur cette page : vous recevrez un message le jour de la sortie, et rien d’autre.</p></div>
             </details>
             <details class="qr">
               <summary><span>Sur quels téléphones ?</span><svg class="ic" aria-hidden="true"><use href="#cc-chevron" /></svg></summary>
@@ -335,17 +335,32 @@
       <!-- La fin : on retrouve la scène, la caméra est au bout de l'allée. -->
       <section id="liste" class="section finale" aria-labelledby="t-liste">
         <div class="bloc" data-reveal>
-          <p class="surtitre t-surtitre"><span class="puce" aria-hidden="true"></span>Bientôt disponible</p>
+          <p class="surtitre t-surtitre"><span class="puce" aria-hidden="true"></span>Sortie cet hiver</p>
           <h2 id="t-liste" class="t-affiche">Soyez prévenu à la sortie.</h2>
+          <!-- La confirmation, révélée après l'envoi. Elle prend le focus pour
+               que le clavier ne retombe pas en haut du document, et elle passe
+               avant le formulaire pour que le titre se lise avant le détail
+               porté par `#etat-attente`. -->
+          <div class="fait" tabindex="-1" hidden>
+            <svg class="ic-fait" aria-hidden="true"><use href="#cc-participer" /></svg>
+            <h3 class="t-affiche" data-fait-titre>C’est noté.</h3>
+          </div>
           <form id="waitlist" class="attente" novalidate>
             <label class="sr-only" for="email">Adresse e-mail</label>
             <div class="rangee">
               <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="votre@adresse.fr" required aria-describedby="note-attente etat-attente" />
-              <button class="btn btn-ambre" type="submit"><span>Me prévenir</span><svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></button>
+              <button class="btn btn-ambre" type="submit"><span data-libelle>Me prévenir</span><svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></button>
             </div>
             <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
-            <p id="note-attente" class="note">Votre adresse sert à une chose : vous prévenir quand CarClan sort. Pas de newsletter, pas de revente, effacement sur simple demande. En l’envoyant, vous déclarez avoir 15 ans ou plus et avoir lu la <a href="/confidentialite/">politique de confidentialité</a>.</p>
+            <!-- L'état vient avant la mention légale : une erreur reléguée
+                 sous trois lignes de 13 px se lit à 113 px du champ fautif. -->
             <p id="etat-attente" class="etat-envoi" role="status" aria-live="polite"></p>
+            <!-- Le compte de la liste, rempli par `waitlist_count()` (migration
+                 0070 du dépôt CarClan). Masqué tant que le nombre n'est pas un
+                 argument : voir SEUIL_COMPTEUR dans waitlist.js. Sans
+                 JavaScript, il n'apparaît jamais, et la page se lit pareil. -->
+            <p id="compteur-attente" class="compteur" hidden></p>
+            <p id="note-attente" class="note">Votre adresse sert à une chose : vous prévenir quand CarClan sort. Pas de newsletter, pas de revente, effacement sur simple demande. En l’envoyant, vous déclarez avoir 15 ans ou plus et avoir lu la <a href="/confidentialite/">politique de confidentialité</a>.</p>
           </form>
           <!-- Le jour de la publication, ces deux pilules deviennent les
                badges officiels de l'App Store et de Google Play, avec les
@@ -353,8 +368,8 @@
                tools/build-rassos.mjs). Les badges officiels ne peuvent pas
                être affichés avant que l'app existe dans les magasins. -->
           <ul class="magasins" aria-label="Disponibilité">
-            <li><span class="magasin" aria-disabled="true">App Store · bientôt</span></li>
-            <li><span class="magasin" aria-disabled="true">Google Play · bientôt</span></li>
+            <li><span class="magasin" aria-disabled="true">App Store · cet hiver</span></li>
+            <li><span class="magasin" aria-disabled="true">Google Play · cet hiver</span></li>
           </ul>
         </div>
       </section>

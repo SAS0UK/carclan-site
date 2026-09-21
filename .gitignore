@@ -8,3 +8,7 @@ dist
 /confidentialite/
 /cgu/
 /cookies/
+
+# Rapports de critique design produits par la skill impeccable. Outillage
+# local, pas une source du site.
+.impeccable/

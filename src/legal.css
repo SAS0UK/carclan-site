@@ -55,6 +55,15 @@
 .sommaire a:hover { color: var(--craie); background: var(--surface); }
 .sommaire a[aria-current='true'] { color: var(--craie); background: var(--surface); }
 
+/* Au doigt, chaque entrée fait 44 px de haut. Les 34 px d'origine passent le
+   WCAG AA (2.5.8, 24 px) mais pas le repère de 44 d'Apple ni le niveau AAA
+   (2.5.5). On ne l'applique qu'au pointeur grossier : agrandir partout
+   allongeait le sommaire de 18 entrées de 180 px, et la colonne collante
+   débordait de la fenêtre en desktop. */
+@media (pointer: coarse) {
+  .sommaire a { padding-top: 12px; padding-bottom: 12px; }
+}
+
 .doc-corps { max-width: 40rem; }
 .doc-corps section { padding-top: var(--s-6); scroll-margin-top: 80px; }
 .doc-corps section + section { border-top: 1px solid var(--filet); margin-top: var(--s-6); }

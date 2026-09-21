@@ -44,6 +44,31 @@ const ancre = (s) => s
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-|-$/g, '');
 
+// Les identifiants de section doivent être uniques dans une page, sinon le
+// sommaire ment : un navigateur envoie au PREMIER élément portant l'ancre.
+//
+// Deux origines se rencontrent dans ces pages, et elles emploient les mêmes
+// intitulés : le texte du site et celui de l'application, repris mot pour mot.
+// « Droit applicable » existait deux fois dans les CGU, « Vos droits » et
+// « L'âge minimum » deux fois dans la confidentialité. Le lecteur qui cherchait
+// les règles de l'application atterrissait sur celles du site, sans aucun
+// signe que ce n'était pas la bonne section.
+//
+// Les sections de l'application prennent donc le suffixe `-app`, et un
+// compteur ferme le cas où deux sections d'une même origine se nommeraient
+// pareil : la page ne peut plus porter deux fois la même ancre, quoi qu'on
+// écrive dans les textes.
+function poserLesAncres(sections) {
+  const vus = new Set();
+  return sections.map((s) => {
+    const base = ancre(s.titre) + (s.origine === 'app' ? '-app' : '');
+    let id = base;
+    for (let n = 2; vus.has(id); n++) id = `${base}-${n}`;
+    vus.add(id);
+    return { ...s, id };
+  });
+}
+
 // Une section du site : { titre, blocs: [...] }, où un bloc est une chaîne
 // (un paragraphe), { liste: [...] }, { encadre: [...] }, { defs: [[t, d]] }
 // ou { tableau: { entetes, lignes } }.
@@ -73,7 +98,7 @@ function construire(page) {
   const sections = [];
 
   for (const s of page.sections) {
-    sections.push({ titre: s.titre, corps: s.blocs.map(rendreBloc).join('') });
+    sections.push({ titre: s.titre, corps: s.blocs.map(rendreBloc).join(''), origine: 'site' });
   }
 
   // La partie « L'application », si la page en a une.
@@ -82,16 +107,19 @@ function construire(page) {
     sections.push({
       titre: page.appTitre,
       corps: `<div class="encadre"><p>Ce qui suit est le texte affiché dans l’application CarClan, repris ici mot pour mot, dans sa version du ${echapper(app.updatedOn)}. Il est aussi lisible dans l’app, dans Profil puis Réglages.</p></div><p>${echapper(doc.intro)}</p>`,
+      origine: 'site',
     });
-    for (const s of doc.sections) sections.push(sectionApp(s));
+    for (const s of doc.sections) sections.push({ ...sectionApp(s), origine: 'app' });
   }
 
-  const sommaire = sections
-    .map((s) => `<li><a href="#${ancre(s.titre)}">${echapper(s.titre)}</a></li>`)
+  const avecAncres = poserLesAncres(sections);
+
+  const sommaire = avecAncres
+    .map((s) => `<li><a href="#${s.id}">${echapper(s.titre)}</a></li>`)
     .join('');
 
-  const corps = sections
-    .map((s) => `<section id="${ancre(s.titre)}"><h2 class="t-titre">${echapper(s.titre)}</h2>${s.corps}</section>`)
+  const corps = avecAncres
+    .map((s) => `<section id="${s.id}"><h2 class="t-titre">${echapper(s.titre)}</h2>${s.corps}</section>`)
     .join('');
 
   return `<!doctype html>

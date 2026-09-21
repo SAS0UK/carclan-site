@@ -5,10 +5,11 @@
 import './tokens.css';
 import './site.css';
 import { mountIcons } from './icons.js';
-import { setupWaitlist } from './waitlist.js';
+import { setupWaitlist, setupCompteur } from './waitlist.js';
 
 mountIcons();
 setupWaitlist(document.getElementById('waitlist'));
+setupCompteur(document.getElementById('compteur-attente'));
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touch = matchMedia('(hover: none), (pointer: coarse)').matches;

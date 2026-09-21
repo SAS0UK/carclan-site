@@ -257,6 +257,26 @@ svg.ic [fill='currentColor'] { stroke: none; }
 .btn-petit { min-height: 44px; padding: 0 16px; font-size: 14px; }
 .btn:disabled { opacity: 0.5; cursor: default; transform: none; }
 
+/* Un bouton qui attend n'est pas un bouton éteint. L'opacité à 0,5 faisait
+   tomber l'ambre à 1,86:1 sur son fond, sous le seuil de 3:1, au moment
+   précis où le bouton agit et où la personne a le plus besoin de le lire.
+   Il garde donc son ambre, il dit ce qu'il fait, et la flèche laisse la
+   place à une pastille qui tourne. */
+.btn-ambre:disabled { opacity: 1; background: var(--ambre); color: var(--nuit); cursor: progress; }
+.btn-ambre:disabled .ic { display: none; }
+.btn-ambre:disabled::after {
+  content: '';
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(15, 14, 12, 0.28);
+  border-top-color: var(--nuit);
+  border-radius: 50%;
+  animation: tourne 0.7s linear infinite;
+}
+
+@keyframes tourne { to { transform: rotate(360deg); } }
+
 
 /* ---- La marque ------------------------------------------------------------ */
 
@@ -303,4 +323,7 @@ svg.ic [fill='currentColor'] { stroke: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .btn { transition: none; }
+  /* La pastille d'attente ne tourne plus, mais elle reste : c'est le seul
+     signe visible que l'envoi est en cours. */
+  .btn-ambre:disabled::after { animation: none; border-top-color: var(--nuit); }
 }

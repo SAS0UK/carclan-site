@@ -196,11 +196,30 @@ main { position: relative; z-index: 10; }
 
 /* La barre haute est fixe : sans cette marge, cliquer « Questions » amène la
    section sous la barre et son titre disparaît. */
-.section, .hero { scroll-margin-top: 84px; }
+/* La barre haute est fixe et fait 69 px : toute cible d'ancre doit s'en
+   écarter, pas seulement les sections. Les cartes `#organisateurs` et
+   `#partenaires` arrivaient à top = -10 px, titre tranché en deux. */
+.section, .hero, main [id] { scroll-margin-top: 84px; }
 
 .section { position: relative; }
 .section.pleine { background: var(--nuit); padding: 120px 0; }
 .section.pleine + .section.pleine { padding-top: 0; }
+
+/* L'entrée dans le fond nuit, symétrique du raccord de `.section.finale` plus
+   bas. Sans elle, le fond opaque tranche la scène d'un trait parfaitement
+   horizontal : lampadaires sectionnés, cônes de lumière coupés en plein halo,
+   bas du téléphone du hero coupé net. Le raccord de sortie existait, celui
+   d'entrée avait été oublié. */
+.hero + .section.pleine::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -120px;
+  height: 120px;
+  background: linear-gradient(180deg, rgba(15, 14, 12, 0), var(--nuit));
+  pointer-events: none;
+}
 .cadre { max-width: 1160px; margin: 0 auto; padding: 0 var(--page); }
 
 .intro { max-width: 44rem; margin-bottom: var(--s-7); }
@@ -342,7 +361,32 @@ main { position: relative; z-index: 10; }
 .etat-envoi:empty { display: none; }
 .etat-envoi.erreur::before { content: '!'; flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: var(--r-sm); background: var(--danger); color: var(--craie); font-size: 12px; }
 .attente.done .rangee { display: none; }
-.attente.done .etat-envoi { font-size: 18px; line-height: 24px; font-variation-settings: 'wght' 700, 'wdth' 100; }
+
+/* ---- La confirmation ------------------------------------------------------------------ */
+
+/* Après l'envoi, le bloc ne demande plus rien. Le titre à l'impératif, la
+   mention légale au futur et le champ s'effacent : ils demandaient de faire
+   ce qui venait d'être fait, et pesaient trois lignes contre une. C'est le
+   dernier écran du parcours, c'est celui dont on se souvient. */
+.bloc.done .surtitre,
+.bloc.done > h2,
+.bloc.done .note,
+.bloc.done .compteur { display: none; }
+
+/* Le compte de la liste. En ambre, parce que c'est la seule preuve chiffrée
+   de la page et qu'elle doit se voir ; à la taille de la note, parce qu'elle
+   ne dispute pas la vedette au champ. */
+.compteur { margin: 0; font-size: 13px; line-height: 18px; color: var(--ambre); font-variation-settings: 'wght' 700, 'wdth' 100; }
+.compteur[hidden] { display: none; }
+
+.fait { display: grid; justify-items: center; gap: var(--s-3); margin: 0 0 var(--s-4); }
+.fait[hidden] { display: none; }
+.fait .ic-fait { width: 40px; height: 40px; color: var(--ambre); }
+.fait h3 { margin: 0; }
+.fait:focus { outline: none; }
+
+.bloc.done .attente { text-align: center; }
+.bloc.done .etat-envoi { justify-content: center; font-size: 17px; line-height: 26px; color: var(--bitume-clair); }
 
 .magasins { list-style: none; padding: 0; margin: var(--s-5) 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2); }
 .magasin {
