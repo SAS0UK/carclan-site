@@ -194,6 +194,10 @@ main { position: relative; z-index: 10; }
 
 /* ---- Les sections pleines --------------------------------------------------------- */
 
+/* La barre haute est fixe : sans cette marge, cliquer « Questions » amène la
+   section sous la barre et son titre disparaît. */
+.section, .hero { scroll-margin-top: 84px; }
+
 .section { position: relative; }
 .section.pleine { background: var(--nuit); padding: 120px 0; }
 .section.pleine + .section.pleine { padding-top: 0; }
@@ -415,4 +419,52 @@ noscript .sansjs { padding: 12px var(--page); background: var(--surface); border
 
 @media (max-width: 900px) {
   .affiches li:nth-child(1), .affiches li:nth-child(4) { transform: none; }
+}
+
+/* ---- Les questions ------------------------------------------------------- */
+
+/* Un <details> natif : il s'ouvre sans JavaScript, se navigue au clavier, et
+   son contenu reste dans la page pour les moteurs et les assistants, même
+   replié. Le balisage FAQPage de l'accueil reprend les mêmes textes. */
+.questions { max-width: 46rem; border-top: 1px solid var(--filet); }
+
+.qr { border-bottom: 1px solid var(--filet); }
+
+.qr summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  min-height: 64px;
+  padding: var(--s-4) 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: 16px;
+  line-height: 24px;
+  font-variation-settings: 'wght' 700, 'wdth' 100;
+  letter-spacing: -0.01em;
+  color: var(--craie);
+  transition: color 0.2s ease;
+}
+
+.qr summary::-webkit-details-marker { display: none; }
+.qr summary:hover { color: var(--ambre); }
+.qr summary:focus-visible { outline-offset: -2px; }
+
+.qr summary .ic {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--bitume);
+  transform: rotate(90deg);
+  transition: transform 0.25s var(--courbe), color 0.2s ease;
+}
+
+.qr[open] summary .ic { transform: rotate(-90deg); color: var(--ambre); }
+
+.qr-corps { padding: 0 0 var(--s-5); max-width: 40rem; }
+.qr-corps p { margin: 0; font-size: 15px; line-height: 24px; color: var(--bitume-clair); }
+
+@media (prefers-reduced-motion: reduce) {
+  .qr summary .ic { transition: none; }
 }
