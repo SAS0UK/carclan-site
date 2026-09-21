@@ -15,6 +15,7 @@
 // fonctions de la base ouvertes a `anon` (migration 0048) : jamais la liste
 // des inscrits.
 
+import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -149,29 +150,75 @@ function coverImageUrl(coverPath) {
   return `${SUPABASE_URL}/storage/v1/object/public/event-covers/${trimmed.split('/').map(encodeURIComponent).join('/')}`;
 }
 
-const STYLES = `
-:root { color-scheme: dark; }
-* { box-sizing: border-box; }
-body { margin: 0; background: #0b0b0d; color: #f2ece6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.5; }
-a { color: #e6b8a2; }
-.page { max-width: 640px; margin: 0 auto; padding: 16px 16px 40px; }
-.cover { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 16px; background: linear-gradient(135deg, #2b2b31, #1a1a1f); }
-.card { margin-top: 16px; background: #1a1a1f; border: 1px solid rgba(230, 184, 162, 0.08); border-radius: 16px; padding: 24px; }
-.overline { margin: 0 0 12px; color: #e6b8a2; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
-h1 { margin: 0 0 20px; font-size: 30px; line-height: 1.15; letter-spacing: -0.01em; }
-h2 { margin: 24px 0 8px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #c9b8a6; font-weight: 600; }
-.facts { margin: 0; display: grid; gap: 12px; }
-.facts div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; border-top: 1px solid rgba(230, 184, 162, 0.08); padding-top: 12px; }
-.facts dt { margin: 0; color: #c9b8a6; font-size: 14px; }
-.facts dd { margin: 0; font-size: 16px; }
-.actions { display: grid; gap: 10px; margin-top: 24px; }
-.button { display: block; text-align: center; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(230, 184, 162, 0.48); color: #f2ece6; text-decoration: none; font-weight: 600; }
-.button.primary { background: #8e1d2d; border-color: #8e1d2d; }
-.button.download { margin-top: 12px; }
-.description p { margin: 0 0 12px; }
-.note { margin: 24px 0 0; color: #c9b8a6; font-size: 14px; }
-footer { margin-top: 24px; text-align: center; color: #c9b8a6; font-size: 13px; }
-`;
+// La feuille de style n est PAS ecrite ici : elle est extraite de
+// public/404.html, entre ses deux marqueurs. Les deux pages rendent la meme
+// fiche, et le seul moyen sur qu elles ne divergent pas est qu il n existe
+// qu une source. Si les marqueurs disparaissent, le build s arrete plutot que
+// de servir une page nue.
+const STYLES = (() => {
+  const secours = readFileSync(new URL('../public/404.html', import.meta.url), 'utf8');
+  const bloc = secours.match(/\/\* RASSO-STYLE:START \*\/([\s\S]*?)\/\* RASSO-STYLE:END \*\//);
+  if (!bloc) {
+    throw new Error('marqueurs RASSO-STYLE introuvables dans public/404.html');
+  }
+  return bloc[1];
+})();
+
+// Les neuf pictogrammes de type, repris de
+// lib/shared/icons/cc_icon_data.dart du depot CarClan. Grille 24.
+const PICTOS = {
+  gathering: '<circle cx="12" cy="5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="8.5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="15.5" r="2.5" fill="currentColor"/><circle cx="12" cy="19" r="2.5" fill="currentColor"/><circle cx="5.9" cy="15.5" r="2.5" fill="currentColor"/><circle cx="5.9" cy="8.5" r="2.5" fill="currentColor"/>',
+  official_motorsport: '<path d="M6 21V4h12l-3 4.5 3 4.5H6"/><rect x="9" y="6" width="3" height="3" fill="currentColor"/><rect x="12" y="9" width="3" height="2" fill="currentColor"/>',
+  track_day: '<path d="M7 7h10a4 4 0 0 1 0 8h-6a3 3 0 0 0 0 6h8"/><circle cx="7" cy="7" r="2.5" fill="currentColor"/>',
+  exhibition: '<path d="M3 19h18M6 19v-4h12v4"/><circle cx="12" cy="9" r="3.5"/>',
+  legal_rally: '<path d="M5 19l5-6 4 2 5-8"/><circle cx="5" cy="19" r="2.5" fill="currentColor"/><circle cx="19" cy="7" r="2.5" fill="currentColor"/>',
+  convoy: '<path d="M4 18c4 0 4-12 8-12s4 12 8 12"/><circle cx="4" cy="18" r="2.5" fill="currentColor"/>',
+  photo_session: '<path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/><circle cx="12" cy="12" r="3.5"/>',
+  brand_meet: '<path d="M12 3l8 3v6c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6z"/><circle cx="12" cy="11" r="2.5" fill="currentColor"/>',
+  community_meet: '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>',
+};
+const ITINERAIRE = '<path d="M5 20v-9a4 4 0 0 1 4-4h9M15 4l3 3-3 3"/>';
+const VERIFIE = '<circle cx="12" cy="12" r="8"/><path d="M8.3 12.3l2.6 2.6 5-5.2" stroke-width="2.4"/>';
+
+const svg = (formes) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${formes}</svg>`;
+
+// « Sept. » : la colonne du bloc QUAND est etroite, le mois entier y
+// pousserait l heure hors de l ecran. Meme regle que event_formatting.dart.
+function moisAbrege(date) {
+  const mois = fmt({ month: 'long' }).format(date);
+  return mois.length <= 5 ? mois : `${mois.slice(0, 4)}.`;
+}
+
+// « Dans 3 jours », « Demain », « Aujourd hui ». Nul si c est passe ou a plus
+// de trente jours. Le jour se compte a Paris : c est celui du rasso qui
+// decide, pas le fuseau de la machine qui construit la page.
+function compteARebours(date) {
+  const enJours = (d) => {
+    const [jour, mois, annee] = fmt({ year: 'numeric', month: '2-digit', day: '2-digit' }).format(d).split('/');
+    return Date.UTC(Number(annee), Number(mois) - 1, Number(jour)) / 86400000;
+  };
+  const jours = enJours(date) - enJours(new Date());
+  if (jours < 0 || jours > 30) return null;
+  if (jours === 0) return 'Aujourd’hui';
+  if (jours === 1) return 'Demain';
+  return `Dans ${jours} jours`;
+}
+
+// « jusqu a minuit », « jusqu a 18:00 », « jusqu au 12 octobre 18:00 ».
+function libelleDeFin(starts, endsAt) {
+  const ends = endsAt ? new Date(endsAt) : null;
+  if (!ends || Number.isNaN(ends.getTime())) return null;
+  const jour = (d) => fmt({ dateStyle: 'short' }).format(d);
+  const minuit = time(ends) === '00:00';
+  if (jour(ends) === jour(starts)) return minuit ? 'jusqu’à minuit' : `jusqu’à ${time(ends)}`;
+  return `jusqu’au ${fmt({ day: 'numeric', month: 'long' }).format(ends)}${minuit ? '' : ` ${time(ends)}`}`;
+}
+
+// « VF » : les initiales de l organisateur, au plus deux.
+function initiales(nom) {
+  const mots = nom.split(/[\s._-]+/).filter(Boolean);
+  return mots.slice(0, 2).map((m) => m.charAt(0).toUpperCase()).join('') || 'CC';
+}
 
 export function renderRassoPage(page) {
   const title = (page.title ?? '').trim() || 'Rasso';
@@ -217,16 +264,29 @@ export function renderRassoPage(page) {
     ? description.split(/\r?\n\s*\r?\n/).map((block) => `<p>${escapeHtml(block).replace(/\r?\n/g, '<br>')}</p>`).join('')
     : '';
 
+  // La fiche, dans l ordre de l ecran 1a : l affiche et son jour, le surtitre,
+  // le titre, la description, l organisateur, puis QUAND, OU, ENTREE, AVIS.
+  const starts = new Date(page.starts_at);
+  const dateValide = !Number.isNaN(starts.getTime());
+  const picto = PICTOS[page.type] ?? PICTOS.gathering;
+  const echeance = dateValide ? compteARebours(starts) : null;
+  const fin = dateValide ? libelleDeFin(starts, page.ends_at) : null;
+  const address = (page.address ?? '').trim();
+  const lieu = address ? address.split(',')[0].trim() : 'Lieu à confirmer';
+  const situation = address.includes(',') ? address.slice(address.indexOf(',') + 1).trim() : '';
+  const aUnOrganisateur = (page.organizer ?? '').trim() !== '';
+
   return `<!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${escapeHtml(title)} · CarClan</title>
 <meta name="description" content="${escapeHtml(metaDescription)}">
-<meta name="theme-color" content="#0b0b0d">
+<meta name="theme-color" content="#0F0E0C">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/Archivo-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CarClan">
@@ -243,31 +303,74 @@ export function renderRassoPage(page) {
 <style>${STYLES}</style>
 </head>
 <body>
-<main class="page">
-  ${coverUrl ? `<img class="cover" src="${escapeHtml(coverUrl)}" alt="">` : '<div class="cover"></div>'}
-  <article class="card">
-    <p class="overline">${escapeHtml(TYPE_LABELS[page.type] ?? 'Rassemblement')}</p>
-    <h1>${escapeHtml(title)}</h1>
-    <dl class="facts">
-      <div><dt>Quand</dt><dd>${escapeHtml(dateLine.long)}</dd></div>
-      ${page.address ? `<div><dt>Où</dt><dd>${escapeHtml(page.address)}</dd></div>` : ''}
-      <div><dt>Organisé par</dt><dd>${escapeHtml(organizer)}</dd></div>
-      <div><dt>Entrée</dt><dd>${escapeHtml(ENTRY_LABELS[page.entry_mode] ?? 'Entrée libre')} · ${escapeHtml(formatPrice(page))}</dd></div>
-      <div><dt>Inscrits</dt><dd>${escapeHtml(formatParticipants(page.participant_count))}</dd></div>
-      ${ratingLabel ? `<div><dt>Avis</dt><dd>${escapeHtml(ratingLabel)}</dd></div>` : ''}
-      ${page.venue_authorized ? '<div><dt>Lieu</dt><dd>Lieu privé ou autorisé</dd></div>' : ''}
-    </dl>
-    <div class="actions">
-      <a class="button primary" id="open-app" href="carclan://events/${escapeHtml(page.id)}">Ouvrir dans CarClan</a>
-      ${mapsUrl ? `<a class="button" href="${escapeHtml(mapsUrl)}" rel="noopener">Y aller</a>` : ''}
-      ${externalUrl ? `<a class="button" href="${escapeHtml(externalUrl)}" rel="noopener nofollow">${escapeHtml(EXTERNAL_LABELS[page.entry_mode] ?? 'Site de l’organisateur')}</a>` : ''}
+<main class="fiche">
+  <header class="affiche">
+    ${coverUrl ? `<img src="${escapeHtml(coverUrl)}" alt="">` : `<div class="affiche-vide">${svg(picto)}</div>`}
+    <div class="voile"></div>
+    <a class="enseigne" href="/">CARCLAN</a>
+    <div class="jour">
+      ${dateValide ? `<span class="jour-n">${escapeHtml(fmt({ day: 'numeric' }).format(starts))}</span>` : ''}
+      <span class="jour-l label">${dateValide ? escapeHtml(`${fmt({ weekday: 'long' }).format(starts)} ${fmt({ month: 'long' }).format(starts)}`) : 'Date à confirmer'}</span>
     </div>
-    ${paragraphs ? `<section class="description"><h2>Description</h2>${paragraphs}</section>` : ''}
+  </header>
+  <div class="corps">
+    <p class="surtitre label">
+      <span class="puce"></span>
+      <span class="type">${escapeHtml(TYPE_LABELS[page.type] ?? 'Rassemblement')}</span>
+      ${echeance ? `<span>· ${escapeHtml(echeance)}</span>` : ''}
+    </p>
+    <h1>${escapeHtml(title)}</h1>
+    ${paragraphs ? `<div class="description">${paragraphs}</div>` : ''}
+    ${aUnOrganisateur ? `<div class="organisateur">
+      <span class="avatar">${escapeHtml(initiales(organizer))}</span>
+      <span>
+        <span class="orga-nom">${escapeHtml(organizer)}</span>
+        <span class="orga-role">Organisateur</span>
+      </span>
+    </div>` : ''}
+    <section class="section">
+      <p class="label">Quand</p>
+      <div class="quand">
+        ${dateValide ? `<span class="quand-n">${escapeHtml(fmt({ day: 'numeric' }).format(starts))}</span>` : ''}
+        <span class="quand-col">
+          <span class="quand-semaine label">${dateValide ? escapeHtml(fmt({ weekday: 'long' }).format(starts)) : 'Date'}</span>
+          <span class="quand-mois label">${dateValide ? escapeHtml(`${moisAbrege(starts)} ${fmt({ year: 'numeric' }).format(starts)}`) : 'à confirmer'}</span>
+        </span>
+        <span class="quand-heure">
+          ${dateValide ? `<span class="heure">${escapeHtml(time(starts))}</span>` : ''}
+          ${fin ? `<span class="fin">${escapeHtml(fin)}</span>` : ''}
+        </span>
+      </div>
+    </section>
+    ${address || hasCoordinates ? `<section class="section">
+      <p class="label">Où</p>
+      <div class="ou">
+        <div class="ou-texte">
+          <p class="lieu">${escapeHtml(lieu)}</p>
+          ${situation ? `<p class="situation">${escapeHtml(situation)}</p>` : ''}
+        </div>
+        ${mapsUrl ? `<a class="carre" href="${escapeHtml(mapsUrl)}" rel="noopener" aria-label="Y aller">${svg(ITINERAIRE)}</a>` : ''}
+      </div>
+      ${page.venue_authorized ? `<p class="autorise label">${svg(VERIFIE)}Lieu privé, autorisé ou toléré</p>` : ''}
+    </section>` : ''}
+    <section class="section">
+      <p class="label">Entrée</p>
+      <p class="entree"><span class="prix">${escapeHtml(formatPrice(page))}</span><span class="mode"> · ${escapeHtml(ENTRY_LABELS[page.entry_mode] ?? 'Entrée libre')}</span></p>
+      <p class="inscrits">${escapeHtml(formatParticipants(page.participant_count))}</p>
+      ${externalUrl ? `<a class="bouton bouton-contour" href="${escapeHtml(externalUrl)}" rel="noopener nofollow">${escapeHtml(EXTERNAL_LABELS[page.entry_mode] ?? 'Site de l’organisateur')}</a>` : ''}
+    </section>
+    ${ratingLabel ? `<section class="section">
+      <p class="label">Avis</p>
+      <p class="avis">${escapeHtml(ratingLabel)}</p>
+    </section>` : ''}
     <p class="note">La liste des inscrits, les photos et les avis se voient dans l’application.</p>
-    <a class="button download" href="${SITE_URL}" rel="noopener">Télécharger CarClan</a>
-  </article>
-  <footer>Publié sur CarClan · <a href="${SITE_URL}">carclan.fr</a></footer>
+  </div>
 </main>
+<footer class="barre">
+  <div class="barre-contenu">
+    <a class="bouton bouton-ambre" id="open-app" href="carclan://events/${escapeHtml(page.id)}" rel="noopener">Ouvrir dans CarClan</a>
+  </div>
+</footer>
 <script>
   // Ouvre l'app par son schema, et si rien n'a pris la main (la page reste
   // visible passe un delai court), retombe sur l'App Store. Meme mecanique

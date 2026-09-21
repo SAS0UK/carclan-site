@@ -2,12 +2,13 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>CarClan</title>
     <meta name="robots" content="noindex" />
-    <meta name="theme-color" content="#0b0b0d" />
+    <meta name="theme-color" content="#0F0E0C" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/Archivo-var.woff2" as="font" type="font/woff2" crossorigin />
     <!--
       La page de secours de GitHub Pages, servie pour toute adresse inconnue.
       Elle sert a une chose : /rasso/<id> quand la page statique de ce rasso
@@ -15,47 +16,490 @@
       alors la fiche depuis la base, avec la cle publiable, et la rend ici.
       Les robots d apercu ne voient rien : c est la page statique qui porte
       les balises Open Graph. Une personne, elle, voit la fiche.
+
+      Le dessin suit la direction Sodium, ecran 1a : l affiche occupe le haut,
+      le jour s ecrit dessus en tres gros chiffre, le corps se lit d un trait
+      sur le fond de page, et l action principale est collee en bas. Les
+      valeurs viennent du code de l application (app_colors.dart,
+      app_text_styles.dart, app_radius.dart, app_spacing.dart) et non d une
+      transcription a la main : quelqu un qui ouvre ce lien puis l application
+      doit voir deux fois le meme objet.
+
+      ⚠️ Le bloc de style ci-dessous, entre ses deux marqueurs, est la SEULE
+      source de la feuille : tools/build-rassos.mjs l extrait d ici pour les
+      pages pre-rendues. Ne pas le dupliquer ailleurs, ne pas toucher aux
+      marqueurs.
     -->
     <style>
-      :root { color-scheme: dark; }
+      /* RASSO-STYLE:START */
+      @font-face {
+        font-family: 'Archivo';
+        src: url('/fonts/Archivo-var.woff2') format('woff2-variations');
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        font-display: swap;
+      }
+
+      :root {
+        color-scheme: dark;
+        /* app_colors.dart */
+        --nuit: #0f0e0c;
+        --surface: #1b1917;
+        --surface-2: #27241f;
+        --craie: #f3efe8;
+        --bitume: #8e897f;
+        --bitume-clair: #aba69c;
+        --ambre: #e2a21f;
+        --trait: #6e6a62;
+        --filet: rgba(243, 239, 232, 0.078);
+        /* app_radius.dart */
+        --r-sm: 4px;
+        --r-md: 10px;
+        /* app_spacing.dart : la gouttiere de page */
+        --page: 20px;
+        /* La fiche garde la largeur d un telephone : elle est faite pour etre
+           ouverte depuis un lien, et une ligne de texte de 900 px ne se lit
+           pas. Sur grand ecran elle se centre au lieu de s etirer. */
+        --largeur: 480px;
+      }
+
       * { box-sizing: border-box; }
-      body { margin: 0; background: #0b0b0d; color: #f2ece6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.5; }
-      a { color: #e6b8a2; }
-      .page { max-width: 640px; margin: 0 auto; padding: 16px 16px 40px; }
-      .cover { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 16px; background: linear-gradient(135deg, #2b2b31, #1a1a1f); }
-      .card { margin-top: 16px; background: #1a1a1f; border: 1px solid rgba(230, 184, 162, 0.08); border-radius: 16px; padding: 24px; }
-      .overline { margin: 0 0 12px; color: #e6b8a2; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
-      h1 { margin: 0 0 20px; font-size: 30px; line-height: 1.15; letter-spacing: -0.01em; }
-      h2 { margin: 24px 0 8px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #c9b8a6; font-weight: 600; }
-      .facts { margin: 0; display: grid; gap: 12px; }
-      .facts div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; border-top: 1px solid rgba(230, 184, 162, 0.08); padding-top: 12px; }
-      .facts dt { margin: 0; color: #c9b8a6; font-size: 14px; }
-      .facts dd { margin: 0; font-size: 16px; }
-      .actions { display: grid; gap: 10px; margin-top: 24px; }
-      .button { display: block; text-align: center; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(230, 184, 162, 0.48); color: #f2ece6; text-decoration: none; font-weight: 600; }
-      .button.primary { background: #8e1d2d; border-color: #8e1d2d; }
-      .button.download { margin-top: 12px; }
+
+      html { background: var(--nuit); }
+
+      body {
+        margin: 0;
+        background: var(--nuit);
+        color: var(--craie);
+        font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+        font-variation-settings: 'wght' 600, 'wdth' 100;
+        font-size: 15px;
+        line-height: 20px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* labelSmall : 11/16, graisse 600, largeur condensee 75, +0.07em, en
+         capitales. C est le surtitre de toutes les sections. */
+      .label {
+        font-size: 11px;
+        line-height: 16px;
+        font-variation-settings: 'wght' 600, 'wdth' 75;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--bitume);
+        margin: 0;
+      }
+
+      .fiche {
+        max-width: var(--largeur);
+        margin: 0 auto;
+        /* De quoi ne jamais passer sous la barre d action collee en bas. */
+        padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+      }
+
+      /* ---- L affiche ---------------------------------------------------- */
+
+      /* Mesure de la maquette : 368 de haut pour 374 de large. Une part de la
+         largeur plutot qu une hauteur fixe, pour qu elle tienne la meme place
+         sur un petit telephone. */
+      .affiche {
+        position: relative;
+        aspect-ratio: 374 / 368;
+        background: var(--surface-2);
+        overflow: hidden;
+      }
+
+      .affiche img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Le pictogramme du type, quand l organisateur n a pas mis d affiche :
+         un aplat de surface haute et l icone en bitume, comme dans l app. */
+      .affiche-vide {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        color: var(--bitume);
+      }
+
+      .affiche-vide svg { width: 48px; height: 48px; }
+
+      /* app_gradients.dart, photoScrim. Le jour s ecrit par-dessus l affiche :
+         sur une photo claire il disparaitrait sans ce degrade vers le fond. */
+      .voile {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(15, 14, 12, 0) 34%,
+          rgba(15, 14, 12, 0.7) 72%,
+          rgba(15, 14, 12, 0.95) 100%
+        );
+        pointer-events: none;
+      }
+
+      .enseigne {
+        position: absolute;
+        top: calc(16px + env(safe-area-inset-top, 0px));
+        left: var(--page);
+        font-size: 15px;
+        line-height: 20px;
+        font-variation-settings: 'wght' 800, 'wdth' 125;
+        letter-spacing: 0.02em;
+        color: var(--craie);
+        text-decoration: none;
+        text-shadow: 0 1px 12px rgba(15, 14, 12, 0.7);
+      }
+
+      .jour {
+        position: absolute;
+        left: var(--page);
+        right: var(--page);
+        bottom: 16px;
+      }
+
+      /* Le chiffre fait quatre fois la taille d un titre : c est la seule
+         information qu on doit lire de loin, avant meme le nom du rasso.
+         Interligne colle au chiffre, sinon il flotte au-dessus du mois. */
+      .jour-n {
+        display: block;
+        font-size: 108px;
+        line-height: 1;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        font-feature-settings: 'tnum';
+        letter-spacing: -0.02em;
+        color: var(--craie);
+      }
+
+      .jour-l { display: block; margin-top: 4px; color: var(--bitume-clair); }
+
+      /* ---- Le corps ----------------------------------------------------- */
+
+      .corps { padding: 24px var(--page) 0; }
+
+      /* « ● RALLYE · AUJOURD HUI ». La puce et le type en craie, l echeance en
+         bitume : c est le type qui classe le rasso, le compte a rebours n est
+         qu une precision. L ambre est garde pour ce qui se clique. */
+      .surtitre { display: flex; align-items: center; gap: 8px; margin: 0; }
+
+      .puce {
+        flex: none;
+        width: 8px;
+        height: 8px;
+        border-radius: var(--r-sm);
+        background: var(--craie);
+      }
+
+      .surtitre .type { color: var(--craie); }
+
+      h1 {
+        margin: 8px 0 0;
+        font-size: 28px;
+        line-height: 32px;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        letter-spacing: -0.02em;
+        color: var(--craie);
+      }
+
+      .description { margin-top: 12px; color: var(--bitume-clair); }
       .description p { margin: 0 0 12px; }
-      .note { margin: 24px 0 0; color: #c9b8a6; font-size: 14px; }
-      footer { margin-top: 24px; text-align: center; color: #c9b8a6; font-size: 13px; }
+      .description p:last-child { margin-bottom: 0; }
+
+      /* L organisateur, entre deux filets. */
+      .organisateur {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+        padding: 16px 0;
+        border-top: 1px solid var(--filet);
+        border-bottom: 1px solid var(--filet);
+      }
+
+      .avatar {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--surface-2);
+        color: var(--craie);
+        font-size: 13px;
+        line-height: 16px;
+        font-variation-settings: 'wght' 600, 'wdth' 75;
+        letter-spacing: 0.07em;
+      }
+
+      .orga-nom {
+        display: block;
+        font-size: 16px;
+        line-height: 20px;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        letter-spacing: -0.01em;
+        color: var(--craie);
+      }
+
+      .orga-role { display: block; font-size: 14px; line-height: 20px; color: var(--bitume); }
+
+      /* Une section : un surtitre en petites capitales, puis son contenu.
+         Rien ne les separe qu un grand blanc, la maquette n y met pas de
+         filet : c est l espace qui fait la coupure. */
+      .section { margin-top: 32px; }
+      .section > .label { margin-bottom: 12px; }
+
+      /* QUAND : le jour en grand chiffre ambre, le mois a cote, l heure a
+         droite. C est le seul endroit de la fiche ou le grand chiffre est en
+         ambre ; sur l affiche il est en craie, parce qu il y est un filigrane
+         et non une donnee qu on vient chercher. Les capitales s asseyent sur
+         la ligne de base du chiffre plutot que de monter contre son haut. */
+      .quand { display: flex; align-items: flex-end; gap: 8px; }
+
+      .quand-n {
+        font-size: 56px;
+        line-height: 1;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        font-feature-settings: 'tnum';
+        letter-spacing: -0.02em;
+        color: var(--ambre);
+      }
+
+      .quand-col { flex: 1 1 auto; min-width: 0; }
+      .quand-semaine { display: block; color: var(--craie); }
+      .quand-mois { display: block; color: var(--bitume-clair); }
+      .quand-heure { flex: none; margin-left: 12px; text-align: right; }
+
+      .heure {
+        display: block;
+        font-size: 20px;
+        line-height: 24px;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        font-feature-settings: 'tnum';
+        letter-spacing: -0.02em;
+        color: var(--craie);
+      }
+
+      .fin { display: block; font-size: 14px; line-height: 20px; color: var(--bitume); }
+
+      /* OU : le lieu, ce qui le situe, et la commande carree qui y emmene. */
+      .ou { display: flex; align-items: center; gap: 12px; }
+      .ou-texte { flex: 1 1 auto; min-width: 0; }
+
+      .lieu {
+        margin: 0;
+        font-size: 16px;
+        line-height: 20px;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        letter-spacing: -0.01em;
+        color: var(--craie);
+      }
+
+      .situation { margin: 4px 0 0; font-size: 14px; line-height: 20px; color: var(--bitume); }
+
+      /* Le carre de 52 est la hauteur de bouton du systeme, et l angle net sa
+         signature. */
+      .carre {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        border: 1px solid var(--trait);
+        border-radius: var(--r-md);
+        color: var(--craie);
+        text-decoration: none;
+      }
+
+      .carre svg { width: 24px; height: 24px; }
+
+      .autorise { display: flex; align-items: center; gap: 4px; margin: 12px 0 0; }
+      .autorise svg { flex: none; width: 14px; height: 14px; }
+
+      /* ENTREE : le prix en gras, la facon d entrer a cote. « Il faut payer ? »
+         et « il faut s inscrire ? » sont la meme question posee deux fois, la
+         fiche y repond d un bloc — et dans cet ordre, le prix d abord : dans
+         l autre sens, « Entree libre · 45 EUR » se lit comme une
+         contradiction, alors que « Entree libre » dit comment on entre et non
+         que c est gratuit. */
+      /* En flux inline et non en flex : un conteneur flex avale l espace de
+         tete de « · Entree libre » et colle le point au montant. Les deux
+         morceaux s asseyent d eux-memes sur la meme ligne de base. */
+      .entree { margin: 0; }
+
+      .prix {
+        font-size: 20px;
+        line-height: 24px;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        letter-spacing: -0.02em;
+        color: var(--craie);
+      }
+
+      .mode { color: var(--bitume-clair); }
+
+      .inscrits {
+        margin: 16px 0 0;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        color: var(--craie);
+      }
+
+      .avis { margin: 0; color: var(--craie); }
+
+      /* Le lien de billetterie ou d inscription externe. Aucun paiement ne
+         transite ici : on ouvre le site de l organisateur, c est tout. */
+      .bouton {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 52px;
+        padding: 14px 18px;
+        border-radius: var(--r-md);
+        font-size: 15px;
+        line-height: 20px;
+        font-variation-settings: 'wght' 700, 'wdth' 100;
+        text-decoration: none;
+      }
+
+      .bouton-contour {
+        margin-top: 16px;
+        border: 1px solid var(--trait);
+        color: var(--craie);
+      }
+
+      .bouton-ambre { background: var(--ambre); color: var(--nuit); }
+
+      .note { margin: 32px 0 0; font-size: 14px; line-height: 20px; color: var(--bitume); }
+
+      /* ---- La barre d action -------------------------------------------- */
+
+      /* Elle ne defile pas avec le contenu. La fiche fait plusieurs ecrans de
+         haut et c est elle qui decide si quelqu un vient : le bouton doit
+         rester sous le pouce, quelle que soit la hauteur a laquelle on lit. */
+      .barre {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--nuit);
+        border-top: 1px solid var(--filet);
+      }
+
+      .barre-contenu {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: var(--largeur);
+        margin: 0 auto;
+        padding: 16px var(--page);
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      }
+
+      .barre .bouton-ambre { flex: 1 1 auto; }
+
+      /* ---- Les etats sans fiche ------------------------------------------ */
+
+      .etat { padding: 96px var(--page) 48px; max-width: var(--largeur); margin: 0 auto; }
+      .etat h1 { margin: 0; }
+      .etat p { margin: 12px 0 0; color: var(--bitume); }
+      .etat .bouton-contour { display: inline-flex; margin-top: 24px; }
+
       [hidden] { display: none !important; }
+
+      /* Les icones du jeu CarClan : grille 24, trait de 2, jamais de coin
+         arrondi sur un trait. */
+      svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: butt; stroke-linejoin: miter; }
+      svg [fill='currentColor'] { stroke: none; }
+      /* RASSO-STYLE:END */
     </style>
   </head>
   <body>
-    <main class="page">
-      <img id="cover" class="cover" alt="" hidden />
-      <article class="card">
-        <p class="overline" id="overline">CarClan</p>
-        <h1 id="title">Un instant…</h1>
-        <p id="message" class="note">La fiche arrive.</p>
-        <dl class="facts" id="facts" hidden></dl>
-        <div class="actions" id="actions" hidden></div>
-        <section class="description" id="description" hidden><h2>Description</h2></section>
-        <p class="note" id="note" hidden>La liste des inscrits, les photos et les avis se voient dans l’application.</p>
-        <a class="button download" href="/" rel="noopener">Télécharger CarClan</a>
-      </article>
-      <footer>Publié sur CarClan · <a href="/">carclan.fr</a></footer>
+    <main id="fiche" class="fiche" hidden>
+      <header class="affiche">
+        <img id="cover" alt="" hidden />
+        <div id="cover-vide" class="affiche-vide" hidden></div>
+        <div class="voile"></div>
+        <a class="enseigne" href="/">CARCLAN</a>
+        <div class="jour">
+          <span id="jour-n" class="jour-n"></span>
+          <span id="jour-l" class="jour-l label"></span>
+        </div>
+      </header>
+      <div class="corps">
+        <p class="surtitre label">
+          <span class="puce"></span>
+          <span id="type" class="type"></span>
+          <span id="echeance" hidden></span>
+        </p>
+        <h1 id="titre"></h1>
+        <div id="description" class="description" hidden></div>
+        <div id="organisateur" class="organisateur" hidden>
+          <span id="avatar" class="avatar"></span>
+          <span>
+            <span id="orga-nom" class="orga-nom"></span>
+            <span class="orga-role">Organisateur</span>
+          </span>
+        </div>
+        <section class="section">
+          <p class="label">Quand</p>
+          <div class="quand">
+            <span id="quand-n" class="quand-n"></span>
+            <span class="quand-col">
+              <span id="quand-semaine" class="quand-semaine label"></span>
+              <span id="quand-mois" class="quand-mois label"></span>
+            </span>
+            <span class="quand-heure">
+              <span id="heure" class="heure"></span>
+              <span id="fin" class="fin" hidden></span>
+            </span>
+          </div>
+        </section>
+        <section id="section-ou" class="section" hidden>
+          <p class="label">Où</p>
+          <div class="ou">
+            <div class="ou-texte">
+              <p id="lieu" class="lieu"></p>
+              <p id="situation" class="situation" hidden></p>
+            </div>
+            <a id="y-aller" class="carre" rel="noopener" hidden aria-label="Y aller"></a>
+          </div>
+          <p id="autorise" class="autorise label" hidden></p>
+        </section>
+        <section class="section">
+          <p class="label">Entrée</p>
+          <p class="entree">
+            <span id="prix" class="prix"></span>
+            <span id="mode" class="mode"></span>
+          </p>
+          <p id="inscrits" class="inscrits"></p>
+          <a id="lien-externe" class="bouton bouton-contour" rel="noopener nofollow" hidden></a>
+        </section>
+        <section id="section-avis" class="section" hidden>
+          <p class="label">Avis</p>
+          <p id="avis" class="avis"></p>
+        </section>
+        <p class="note">La liste des inscrits, les photos et les avis se voient dans l’application.</p>
+      </div>
     </main>
+
+    <div id="etat" class="etat">
+      <h1 id="etat-titre">Un instant…</h1>
+      <p id="etat-message">La fiche arrive.</p>
+      <a id="etat-lien" class="bouton bouton-contour" href="/" hidden>Découvrir CarClan</a>
+    </div>
+
+    <footer id="barre" class="barre" hidden>
+      <div class="barre-contenu">
+        <a id="partager" class="carre" href="#" hidden aria-label="Partager"></a>
+        <a id="ouvrir" class="bouton bouton-ambre" rel="noopener">Ouvrir dans CarClan</a>
+      </div>
+    </footer>
+
     <script>
       (function () {
         var SUPABASE_URL = 'https://zheixbgssdfquresgtai.supabase.co';
@@ -83,17 +527,44 @@
             if (!tookOver) window.location.href = APP_STORE_URL;
           }, 1500);
         }
+
         var TYPES = { gathering: 'Rassemblement', official_motorsport: 'Motorsport officiel', track_day: 'Track day', exhibition: 'Exposition', legal_rally: 'Rallye', convoy: 'Balade', photo_session: 'Session photo', brand_meet: 'Rencontre marque', community_meet: 'Rencontre communauté' };
         var ENTRIES = { free_entry: 'Entrée libre', registration: 'Sur inscription', paid_external: 'Payant, voir le site' };
         var EXTERNAL = { registration: 'S’inscrire sur le site', paid_external: 'Billets sur le site', free_entry: 'Site de l’organisateur' };
 
+        // Les neuf pictogrammes de type, repris tels quels de
+        // lib/shared/icons/cc_icon_data.dart : on se gare en cercle, le
+        // drapeau, le trace, le socle, d un point a l autre, la route qui
+        // serpente, le viseur, l ecusson, deux cercles. Grille 24.
+        var PICTOS = {
+          gathering: '<circle cx="12" cy="5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="8.5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="15.5" r="2.5" fill="currentColor"/><circle cx="12" cy="19" r="2.5" fill="currentColor"/><circle cx="5.9" cy="15.5" r="2.5" fill="currentColor"/><circle cx="5.9" cy="8.5" r="2.5" fill="currentColor"/>',
+          official_motorsport: '<path d="M6 21V4h12l-3 4.5 3 4.5H6"/><rect x="9" y="6" width="3" height="3" fill="currentColor"/><rect x="12" y="9" width="3" height="2" fill="currentColor"/>',
+          track_day: '<path d="M7 7h10a4 4 0 0 1 0 8h-6a3 3 0 0 0 0 6h8"/><circle cx="7" cy="7" r="2.5" fill="currentColor"/>',
+          exhibition: '<path d="M3 19h18M6 19v-4h12v4"/><circle cx="12" cy="9" r="3.5"/>',
+          legal_rally: '<path d="M5 19l5-6 4 2 5-8"/><circle cx="5" cy="19" r="2.5" fill="currentColor"/><circle cx="19" cy="7" r="2.5" fill="currentColor"/>',
+          convoy: '<path d="M4 18c4 0 4-12 8-12s4 12 8 12"/><circle cx="4" cy="18" r="2.5" fill="currentColor"/>',
+          photo_session: '<path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/><circle cx="12" cy="12" r="3.5"/>',
+          brand_meet: '<path d="M12 3l8 3v6c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6z"/><circle cx="12" cy="11" r="2.5" fill="currentColor"/>',
+          community_meet: '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>'
+        };
+        var ITINERAIRE = '<path d="M5 20v-9a4 4 0 0 1 4-4h9M15 4l3 3-3 3"/>';
+        var PARTAGER = '<path d="M12 15V4M7 9l5-5 5 5M5 14v6h14v-6"/>';
+        var VERIFIE = '<circle cx="12" cy="12" r="8"/><path d="M8.3 12.3l2.6 2.6 5-5.2" stroke-width="2.4"/>';
+
         var byId = function (id) { return document.getElementById(id); };
         var text = function (id, value) { byId(id).textContent = value; };
+        var show = function (id) { byId(id).hidden = false; };
 
-        function notFound(heading, message) {
-          text('overline', 'CarClan');
-          text('title', heading || 'Page introuvable');
-          text('message', message || 'Cette adresse ne mène nulle part. Le site, lui, est à un tap.');
+        // `formes` est toujours une constante de ce fichier, jamais une donnee
+        // de la base : tout ce qui vient du serveur passe par textContent.
+        function icone(hote, formes) {
+          hote.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + formes + '</svg>';
+        }
+
+        function etat(heading, message, lien) {
+          text('etat-titre', heading || 'Page introuvable');
+          text('etat-message', message || 'Cette adresse ne mène nulle part. Le site, lui, est à un tap.');
+          byId('etat-lien').hidden = !lien;
           document.title = (heading || 'Page introuvable') + ' · CarClan';
         }
 
@@ -107,28 +578,42 @@
           return id && UUID.test(id) ? { id: id } : null;
         }
 
-        function formatDate(startsAt, endsAt) {
-          var starts = new Date(startsAt);
-          if (isNaN(starts.getTime())) return 'Date à confirmer';
-          var day = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(starts);
-          day = day.charAt(0).toUpperCase() + day.slice(1);
-          var time = function (d) { return new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).format(d).replace(' ', ''); };
-          var line = day + ' · ' + time(starts);
-          var ends = endsAt ? new Date(endsAt) : null;
-          if (ends && !isNaN(ends.getTime())) {
-            var short = function (d) { return new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', dateStyle: 'short' }).format(d); };
-            line += short(ends) === short(starts)
-              ? ' à ' + time(ends)
-              : ', jusqu’au ' + new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long' }).format(ends) + ' ' + time(ends);
-          }
-          return line;
+        function partie(date, options) {
+          var config = { timeZone: 'Europe/Paris' };
+          for (var cle in options) config[cle] = options[cle];
+          return new Intl.DateTimeFormat('fr-FR', config).format(date);
         }
 
-        function price(data) {
+        function heureDe(date) { return partie(date, { hour: '2-digit', minute: '2-digit' }).replace(' ', ''); }
+
+        // « Sept. » : la colonne du bloc QUAND est etroite, le mois entier y
+        // pousserait l heure hors de l ecran. Mai, juin et aout ne s abregent
+        // pas. Meme regle que event_formatting.dart.
+        function moisAbrege(date) {
+          var mois = partie(date, { month: 'long' });
+          return mois.length <= 5 ? mois : mois.slice(0, 4) + '.';
+        }
+
+        // « Dans 3 jours », « Demain », « Aujourd hui ». Nul si c est passe ou
+        // a plus de trente jours. Le jour se compte a Paris et non dans le
+        // fuseau du lecteur : c est celui du rasso qui decide.
+        function compteARebours(date) {
+          var enJours = function (d) {
+            var bouts = partie(d, { year: 'numeric', month: '2-digit', day: '2-digit' }).split('/');
+            return Date.UTC(Number(bouts[2]), Number(bouts[1]) - 1, Number(bouts[0])) / 86400000;
+          };
+          var jours = enJours(date) - enJours(new Date());
+          if (jours < 0 || jours > 30) return null;
+          if (jours === 0) return 'Aujourd’hui';
+          if (jours === 1) return 'Demain';
+          return 'Dans ' + jours + ' jours';
+        }
+
+        function prixDe(data) {
           if (data.is_free === true) return 'Gratuit';
-          var amount = Number(data.price_amount);
-          if (!isFinite(amount) || data.price_amount === null) return 'Payant';
-          return (Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2).replace('.', ',')) + ' ' + (data.currency || 'EUR');
+          var montant = Number(data.price_amount);
+          if (!isFinite(montant) || data.price_amount === null) return 'Payant';
+          return (Number.isInteger(montant) ? montant.toFixed(0) : montant.toFixed(2).replace('.', ',')) + ' ' + (data.currency || 'EUR');
         }
 
         // Jamais « 0 inscrit ».
@@ -142,88 +627,172 @@
           try { var u = new URL(value); return (u.protocol === 'https:' || u.protocol === 'http:') ? u.toString() : null; } catch (e) { return null; }
         }
 
-        function fact(label, value) {
-          var row = document.createElement('div');
-          var dt = document.createElement('dt'); dt.textContent = label;
-          var dd = document.createElement('dd'); dd.textContent = value;
-          row.appendChild(dt); row.appendChild(dd);
-          byId('facts').appendChild(row);
-        }
-
-        function button(label, href, primary, nofollow) {
-          var a = document.createElement('a');
-          a.className = 'button' + (primary ? ' primary' : '');
-          a.href = href; a.rel = nofollow ? 'noopener nofollow' : 'noopener'; a.textContent = label;
-          byId('actions').appendChild(a);
-        }
-
-        // Le bouton d'ouverture de l'app garde son `href` en `carclan://`
-        // (un lien copiable, un clic du milieu ou un navigateur sans JS
-        // l'ouvrent quand meme), mais un clic normal passe par le bascule
-        // avec repli App Store.
-        function appButton(label, scheme) {
-          var a = document.createElement('a');
-          a.className = 'button primary';
-          a.href = scheme; a.rel = 'noopener'; a.textContent = label;
-          a.addEventListener('click', function (event) {
-            event.preventDefault();
-            openAppOrStore(scheme);
-          });
-          byId('actions').appendChild(a);
+        // « VF » : les initiales de l organisateur, au plus deux.
+        function initiales(nom) {
+          var mots = nom.split(/[\s._-]+/).filter(Boolean);
+          return mots.slice(0, 2).map(function (m) { return m.charAt(0).toUpperCase(); }).join('') || 'CC';
         }
 
         function render(data) {
-          var title = (data.title || '').trim() || 'Rasso';
-          document.title = title + ' · CarClan';
-          text('overline', TYPES[data.type] || 'Rassemblement');
-          text('title', title);
-          byId('message').hidden = true;
+          var titre = (data.title || '').trim() || 'Rasso';
+          var debut = new Date(data.starts_at);
+          var dateValide = !isNaN(debut.getTime());
+          document.title = titre + ' · CarClan';
 
+          // L affiche, ou le pictogramme de son type.
+          var picto = PICTOS[data.type] || PICTOS.gathering;
           if (data.cover_image_path) {
             var cover = byId('cover');
+            cover.addEventListener('error', function () {
+              cover.hidden = true;
+              icone(byId('cover-vide'), picto);
+              show('cover-vide');
+            });
             cover.src = SUPABASE_URL + '/storage/v1/object/public/event-covers/' + data.cover_image_path.split('/').map(encodeURIComponent).join('/');
             cover.hidden = false;
+          } else {
+            icone(byId('cover-vide'), picto);
+            show('cover-vide');
           }
 
-          fact('Quand', formatDate(data.starts_at, data.ends_at));
-          if (data.address) fact('Où', data.address);
-          fact('Organisé par', (data.organizer || '').trim() || 'Organisateur');
-          fact('Entrée', (ENTRIES[data.entry_mode] || 'Entrée libre') + ' · ' + price(data));
-          fact('Inscrits', participants(data.participant_count));
-          var rating = Number(data.average_rating);
-          if (isFinite(rating) && data.average_rating !== null && Number(data.review_count) > 0) {
-            fact('Avis', rating.toFixed(1).replace('.', ',') + ' sur ' + Number(data.review_count) + ' avis');
+          if (dateValide) {
+            text('jour-n', partie(debut, { day: 'numeric' }));
+            // Les deux morceaux sont demandes separement : `Intl` reordonne
+            // « jour de semaine + mois » en « septembre lundi » quand on les
+            // demande ensemble, et la maquette veut « LUNDI SEPTEMBRE ».
+            text('jour-l', partie(debut, { weekday: 'long' }) + ' ' + partie(debut, { month: 'long' }));
+          } else {
+            byId('jour-n').hidden = true;
+            text('jour-l', 'Date à confirmer');
           }
-          if (data.venue_authorized) fact('Lieu', 'Lieu privé ou autorisé');
-          byId('facts').hidden = false;
 
-          appButton('Ouvrir dans CarClan', 'carclan://events/' + data.id);
-          var lat = Number(data.latitude), lng = Number(data.longitude);
-          if (data.latitude !== null && data.longitude !== null && isFinite(lat) && isFinite(lng)) {
-            button('Y aller', 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng, false, false);
+          text('type', TYPES[data.type] || 'Rassemblement');
+          var echeance = dateValide ? compteARebours(debut) : null;
+          if (echeance) {
+            text('echeance', '· ' + echeance);
+            show('echeance');
           }
-          var link = externalUrl(data.external_url);
-          if (link) button(EXTERNAL[data.entry_mode] || 'Site de l’organisateur', link, false, true);
-          byId('actions').hidden = false;
+          text('titre', titre);
 
           var description = (data.description || '').trim();
           if (description) {
-            var section = byId('description');
-            description.split(/\r?\n\s*\r?\n/).forEach(function (block) {
+            var bloc = byId('description');
+            description.split(/\r?\n\s*\r?\n/).forEach(function (paragraphe) {
               var p = document.createElement('p');
-              block.split(/\r?\n/).forEach(function (line, index) {
+              paragraphe.split(/\r?\n/).forEach(function (ligne, index) {
                 if (index > 0) p.appendChild(document.createElement('br'));
-                p.appendChild(document.createTextNode(line));
+                p.appendChild(document.createTextNode(ligne));
               });
-              section.appendChild(p);
+              bloc.appendChild(p);
             });
-            section.hidden = false;
+            bloc.hidden = false;
           }
-          byId('note').hidden = false;
+
+          var organisateur = (data.organizer || '').trim();
+          if (organisateur) {
+            text('avatar', initiales(organisateur));
+            text('orga-nom', organisateur);
+            show('organisateur');
+          }
+
+          // QUAND
+          if (dateValide) {
+            text('quand-n', partie(debut, { day: 'numeric' }));
+            text('quand-semaine', partie(debut, { weekday: 'long' }));
+            text('quand-mois', moisAbrege(debut) + ' ' + partie(debut, { year: 'numeric' }));
+            text('heure', heureDe(debut));
+            var fin = data.ends_at ? new Date(data.ends_at) : null;
+            if (fin && !isNaN(fin.getTime())) {
+              // « jusqu a minuit » comme dans l application. Le jour de fin,
+              // lui, n y est jamais dit : ici il l est, parce qu une page
+              // ouverte depuis un lien n a pas d agenda autour d elle pour
+              // faire comprendre qu un rasso court sur deux jours.
+              var memeJour = partie(fin, { dateStyle: 'short' }) === partie(debut, { dateStyle: 'short' });
+              var minuit = heureDe(fin) === '00:00';
+              text('fin', memeJour
+                ? (minuit ? 'jusqu’à minuit' : 'jusqu’à ' + heureDe(fin))
+                : 'jusqu’au ' + partie(fin, { day: 'numeric', month: 'long' }) + (minuit ? '' : ' ' + heureDe(fin)));
+              show('fin');
+            }
+          } else {
+            byId('quand-n').hidden = true;
+            text('quand-semaine', 'Date');
+            text('quand-mois', 'à confirmer');
+            byId('heure').hidden = true;
+          }
+
+          // OU. Le premier segment de l adresse nomme le lieu, le reste le
+          // situe : meme decoupe que dans l application.
+          var adresse = (data.address || '').trim();
+          var latitude = Number(data.latitude);
+          var longitude = Number(data.longitude);
+          var aDesCoordonnees = data.latitude !== null && data.longitude !== null && isFinite(latitude) && isFinite(longitude);
+          if (adresse || aDesCoordonnees) {
+            text('lieu', adresse ? adresse.split(',')[0].trim() : 'Lieu à confirmer');
+            if (adresse.indexOf(',') !== -1) {
+              text('situation', adresse.slice(adresse.indexOf(',') + 1).trim());
+              show('situation');
+            }
+            if (aDesCoordonnees) {
+              var yAller = byId('y-aller');
+              yAller.href = 'https://www.google.com/maps/dir/?api=1&destination=' + latitude + ',' + longitude;
+              icone(yAller, ITINERAIRE);
+              yAller.hidden = false;
+            }
+            if (data.venue_authorized) {
+              var autorise = byId('autorise');
+              var marque = document.createElement('span');
+              icone(marque, VERIFIE);
+              autorise.appendChild(marque.firstChild);
+              autorise.appendChild(document.createTextNode('Lieu privé, autorisé ou toléré'));
+              autorise.hidden = false;
+            }
+            show('section-ou');
+          }
+
+          // ENTREE : le prix d abord, la facon d entrer ensuite.
+          text('prix', prixDe(data));
+          text('mode', ' · ' + (ENTRIES[data.entry_mode] || 'Entrée libre'));
+          text('inscrits', participants(data.participant_count));
+          var lien = externalUrl(data.external_url);
+          if (lien) {
+            var externe = byId('lien-externe');
+            externe.href = lien;
+            externe.textContent = EXTERNAL[data.entry_mode] || 'Site de l’organisateur';
+            externe.hidden = false;
+          }
+
+          var note = Number(data.average_rating);
+          if (isFinite(note) && data.average_rating !== null && Number(data.review_count) > 0) {
+            text('avis', note.toFixed(1).replace('.', ',') + ' sur ' + Number(data.review_count) + ' avis');
+            show('section-avis');
+          }
+
+          // La barre du bas.
+          var ouvrir = byId('ouvrir');
+          var scheme = 'carclan://events/' + data.id;
+          ouvrir.href = scheme;
+          ouvrir.addEventListener('click', function (event) {
+            event.preventDefault();
+            openAppOrStore(scheme);
+          });
+          if (navigator.share) {
+            var partager = byId('partager');
+            icone(partager, PARTAGER);
+            partager.addEventListener('click', function (event) {
+              event.preventDefault();
+              navigator.share({ title: titre, url: location.href }).catch(function () {});
+            });
+            partager.hidden = false;
+          }
+
+          byId('etat').hidden = true;
+          show('fiche');
+          show('barre');
         }
 
         var target = targetFromLocation();
-        if (!target) { notFound(); return; }
+        if (!target) { etat(null, null, true); return; }
 
         fetch(SUPABASE_URL + '/rest/v1/rpc/' + (target.code ? 'public_event_page_by_code' : 'public_event_page'), {
           method: 'POST',
@@ -232,12 +801,12 @@
         }).then(function (res) { return res.ok ? res.json() : null; })
           .then(function (data) {
             if (!data || typeof data !== 'object' || !data.id) {
-              notFound('Ce rasso n’est pas disponible', 'Il n’est pas publié, ou son organisateur l’a retiré.');
+              etat('Ce rasso n’est pas disponible', 'Il n’est pas publié, ou son organisateur l’a retiré.', true);
               return;
             }
             render(data);
           })
-          .catch(function () { notFound('Réessayez dans un instant', 'La fiche n’a pas pu être chargée.'); });
+          .catch(function () { etat('Réessayez dans un instant', 'La fiche n’a pas pu être chargée.', true); });
       })();
     </script>
   </body>
