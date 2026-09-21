@@ -100,14 +100,14 @@ function groundShader({ reflect }) {
         float wet = smoothstep(0.42, 0.66, fbm(w * 0.09 + 5.3));
         // Le grain du goudron, deux échelles.
         float grain = vnoise(w * 38.0) * 0.6 + vnoise(w * 97.0) * 0.4;
-        vec3 asphalt = color * (0.9 + 1.5 * grain) * mix(1.0, 0.5, wet);
+        vec3 asphalt = color * (0.75 + 1.1 * grain) * mix(1.0, 0.48, wet);
 
         // Les flaques de lumière sous chaque lampe.
         vec3 pool = vec3(0.0);
         for (int i = 0; i < ${LAMP_COUNT}; i++) {
           vec4 L = uLamps[i];
           float d = distance(w, L.xy) / L.z;
-          pool += uLampColor * L.w * pow(clamp(1.0 - d, 0.0, 1.0), 1.7) * (0.85 + 0.3 * grain);
+          pool += uLampColor * L.w * pow(clamp(1.0 - d, 0.0, 1.0), 2.4) * (0.85 + 0.3 * grain);
         }
 
         vec3 col = asphalt + pool * mix(0.5, 0.9, wet);
@@ -363,7 +363,7 @@ export function createScene(canvas, { lite = false, reduced = false, touch = fal
   }
   ground.rotation.x = -Math.PI / 2;
   scene.add(ground);
-  lampPositions.forEach((p, i) => groundUniforms.uLamps.value[i].set(headX(p), p.z, 5.6, 1.15));
+  lampPositions.forEach((p, i) => groundUniforms.uLamps.value[i].set(headX(p), p.z, 5.2, 0.62));
   groundUniforms.uFog.value = fogDensity;
 
   // ---- La poussière ----------------------------------------------------------
