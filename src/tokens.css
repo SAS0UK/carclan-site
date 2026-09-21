@@ -254,7 +254,7 @@ svg.ic [fill='currentColor'] { stroke: none; }
 .btn-ambre:active { transform: none; }
 .btn-contour { background: var(--nuit-veil); color: var(--craie); border-color: var(--trait); }
 .btn-contour:hover { border-color: var(--craie); }
-.btn-petit { min-height: 40px; padding: 0 16px; font-size: 14px; }
+.btn-petit { min-height: 44px; padding: 0 16px; font-size: 14px; }
 .btn:disabled { opacity: 0.5; cursor: default; transform: none; }
 
 

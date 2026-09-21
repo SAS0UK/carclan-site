@@ -314,8 +314,9 @@ main { position: relative; z-index: 10; }
 .rangee { display: flex; gap: 10px; }
 
 .rangee input {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  min-height: var(--h-champ);
   height: var(--h-champ);
   padding: 0 16px;
   border-radius: var(--r-md);
@@ -379,6 +380,10 @@ noscript .sansjs { padding: 12px var(--page); background: var(--surface); border
   .section.pleine { padding: 88px 0; }
   .bloc { padding: var(--s-5); }
   .rangee { flex-direction: column; }
+  /* En colonne, le champ ne doit plus se laisser etirer ni comprimer par le
+     calcul flex : il garde sa hauteur de 52. */
+  .rangee input { flex: none; }
+  .rangee .btn { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
