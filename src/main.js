@@ -86,8 +86,18 @@ async function mountScene() {
 // seule chose que la page ait à faire. La scène est un décor, elle passe
 // après.
 function planifierScene() {
-  if ('requestIdleCallback' in window) requestIdleCallback(mountScene, { timeout: 3000 });
-  else setTimeout(mountScene, 600);
+  // Une seconde de marge après le chargement, PUIS un temps mort. Le shader
+  // du sol est gros (bruit cellulaire, boucle sur quatorze lampes, sept
+  // prélèvements de reflet) et sa compilation bloque le fil principal
+  // quelques centaines de millisecondes : mesuré à 460 ms au montage
+  // immédiat, contre 90 ms une fois sorti de la fenêtre de chargement. Rien
+  // sur cette page n'attend la scène, et la personne qui arrive doit pouvoir
+  // cliquer « Être prévenu » tout de suite.
+  const lancer = () => {
+    if ('requestIdleCallback' in window) requestIdleCallback(mountScene, { timeout: 4000 });
+    else setTimeout(mountScene, 400);
+  };
+  setTimeout(lancer, 1000);
 }
 
 if (document.readyState === 'complete') planifierScene();
