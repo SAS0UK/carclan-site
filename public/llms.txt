@@ -1,5 +1,7 @@
 # CarClan
 
+**Tous les rassos. Un seul clan.**
+
 > CarClan est une application mobile française (iOS et Android) dédiée aux
 > rassemblements automobiles : trouver les rassos autour de soi, s'y inscrire,
 > et retrouver les photos et les participants après coup. Le projet démarre

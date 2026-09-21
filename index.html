@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>CarClan, les rassos près de chez vous</title>
     <meta name="description" content="CarClan est l'application des rassemblements automobiles : trouver les rassos autour de soi, y aller, revivre la soirée. Sortie cet hiver sur iPhone et Android, on démarre dans les Hauts-de-France." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Mathys Liénart" />
+    <link rel="preconnect" href="https://zheixbgssdfquresgtai.supabase.co" crossorigin />
     <meta name="theme-color" content="#0f0e0c" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -39,17 +42,27 @@
           "@type": "Organization",
           "@id": "https://carclan.fr/#organisation",
           "name": "CarClan",
+          "alternateName": ["Car Clan", "CarClan app", "application CarClan"],
           "url": "https://carclan.fr/",
           "logo": "https://carclan.fr/le-maillon.svg",
+          "image": "https://carclan.fr/og.png",
+          "description": "CarClan est l'application fran\u00e7aise des rassemblements automobiles : tous les rassos pr\u00e8s de chez vous sur une carte, l'inscription en un geste, et le fil du rasso apr\u00e8s coup.",
+          "slogan": "Tous les rassos. Un seul clan.",
           "email": "contact@carclan.fr",
-          "founder": { "@type": "Person", "name": "Mathys Liénart" },
-          "sameAs": ["https://youtube.com/@sasouk"]
+          "foundingDate": "2026",
+          "founder": { "@type": "Person", "name": "Mathys Li\u00e9nart" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Tourcoing", "addressRegion": "Hauts-de-France", "addressCountry": "FR" },
+          "areaServed": { "@type": "Country", "name": "France" },
+          "knowsAbout": ["rassemblement automobile", "rasso", "meeting auto", "expo auto", "trackday", "balade automobile"],
+          "sameAs": ["https://youtube.com/@sasouk", "https://www.tiktok.com/@mathys.process"]
         },
         {
           "@type": "WebSite",
           "@id": "https://carclan.fr/#site",
           "url": "https://carclan.fr/",
           "name": "CarClan",
+          "alternateName": "Car Clan",
+          "description": "Le site officiel de CarClan, l'application des rassemblements automobiles.",
           "inLanguage": "fr-FR",
           "publisher": { "@id": "https://carclan.fr/#organisation" }
         },
@@ -164,8 +177,8 @@
       <section class="hero" aria-labelledby="titre">
         <div class="hero-texte">
           <p class="surtitre t-surtitre"><span class="puce" aria-hidden="true"></span>Cet hiver sur iPhone et Android</p>
-          <h1 id="titre" class="t-enseigne">Les rassos près de chez vous.</h1>
-          <p class="lede">CarClan est l’application des rassemblements automobiles. Trouver, y aller, revivre. On démarre dans les Hauts-de-France.</p>
+          <h1 id="titre" class="t-enseigne">Tous les rassos.<br />Un seul clan.</h1>
+          <p class="lede">CarClan est l’application des rassemblements automobiles : tous les rassos près de chez vous sur une carte. Trouver, y aller, revivre. On démarre dans les Hauts-de-France.</p>
           <div class="actions">
             <a class="btn btn-ambre" href="#liste">Être prévenu à la sortie <svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></a>
             <a class="btn btn-contour" href="#decouvrir">Découvrir l’app</a>

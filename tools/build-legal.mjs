@@ -133,6 +133,7 @@ function construire(page) {
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
     <link rel="canonical" href="https://carclan.fr/${page.chemin}/" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="CarClan" />
@@ -142,6 +143,12 @@ function construire(page) {
     <meta property="og:image:alt" content="CarClan, les rassos près de chez vous" />
     <meta property="og:url" content="https://carclan.fr/${page.chemin}/" />
     <meta property="og:locale" content="fr_FR" />
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+      {"@type":"ListItem","position":1,"name":"CarClan","item":"https://carclan.fr/"},
+      {"@type":"ListItem","position":2,"name":"${echapper(page.titre)}","item":"https://carclan.fr/${page.chemin}/"}
+    ]}
+    </script>
     <link rel="preload" href="/fonts/Archivo-var.woff2" as="font" type="font/woff2" crossorigin />
     <style>
       html { background: #0f0e0c; }

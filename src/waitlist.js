@@ -66,6 +66,28 @@ export async function setupCompteur(el) {
   }
 }
 
+// Le chemin d'avant la fonction Edge, gardé comme filet. `waitlist` n'accepte
+// que l'insertion de trois colonnes sous RLS : la clé publiable ne donne rien
+// de plus ici que ce que le formulaire donne déjà.
+async function inscrireEnDirect(email, signal) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+      method: 'POST',
+      signal,
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({ email, source: 'site', consent_version: CONSENT_VERSION }),
+    });
+    return res.status === 201 || res.status === 204 || res.status === 409;
+  } catch {
+    return false;
+  }
+}
+
 export function setupWaitlist(form) {
   if (!form) return;
   const champ = form.querySelector('input[type="email"]');
@@ -135,24 +157,34 @@ export function setupWaitlist(form) {
     const minuteur = setTimeout(() => controleur.abort(), 9000);
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+      // Voie normale : la fonction `waitlist` inscrit ET envoie l'accusé de
+      // réception. Elle seule détient la clé Resend, qui ne peut pas vivre ici.
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/waitlist`, {
         method: 'POST',
         signal: controleur.signal,
         headers: {
           apikey: SUPABASE_KEY,
           Authorization: `Bearer ${SUPABASE_KEY}`,
           'Content-Type': 'application/json',
-          Prefer: 'return=minimal',
         },
-        body: JSON.stringify({ email, source: 'site', consent_version: CONSENT_VERSION }),
+        body: JSON.stringify({
+          email,
+          source: 'site',
+          consent_version: CONSENT_VERSION,
+          website: potDeMiel ? potDeMiel.value : '',
+        }),
       });
 
-      if (res.status === 201 || res.status === 204) {
+      const etatRendu = res.ok ? (await res.json().catch(() => ({}))).etat : null;
+
+      if (etatRendu === 'fait' || etatRendu === 'deja') {
+        conclure(etatRendu, email);
+      } else if (await inscrireEnDirect(email, controleur.signal)) {
+        // Repli : la fonction est injoignable ou en panne. L'insertion directe
+        // marche toujours, elle ne perd simplement pas l'adresse pour un
+        // message qui n'est pas parti. Mieux vaut un inscrit sans accusé de
+        // réception qu'un formulaire qui refuse.
         conclure('fait', email);
-      } else if (res.status === 409) {
-        // L'index unique sur lower(email) : déjà inscrite, ce n'est pas une
-        // erreur de la personne.
-        conclure('deja', email);
       } else {
         dire(MESSAGES.echec, true);
         occupe(false);
