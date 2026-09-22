@@ -1,12 +1,12 @@
 {
-  "updatedOn": "14 septembre 2026",
+  "updatedOn": "22 septembre 2026",
   "publisherName": "Mathys Liénart",
   "publisherCity": "Tourcoing (France)",
   "contactEmail": "contact@carclan.fr",
   "minimumAge": 15,
   "terms": {
     "title": "Conditions générales d’utilisation",
-    "updatedOn": "14 septembre 2026",
+    "updatedOn": "22 septembre 2026",
     "intro": "Ces conditions encadrent l’utilisation de l’application mobile CarClan. En créant un compte, vous les acceptez. Elles disent ce que CarClan fait pour vous, ce que vous vous engagez à respecter, et ce qui se passe quand ce n’est pas le cas.",
     "sections": [
       {
@@ -120,7 +120,7 @@
   },
   "privacy": {
     "title": "Politique de confidentialité",
-    "updatedOn": "14 septembre 2026",
+    "updatedOn": "22 septembre 2026",
     "intro": "Cette politique explique quelles données CarClan collecte, pourquoi, où elles sont stockées et comment exercer vos droits. Elle s’applique à l’application mobile CarClan et respecte le règlement général sur la protection des données (RGPD).",
     "sections": [
       {
@@ -137,6 +137,7 @@
           "Compte : adresse e-mail et mot de passe. Le mot de passe est stocké sous une forme chiffrée qui ne permet pas de le relire. Si vous passez par Google ou par Apple, nous conservons à la place l’identifiant que ce fournisseur nous transmet.",
           "Profil : nom d’utilisateur et pseudo obligatoires ; prénom, nom, téléphone, ville, biographie et photo de profil facultatifs.",
           "Acceptations : la date à laquelle vous avez accepté les conditions et cette politique, la version que vous aviez sous les yeux, et votre déclaration d’avoir 15 ans ou plus.",
+          "Questionnaire d’arrivée : votre réponse aux deux questions posées juste après la création du compte, celle de savoir comment vous avez connu CarClan et ce que vous venez y chercher. Elles sont enregistrées une seule fois et ne peuvent plus être modifiées. La première sert à mesurer les canaux qui amènent des membres, la seconde à choisir par quel écran commencer votre visite de découverte, et elle est comptée avec les autres pour savoir ce que les membres viennent chercher. Elles ne sont lues que par l’éditeur, jamais par les autres membres, et sont effacées avec votre compte.",
           "Garage : vos véhicules, leurs caractéristiques, leur description et leurs photos.",
           "Événements que vous créez : titre, description, adresse, position sur la carte, règlement, mode d’entrée et lien externe, prix indicatif, affiche, votre déclaration que le lieu est privé, autorisé ou toléré, et, si vous saisissez la fiche pour un autre organisateur, le nom public de celui-ci.",
           "Événements auxquels vous participez, et les règlements que vous acceptez pour y participer, avec le texte du règlement tel qu’il était au moment où vous l’avez accepté.",
@@ -164,6 +165,7 @@
           "Vous envoyer les e-mails nécessaires au compte : confirmation, réinitialisation du mot de passe (exécution du contrat).",
           "Savoir si l’application est utilisée : le relevé d’ouverture quotidien sert à compter combien de membres reviennent après un, sept et trente jours, rien de plus (intérêt légitime).",
           "Créditer l’organisateur réel d’un événement saisi pour lui, et lui remettre sa fiche s’il la revendique (intérêt légitime). Un organisateur crédité par son nom peut demander la modification ou le retrait de ce crédit à contact@carclan.fr.",
+          "Savoir par où vous êtes arrivé : les deux réponses du questionnaire d’arrivée servent à mesurer quels canaux amènent des membres, pour ne pas investir à l’aveugle, et à choisir par quel écran commencer la visite de découverte (intérêt légitime). Vous pouvez vous y opposer en ne répondant pas : le questionnaire se passe, et vous pouvez demander l’effacement de vos réponses à contact@carclan.fr.",
           "CarClan ne fait ni publicité, ni profilage, ni revente de données."
         ]
       },
@@ -256,7 +258,7 @@
   },
   "legalNotice": {
     "title": "Mentions légales et contact",
-    "updatedOn": "14 septembre 2026",
+    "updatedOn": "22 septembre 2026",
     "intro": "Qui édite CarClan, où sont hébergées les données, et comment nous écrire.",
     "sections": [
       {
