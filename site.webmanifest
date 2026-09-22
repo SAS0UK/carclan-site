@@ -1,0 +1,16 @@
+{
+  "name": "CarClan",
+  "short_name": "CarClan",
+  "description": "Tous les rassos. Un seul clan. L'application des rassemblements automobiles.",
+  "lang": "fr",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0e0c",
+  "theme_color": "#0f0e0c",
+  "icons": [
+    { "src": "/favicon-48.png", "sizes": "48x48", "type": "image/png" },
+    { "src": "/favicon-96.png", "sizes": "96x96", "type": "image/png" },
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
