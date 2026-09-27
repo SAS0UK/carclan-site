@@ -64,7 +64,7 @@ export const PAGES = [
           {
             defs: [
               ['Supabase, Inc.', 'Base de données, authentification et stockage des fichiers, sur des serveurs Amazon Web Services situés à Francfort, en Allemagne, dans l’Union européenne.'],
-              ['Resend', 'Envoi des courriels liés à un compte de l’application. Serveurs situés en Irlande, dans l’Union européenne.'],
+              ['Resend', 'Envoi des courriels liés à un compte de l’application, et des deux courriels de la liste d’attente (la confirmation d’inscription, puis l’annonce de la sortie). Serveurs situés en Irlande, dans l’Union européenne.'],
             ],
           },
           'La [politique de confidentialité](/confidentialite/) détaille ce qui est collecté, pourquoi et pendant combien de temps.',
@@ -73,8 +73,8 @@ export const PAGES = [
       {
         titre: 'Propriété intellectuelle',
         blocs: [
-          'Le nom CarClan, le logo, l’identité visuelle, les textes, les visuels de ce site et le code de l’application appartiennent à l’éditeur. Ils ne peuvent être copiés, modifiés ou rediffusés sans accord écrit.',
-          'Les affiches de rassemblement présentées sur ce site sont des visuels créés pour CarClan. Elles ne reprennent aucune photographie ni aucun modèle appartenant à un tiers.',
+          'Le nom CarClan, le logo, l’identité visuelle, les textes, les visuels créés pour ce site et le code de l’application appartiennent à l’éditeur. Ils ne peuvent être copiés, modifiés ou rediffusés sans accord écrit. Les fonds de carte font exception : leurs données appartiennent à leurs contributeurs (voir les crédits).',
+          'Les affiches de rassemblement présentées sur ce site sont générées par l’application CarClan. Elles ne reprennent aucune photographie ni aucun modèle appartenant à un tiers. Les écrans de l’application montrés sur ce site portent des données d’exemple : les rassemblements, organisateurs et messages qu’on y lit sont fictifs.',
           'Les marques et les noms de véhicules éventuellement cités appartiennent à leurs titulaires respectifs et ne sont mentionnés qu’à titre de référence.',
         ],
       },
@@ -84,7 +84,7 @@ export const PAGES = [
           {
             defs: [
               ['Archivo', 'Police de caractères de Omnibus-Type, distribuée sous licence SIL Open Font 1.1. Le texte de la licence est servi à l’adresse [carclan.fr/fonts/OFL-Archivo.txt](/fonts/OFL-Archivo.txt).'],
-              ['Décor du site', 'Scène tridimensionnelle écrite pour CarClan avec la bibliothèque three.js (licence MIT). Aucun modèle ni aucune photographie tierce n’y est utilisé.'],
+              ['Cartes', 'Les vues de la métropole lilloise et des Hauts-de-France sont rendues à partir des données © [contributeurs OpenStreetMap](https://www.openstreetmap.org/copyright) (licence ODbL), des tuiles © [OpenMapTiles](https://openmaptiles.org/) et du service [OpenFreeMap](https://openfreemap.org/), dans le style de la carte de l’application. Elles sont servies par ce site : aucune requête ne part vers ces services quand vous le consultez.'],
             ],
           },
         ],
@@ -127,14 +127,14 @@ export const PAGES = [
             tableau: {
               entetes: ['Donnée', 'Pourquoi', 'Combien de temps'],
               lignes: [
-                ['Votre adresse e-mail', 'Vous envoyer un message le jour où CarClan sort, et rien d’autre.', 'Jusqu’à la sortie de l’application, puis trois mois au plus.'],
+                ['Votre adresse e-mail', 'Vous envoyer un e-mail de confirmation au moment de l’inscription, puis un message le jour où CarClan sort, et rien d’autre.', 'Jusqu’à la sortie de l’application, puis trois mois au plus.'],
                 ['La date de votre inscription', 'Prouver quand le consentement a été donné, comme le RGPD l’exige.', 'Idem.'],
                 ['La version de cette politique', 'Savoir quel texte vous aviez sous les yeux au moment de vous inscrire.', 'Idem.'],
               ],
             },
           },
           '**La base légale est votre consentement** : vous saisissez votre adresse vous-même, sous un texte qui dit à quoi elle sert. Vous pouvez le retirer à tout moment en écrivant à l’adresse de contact, ce qui entraîne l’effacement de votre adresse.',
-          'Ces adresses partent chez **Supabase** (serveurs situés à Francfort, dans l’Union européenne) et ne sont lues que par l’éditeur, depuis le tableau de bord de ce service. Elles ne sont jamais revendues, ni transmises à un annonceur, ni utilisées pour une lettre d’information.',
+          'Ces adresses sont enregistrées chez **Supabase** (serveurs situés à Francfort, dans l’Union européenne) et ne sont lues que par l’éditeur, depuis le tableau de bord de ce service. Les deux e-mails partent par **Resend** (serveurs situés en Irlande, dans l’Union européenne), qui ne reçoit que votre adresse et le message. Elles ne sont jamais revendues, ni transmises à un annonceur, ni utilisées pour une lettre d’information.',
           'Le formulaire porte un champ caché que seul un robot remplit. Sa valeur n’est jamais enregistrée : elle sert uniquement à écarter les envois automatiques.',
         ],
       },

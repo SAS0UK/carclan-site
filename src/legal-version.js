@@ -15,8 +15,8 @@
 // qu'on sache ce que la personne avait sous les yeux.
 
 export const APP_VERSION = '14 septembre 2026';
-export const SITE_VERSION = '21 septembre 2026';
+export const SITE_VERSION = '27 septembre 2026';
 
 // La même date, au format que la base attend (migration 0046 : au plus
 // 32 caractères, comparée telle quelle).
-export const CONSENT_VERSION = '2026-09-21';
+export const CONSENT_VERSION = '2026-09-27';

@@ -5,6 +5,10 @@ import './site.css';
 import { mountIcons } from './icons.js';
 import { setupWaitlist, setupCompteur } from './waitlist.js';
 
+// Le module a tourné : le filet de index.html (qui retire `js` au bout de
+// 3 s sans ce signal) n'a plus à intervenir.
+window.__carclan = true;
+
 mountIcons();
 
 const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -15,27 +19,25 @@ const pointeurFin = matchMedia('(hover: hover) and (pointer: fine)');
 
 document.querySelectorAll('[data-formulaire]').forEach((f) => setupWaitlist(f));
 
-// Le compteur n'interroge Supabase que si on approche du formulaire du bas :
-// un visiteur qui repart du premier écran ne touche aucun serveur tiers.
-const compteur = document.getElementById('compteur-attente');
-if (compteur && 'IntersectionObserver' in window) {
-  const io = new IntersectionObserver((entrees) => {
-    if (entrees.some((e) => e.isIntersecting)) { setupCompteur(compteur); io.disconnect(); }
-  }, { rootMargin: '400px 0px' });
-  io.observe(compteur.closest('section') || compteur);
-}
+// Le compteur d'inscrits n'est pas branché : il ne s'affiche qu'au-delà de
+// 50 inscrits (SEUIL_COMPTEUR), et l'interroger ferait sortir une requête
+// vers Supabase que la page /cookies/ ne liste pas. Le jour où il devient un
+// argument : rappeler setupCompteur(document.getElementById('compteur-attente'))
+// ici, et ajouter ce cas à « Les seules requêtes qui sortent ».
+void setupCompteur;
 
 // Une inscription ferme l'autre formulaire aussi : on ne redemande pas en bas
 // une adresse qu'on vient de donner en haut.
 let inscrit = false;
+// L'autre bloc ne recopie QUE le titre : le détail porte l'adresse, et un
+// téléphone qui passe de main en main ne doit pas montrer celle du précédent.
 document.addEventListener('attente:fait', (e) => {
   inscrit = true;
   document.querySelectorAll('[data-fait-actions]').forEach((a) => { a.hidden = false; });
   const source = e.detail?.bloc;
   const titre = source?.querySelector('[data-fait-titre]')?.textContent;
-  const detail = source?.querySelector('.etat-envoi')?.textContent;
   document.querySelectorAll('[data-attente]').forEach((bloc) => {
-    if (bloc === source || bloc.classList.contains('done')) return;
+    if (bloc === source) return;
     bloc.classList.add('done');
     bloc.querySelector('.attente')?.classList.add('done');
     const fait = bloc.querySelector('.fait');
@@ -45,42 +47,50 @@ document.addEventListener('attente:fait', (e) => {
       fait.hidden = false;
     }
     const etat = bloc.querySelector('.etat-envoi');
-    if (etat && detail) etat.textContent = detail;
+    if (etat) { etat.textContent = ''; etat.classList.remove('erreur'); }
   });
   majPouce();
 });
 
 // Après une inscription : le téléphone passe de main en main sur un rasso, donc
 // « Inscrire quelqu'un d'autre » rouvre le formulaire, vide, prêt.
+// Tous les blocs se rouvrent : aucun ne garde l'adresse de la personne
+// précédente, et le focus va au champ du bloc touché.
 document.querySelectorAll('[data-autre]').forEach((b) => b.addEventListener('click', () => {
-  const bloc = b.closest('[data-attente]');
-  if (!bloc) return;
-  bloc.classList.remove('done');
-  const form = bloc.querySelector('.attente');
-  form?.classList.remove('done');
-  const fait = bloc.querySelector('.fait');
-  if (fait) fait.hidden = true;
-  bloc.querySelector('[data-fait-actions]').hidden = true;
-  const etat = bloc.querySelector('.etat-envoi');
-  if (etat) { etat.textContent = ''; etat.classList.remove('erreur'); }
-  const champ = bloc.querySelector('input[type="email"]');
-  const bouton = bloc.querySelector('button[type="submit"]');
-  if (bouton) {
-    bouton.disabled = false;
-    const l = bouton.querySelector('[data-libelle]');
-    if (l) l.textContent = 'Me prévenir';
-  }
-  if (champ) { champ.value = ''; champ.setAttribute('aria-invalid', 'false'); champ.focus(); }
+  const touche = b.closest('[data-attente]');
+  document.querySelectorAll('[data-attente]').forEach((bloc) => {
+    bloc.classList.remove('done');
+    bloc.querySelector('.attente')?.classList.remove('done');
+    const fait = bloc.querySelector('.fait');
+    if (fait) fait.hidden = true;
+    const actions = bloc.querySelector('[data-fait-actions]');
+    if (actions) actions.hidden = true;
+    const etat = bloc.querySelector('.etat-envoi');
+    if (etat) { etat.textContent = ''; etat.classList.remove('erreur'); }
+    const champ = bloc.querySelector('input[type="email"]');
+    if (champ) { champ.value = ''; champ.setAttribute('aria-invalid', 'false'); }
+    const bouton = bloc.querySelector('button[type="submit"]');
+    if (bouton) {
+      bouton.disabled = false;
+      const l = bouton.querySelector('[data-libelle]');
+      if (l) l.textContent = 'Me prévenir';
+    }
+  });
+  inscrit = false;
+  majPouce();
+  touche?.querySelector('input[type="email"]')?.focus();
 }));
 
 document.querySelectorAll('[data-partager]').forEach((b) => b.addEventListener('click', async () => {
   const donnees = { title: 'CarClan', text: 'Tous les rassos près de chez vous, sur une carte. L’app sort cet hiver.', url: 'https://carclan.fr' };
+  b.dataset.libelle ??= b.textContent;
   try {
     if (navigator.share) { await navigator.share(donnees); return; }
     await navigator.clipboard.writeText(donnees.url);
-    const avant = b.textContent;
     b.textContent = 'Lien copié';
-    setTimeout(() => { b.textContent = avant; }, 2000);
+    const etat = b.closest('[data-attente]')?.querySelector('.etat-envoi');
+    if (etat) etat.textContent = 'Le lien carclan.fr est copié.';
+    setTimeout(() => { b.textContent = b.dataset.libelle; }, 2000);
   } catch {
     // Partage annulé : rien à dire.
   }
@@ -119,7 +129,8 @@ if (qr && typeof qr.showModal === 'function') {
   const ouvrirQr = () => { if (!qr.open) { if (menu?.open) menu.close(); qr.showModal(); } };
   document.querySelectorAll('[data-ouvre-qr]').forEach((b) => b.addEventListener('click', ouvrirQr));
   qr.querySelector('[data-ferme-qr]')?.addEventListener('click', () => qr.close());
-  qr.addEventListener('click', (e) => { if (e.target === qr) qr.close(); });
+  // Pas de fermeture en touchant le fond : sur un rasso, le téléphone passe de
+  // main en main et un doigt à côté du code ne doit pas le faire disparaître.
   qr.addEventListener('close', () => { if (location.hash === '#qr') history.replaceState(null, '', location.pathname + location.search); });
   const surHash = () => { if (location.hash === '#qr') ouvrirQr(); };
   window.addEventListener('hashchange', surHash);
@@ -190,8 +201,10 @@ if (chapitres.length && 'IntersectionObserver' in window) {
   // Les écrans de la visite se chargent tous dès qu'on approche de la
   // section, pour qu'aucun ne clignote en arrivant.
   const visite = document.getElementById('application');
+  // Seulement sur un écran large : sur un téléphone, ce téléphone collant
+  // est masqué et chaque chapitre porte sa propre image, chargée à la demande.
   const precharge = new IntersectionObserver((entrees) => {
-    if (entrees.some((e) => e.isIntersecting)) {
+    if (large.matches && entrees.some((e) => e.isIntersecting)) {
       ecrans.forEach((img) => { img.loading = 'eager'; });
       precharge.disconnect();
     }
@@ -230,7 +243,7 @@ if (participe) {
   const COCHE = '<svg class="coche-tracee" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.6 10.4 8.4 15.2 16.8 5.6" /></svg>';
   const ETATS = {
     repos: { html: '<svg class="ic" aria-hidden="true"><use href="#cc-check" /></svg>Je participe', classe: null, note: noteRepos },
-    engage: { html: `${COCHE}Vous y allez`, classe: 'engage', note: 'Inscription confirmée. Vos amis le voient.' },
+    engage: { html: `${COCHE}Vous y allez`, classe: 'engage', note: 'Dans l’application, c’est fait : vos amis le voient.' },
     inviter: { html: '<svg class="ic" aria-hidden="true"><use href="#cc-amis" /></svg>Inviter des amis', classe: 'inviter', note: 'Touchez encore pour recommencer.' },
   };
   let etat = 'repos';
@@ -343,16 +356,19 @@ const railAffiches = document.querySelector('[data-rail-affiches]');
 const fleches = document.querySelector('[data-fleches]');
 if (railAffiches && fleches) {
   const [prec, suiv] = fleches.querySelectorAll('[data-fleche]');
+  // aria-disabled et non disabled : un bouton désactivé perd le focus, qui
+  // retomberait sur le haut de la page au clavier.
   const majFleches = () => {
     const max = railAffiches.scrollWidth - railAffiches.clientWidth - 4;
-    prec.disabled = railAffiches.scrollLeft <= 4;
-    suiv.disabled = railAffiches.scrollLeft >= max;
+    prec.setAttribute('aria-disabled', String(railAffiches.scrollLeft <= 4));
+    suiv.setAttribute('aria-disabled', String(railAffiches.scrollLeft >= max));
   };
   const pas = () => {
     const li = railAffiches.querySelector('li');
     return li ? (li.getBoundingClientRect().width + 20) * 2 : 600;
   };
   fleches.querySelectorAll('[data-fleche]').forEach((b) => b.addEventListener('click', () => {
+    if (b.getAttribute('aria-disabled') === 'true') return;
     railAffiches.scrollBy({ left: Number(b.dataset.fleche) * pas(), behavior: reduit ? 'auto' : 'smooth' });
   }));
   railAffiches.addEventListener('scroll', majFleches, { passive: true });

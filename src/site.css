@@ -374,6 +374,7 @@ button, input { font-family: inherit; }
   padding: calc(var(--barre-h) + clamp(24px, 6vh, 72px)) var(--page) 0;
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  min-width: 0;
   gap: var(--s-6);
   align-items: center;
 }
@@ -410,6 +411,13 @@ button, input { font-family: inherit; }
   line-height: 16px;
   color: var(--bitume);
 }
+
+/* La mention d'exemple, sur téléphone seulement : sur un écran large, la
+   légende du bas de la ville le dit déjà. */
+.exemple-mobile { display: none; margin: var(--s-4) 0 0; font-size: 13px; line-height: 18px; color: var(--bitume-clair); }
+
+.carte-credit { margin: var(--s-4) 0 0 !important; font-size: 12px !important; line-height: 16px !important; color: var(--bitume) !important; }
+.carte-credit a, .ouverture-mention a, .pied-bas a { color: inherit; }
 
 /* ---- Le formulaire (deux fois dans la page) ------------------------------ */
 
@@ -494,7 +502,7 @@ button, input { font-family: inherit; }
 
 /* ---- Le QR code ---------------------------------------------------------------- */
 
-.qr {
+.ecran-qr {
   width: 100%;
   max-width: none;
   height: 100%;
@@ -506,8 +514,8 @@ button, input { font-family: inherit; }
   color: var(--craie);
   place-items: center;
 }
-.qr[open] { display: grid; animation: menuEntre 0.45s var(--expo) both; }
-.qr::backdrop { background: rgba(15, 14, 12, 0.8); }
+.ecran-qr[open] { display: grid; animation: menuEntre 0.45s var(--expo) both; }
+.ecran-qr::backdrop { background: rgba(15, 14, 12, 0.8); }
 .qr-fermer { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: var(--page); margin: 0; }
 .qr-corps-dialog { display: flex; flex-direction: column; align-items: center; text-align: center; width: min(100%, 420px); }
 .qr-code { width: min(78vw, 60vh, 380px); height: auto; display: block; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--filet-clair), 0 40px 80px -30px rgba(226, 162, 31, 0.35); }
@@ -519,7 +527,7 @@ button, input { font-family: inherit; }
 .pied-lien {
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0;
   border: 0;
   background: none;
@@ -561,7 +569,7 @@ button, input { font-family: inherit; }
   opacity: 0.32;
   transition: opacity 0.6s var(--expo);
 }
-.chapitre.actif { opacity: 1; }
+.chapitre.actif, .chapitre:focus-within { opacity: 1; }
 .chapitre:first-child { min-height: 70vh; justify-content: flex-start; padding-top: 14vh; }
 .chapitre:last-child { min-height: 80vh; }
 
@@ -785,7 +793,7 @@ html.js .affiches-rail.allume li:hover img { filter: brightness(1.28); transitio
   transition: border-color 0.2s ease, opacity 0.2s ease;
 }
 .fleche:hover { border-color: var(--craie); }
-.fleche:disabled { opacity: 0.3; cursor: default; border-color: var(--trait); }
+.fleche[aria-disabled='true'] { opacity: 0.3; cursor: default; border-color: var(--trait); }
 
 /* ---- Organisateurs et partenaires ------------------------------------------ */
 
@@ -807,6 +815,8 @@ html.js .affiches-rail.allume li:hover img { filter: brightness(1.28); transitio
    connaît par cœur, et c'est ce qu'on colle dans une story. */
 .lien-court {
   display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   align-items: baseline;
   margin: var(--s-5) 0 0;
   padding: 10px 16px 9px;
@@ -1025,12 +1035,13 @@ html.js .affiches-rail.allume li:hover img { filter: brightness(1.28); transitio
 .pied > * { max-width: var(--largeur); margin-left: auto; margin-right: auto; }
 .pied-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-4); }
 .pied-slogan { margin: 0; color: var(--bitume); font-variation-settings: 'wght' 600, 'wdth' 100; }
-.pied-colonnes { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--s-4) clamp(32px, 8vw, 120px); margin-top: var(--s-6); }
+.pied-colonnes { display: grid; grid-template-columns: repeat(3, minmax(0, auto)); justify-content: start; gap: var(--s-4) clamp(32px, 8vw, 120px); margin-top: var(--s-6); }
 .pied-colonnes nav { display: flex; flex-direction: column; }
 .pied-colonnes a {
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
+  min-height: 44px;
+  overflow-wrap: anywhere;
   color: var(--craie);
   text-decoration: none;
 }
@@ -1087,7 +1098,8 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
   .tel-visite .ecran, .chapitre, .visite-rail li, .visite-rail li::before { transition: none; }
   .fait-coche circle, .fait-coche path { animation: none; stroke-dashoffset: 0; }
   html.js .affiches-rail img { filter: brightness(1.14); transition: none; }
-  .menu[open] { animation: none; }
+  .menu[open], .ecran-qr[open] { animation: none; }
+  .pouce { transition: none; }
 }
 
 /* ---- Écrans moyens -------------------------------------------------------------- */
@@ -1100,7 +1112,7 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
   .barre-nav, .barre-action { display: none; }
   .barre-menu { display: grid; }
 
-  .ouverture-corps { grid-template-columns: 1fr; gap: 0; align-items: start; }
+  .ouverture-corps { grid-template-columns: minmax(0, 1fr); gap: 0; align-items: start; }
   .ouverture-texte { padding-bottom: var(--s-6); }
   .tel-ouverture { --l: min(78vw, 340px); margin-bottom: calc(var(--l) * -1.1); }
 
@@ -1111,7 +1123,7 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
 
   .affiches-tete { grid-template-columns: 1fr; gap: var(--s-4); }
 
-  .publics { grid-template-columns: 1fr; }
+  .publics { grid-template-columns: minmax(0, 1fr); }
   .public, .public + .public { padding: 0; border-left: 0; }
   .public + .public { margin-top: var(--s-7); padding-top: var(--s-7); border-top: 1px solid var(--filet); }
 
@@ -1159,12 +1171,14 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
   .attente-rangee { flex-direction: column; }
   .attente .btn-ambre { width: 100%; }
   .ouverture-mention { display: none; }
+  .exemple-mobile { display: block; }
+  .attente-ouverture .note { color: var(--bitume-clair); }
   .visite-intro, .chapitre p, .affiches-tete p, .public-chapeau, .territoire-texte p { font-size: 17px; }
   .qr summary { font-size: 17px; }
   .qr-corps { padding-right: 0; }
   .qr-corps p { font-size: 16px; }
   .finale-chapeau { font-size: 17px; }
-  .pied-colonnes { grid-template-columns: 1fr 1fr; }
+  .pied-colonnes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .pied-colonnes nav:last-child { grid-column: 1 / -1; }
 }
 
@@ -1178,4 +1192,11 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
 
 @media (max-width: 360px) {
   .repere-legende { font-size: 11px; }
+}
+
+/* Texte très agrandi (zoom de page à 150-200 % sur un téléphone) : le titre
+   peut se couper, le mot-symbole de la barre s'efface pour garder le menu. */
+@media (max-width: 300px) {
+  .ligne { white-space: normal; }
+  .barre .t-marque { display: none; }
 }

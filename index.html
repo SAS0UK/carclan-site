@@ -15,7 +15,6 @@
     <meta name="google-site-verification" content="xNAd9Wh9nQiv93xhgalkQA91ipelFElW5l3e4F6j_tg" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="Mathys Liénart" />
-    <link rel="preconnect" href="https://zheixbgssdfquresgtai.supabase.co" crossorigin />
     <meta name="theme-color" content="#0f0e0c" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -47,7 +46,10 @@
       html { background: #0f0e0c; }
       body { margin: 0; }
     </style>
-    <script>document.documentElement.classList.add('js');</script>
+    <!-- La classe `js` cache ce qui apparaîtra en défilant. Si le module ne
+         tourne pas (bloqué, hors ligne, erreur), elle est retirée au bout de
+         3 s : la page redevient entièrement lisible. -->
+    <script>document.documentElement.classList.add('js');setTimeout(function(){if(!window.__carclan)document.documentElement.classList.remove('js')},3000);</script>
     <script type="module" src="/src/main.js"></script>
     <script type="application/ld+json">
     {
@@ -96,7 +98,7 @@
           "@id": "https://carclan.fr/#questions",
           "mainEntity": [
             { "@type": "Question", "name": "CarClan, c’est gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. Télécharger l’application, trouver un rasso, s’y inscrire et publier le sien sont gratuits, et le resteront. CarClan n’encaisse rien : quand une fiche indique un tarif, il est réglé auprès de l’organisateur, hors de l’application." } },
-            { "@type": "Question", "name": "Quand est-ce que ça sort ?", "acceptedAnswer": { "@type": "Answer", "text": "L’application sort cet hiver. Laissez votre adresse sur cette page : vous recevrez un message le jour de la sortie, et rien d’autre." } },
+            { "@type": "Question", "name": "Quand est-ce que ça sort ?", "acceptedAnswer": { "@type": "Answer", "text": "L’application sort cet hiver. Laissez votre adresse sur cette page : vous recevrez un e-mail de confirmation, puis un message le jour de la sortie, et rien d’autre." } },
             { "@type": "Question", "name": "Sur quels téléphones ?", "acceptedAnswer": { "@type": "Answer", "text": "iPhone et Android. Le site redirigera vers l’App Store et Google Play le jour de la publication." } },
             { "@type": "Question", "name": "J’organise des rassos. Comment je publie les miens ?", "acceptedAnswer": { "@type": "Answer", "text": "Depuis l’application, une fois votre compte organisateur agréé. Si votre rasso est déjà dans CarClan parce que quelqu’un l’a saisi, revendiquez-le d’un geste avec « C’est mon rasso » : après vérification, la fiche passe sous votre compte et vous publiez vos dates vous-même. Écrivez-nous en attendant." } },
             { "@type": "Question", "name": "Mon rassemblement doit-il être autorisé ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, et c’est une règle que nous ne contournons pas. Un rasso publié doit se tenir dans un lieu privé, autorisé ou toléré : parking d’enseigne avec l’accord de l’enseigne, circuit, terrain privé, ou lieu couvert par une autorisation. L’organisateur le déclare au moment de publier. Les courses, rodéos et conduites dangereuses sur voie ouverte sont interdits et entraînent le retrait de la fiche." } },
@@ -124,7 +126,7 @@
         <a href="#questions">Questions</a>
       </nav>
       <a class="btn btn-ambre btn-petit barre-action" href="#liste" data-vers-liste>Être prévenu</a>
-      <button class="barre-menu" type="button" aria-haspopup="dialog" aria-controls="menu" data-ouvre-menu>
+      <button class="barre-menu" type="button" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false" data-ouvre-menu>
         <span class="barre-menu-traits" aria-hidden="true"></span>
         <span class="sr-only">Ouvrir le menu</span>
       </button>
@@ -160,7 +162,7 @@
          sur le sien. S'ouvre depuis le menu, le pied de page, ou carclan.fr/#qr.
          Craie sur nuit inversé en nuit sur craie : c'est le sens que tous les
          lecteurs de QR lisent. -->
-    <dialog id="qr" class="qr" aria-labelledby="t-qr">
+    <dialog id="qr" class="ecran-qr" aria-labelledby="t-qr">
       <button class="menu-fermer qr-fermer" type="button" data-ferme-qr>
         <svg class="ic" aria-hidden="true"><use href="#cc-fermer" /></svg>
         <span class="sr-only">Fermer</span>
@@ -204,7 +206,7 @@
                 <svg class="fait-coche" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" /><path d="M7.5 12.4l3.1 3.1 6-6.6" /></svg>
                 <p class="fait-titre" data-fait-titre>Vous y êtes.</p>
               </div>
-              <form class="attente" novalidate data-formulaire>
+              <form class="attente" method="post" novalidate data-formulaire>
                 <label class="sr-only" for="email-haut">Adresse e-mail</label>
                 <div class="attente-rangee">
                   <input id="email-haut" name="email" type="email" inputmode="email" autocomplete="email" placeholder="votre@adresse.fr" required aria-describedby="note-haut etat-haut" />
@@ -212,13 +214,14 @@
                 </div>
                 <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
                 <p id="etat-haut" class="etat-envoi" role="status" aria-live="polite"></p>
-                <p id="note-haut" class="note">Un e-mail le jour de la sortie, et rien d’autre. En l’envoyant, vous déclarez avoir 15&nbsp;ans ou plus et avoir lu la <a href="/confidentialite/">politique de confidentialité</a>.</p>
+                <p id="note-haut" class="note">Un e-mail pour confirmer, un autre le jour de la sortie. Rien d’autre. En l’envoyant, vous déclarez avoir 15&nbsp;ans ou plus et avoir lu la <a href="/confidentialite/">politique de confidentialité</a>.</p>
               </form>
               <div class="fait-actions" data-fait-actions hidden>
                 <button class="btn btn-contour btn-petit" type="button" data-autre>Inscrire quelqu’un d’autre</button>
                 <button class="btn btn-contour btn-petit" type="button" data-partager>Partager CarClan</button>
               </div>
             </div>
+            <p class="exemple-mobile">Plus bas, l’application telle qu’elle est, sur des rassos d’exemple.</p>
           </div>
 
           <figure class="tel tel-ouverture">
@@ -226,7 +229,7 @@
               <div class="tel-vitre">
                 <picture>
                   <source type="image/avif" srcset="/ecrans/rassos-400.avif 400w, /ecrans/rassos-800.avif 800w" sizes="(max-width: 700px) 70vw, 380px" />
-                  <img src="/ecrans/rassos-800.jpg" srcset="/ecrans/rassos-400.jpg 400w, /ecrans/rassos-800.jpg 800w" sizes="(max-width: 700px) 70vw, 380px" width="402" height="874" alt="L’onglet Rassos de CarClan : les prochains rassemblements, chacun avec son affiche, son jour et son lieu." fetchpriority="high" decoding="async" />
+                  <img src="/ecrans/rassos-800.jpg" srcset="/ecrans/rassos-400.jpg 400w, /ecrans/rassos-800.jpg 800w" sizes="(max-width: 700px) 70vw, 380px" width="402" height="874" alt="L’onglet Rassos de CarClan, sur des rassos d’exemple : un rasso en direct, puis la liste des prochains, chacun avec son affiche, son jour et son lieu." fetchpriority="high" decoding="async" />
                 </picture>
                 <span class="tel-lumiere" aria-hidden="true"></span>
               </div>
@@ -234,7 +237,7 @@
           </figure>
         </div>
 
-        <p class="ouverture-mention">La métropole lilloise telle que la dessine la carte de CarClan. Rassos d’exemple. © OpenFreeMap © OpenMapTiles © contributeurs OpenStreetMap</p>
+        <p class="ouverture-mention">La métropole lilloise telle que la dessine la carte de CarClan. Rassos et écrans d’exemple. Données © <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">contributeurs OpenStreetMap</a>, OpenMapTiles, OpenFreeMap.</p>
       </section>
 
       <!-- La visite : un seul téléphone, collant, qui change d'écran au fil
@@ -297,7 +300,7 @@
                    « Inviter des amis ». On peut le toucher. -->
               <div class="essai">
                 <button class="participe" type="button" data-participe><span class="participe-libelle" data-libelle-participe><svg class="ic" aria-hidden="true"><use href="#cc-check" /></svg>Je participe</span></button>
-                <p class="essai-note" aria-live="polite" data-note-participe>Essayez-le&#8239;: c’est le même geste que dans l’application.</p>
+                <p class="essai-note" aria-live="polite" data-note-participe>Essayez-le&#8239;: c’est le même bouton que dans l’application.</p>
               </div>
               <p class="chapitre-details">Inscription · Amis · Itinéraire</p>
               <figure class="tel tel-chapitre">
@@ -307,7 +310,7 @@
 
             <article class="chapitre" data-chapitre="direct" aria-labelledby="t-sur-place">
               <h3 id="t-sur-place" class="t-titre-chapitre">Sur place, le direct.</h3>
-              <p>Le temps du rasso, une conversation s’ouvre pour ceux qui y sont&#8239;: où se garer, qui arrive, la photo du moment. Elle s’efface ensuite, comme la soirée.</p>
+              <p>Le temps du rasso, une conversation s’ouvre pour les inscrits et l’organisateur&#8239;: où se garer, qui arrive, l’heure de la photo de groupe. Elle s’efface à la fin, sauf les messages signalés, gardés pour la modération.</p>
               <p class="chapitre-details">En direct · Mentions · Signalement</p>
               <figure class="tel tel-chapitre">
                 <div class="tel-coque"><div class="tel-vitre"><picture><source type="image/avif" srcset="/ecrans/direct-400.avif 400w, /ecrans/direct-800.avif 800w" sizes="72vw" /><img src="/ecrans/direct-800.jpg" srcset="/ecrans/direct-400.jpg 400w, /ecrans/direct-800.jpg 800w" sizes="72vw" width="402" height="874" alt="Le direct d’un rasso : la conversation éphémère des participants, pendant la soirée." loading="lazy" decoding="async" /></picture><span class="tel-lumiere" aria-hidden="true"></span></div></div>
@@ -319,7 +322,7 @@
               <p>Les photos arrivent dans le fil, chaque voiture a sa vitrine au garage, et les habitués se retrouvent dans leur clan&#8239;: un organisateur, ses annonces, et ceux qui le suivent.</p>
               <p class="chapitre-details">Fil photo · Garage · Clans</p>
               <figure class="tel tel-chapitre">
-                <div class="tel-coque"><div class="tel-vitre"><picture><source type="image/avif" srcset="/ecrans/clan-400.avif 400w, /ecrans/clan-800.avif 800w" sizes="72vw" /><img src="/ecrans/clan-800.jpg" srcset="/ecrans/clan-400.jpg 400w, /ecrans/clan-800.jpg 800w" sizes="72vw" width="402" height="874" alt="L’onglet Clan : le fil des photos prises sur place et les garages des membres." loading="lazy" decoding="async" /></picture><span class="tel-lumiere" aria-hidden="true"></span></div></div>
+                <div class="tel-coque"><div class="tel-vitre"><picture><source type="image/avif" srcset="/ecrans/clan-400.avif 400w, /ecrans/clan-800.avif 800w" sizes="72vw" /><img src="/ecrans/clan-800.jpg" srcset="/ecrans/clan-400.jpg 400w, /ecrans/clan-800.jpg 800w" sizes="72vw" width="402" height="874" alt="L’onglet Clan : les clans que vous suivez et les annonces de leurs organisateurs." loading="lazy" decoding="async" /></picture><span class="tel-lumiere" aria-hidden="true"></span></div></div>
               </figure>
             </article>
           </div>
@@ -359,7 +362,7 @@
         <article id="organisateurs" class="public" data-apparait aria-labelledby="t-orga">
           <h2 id="t-orga" class="t-affiche">Vous organisez des rassos&#8239;?</h2>
           <p class="public-chapeau">Publier est gratuit, et le restera. Chaque rasso a sa page publique, lisible sans compte, avec un lien court à coller dans une story.</p>
-          <p class="lien-court"><span class="sr-only">Exemple de lien court : </span><span>carclan.fr/r/</span><span class="lien-court-code">NOCT21</span></p>
+          <p class="lien-court"><span class="sr-only">Exemple de lien court : </span><span>carclan.fr/r/</span><span class="lien-court-code">NCT7K2</span></p>
           <ul class="traits">
             <li><strong>Votre nom sur la fiche.</strong> L’organisateur est crédité, et sa page réunit tous ses rassos.</li>
             <li><strong>«&#8239;C’est mon rasso&#8239;».</strong> Si quelqu’un a déjà saisi le vôtre, revendiquez la fiche&#8239;: après vérification, elle passe sous votre compte.</li>
@@ -402,6 +405,7 @@
         <div class="territoire-texte" data-apparait>
           <h2 id="t-territoire" class="t-affiche">Fait à Tourcoing. On commence par le Nord.</h2>
           <p>Lille, Roubaix, Tourcoing, Villeneuve-d’Ascq, Dunkerque, Valenciennes, et la Belgique d’à côté. Le reste de la France suivra, organisateur par organisateur.</p>
+          <p class="carte-credit">Carte&#8239;: données © <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">contributeurs OpenStreetMap</a>, OpenMapTiles, OpenFreeMap.</p>
         </div>
       </section>
 
@@ -414,7 +418,7 @@
           </details>
           <details class="qr">
             <summary><span>Quand est-ce que ça sort&#8239;?</span><span class="qr-signe" aria-hidden="true"></span></summary>
-            <div class="qr-corps"><p>L’application sort cet hiver. Laissez votre adresse sur cette page&#8239;: vous recevrez un message le jour de la sortie, et rien d’autre.</p></div>
+            <div class="qr-corps"><p>L’application sort cet hiver. Laissez votre adresse sur cette page&#8239;: vous recevrez un e-mail de confirmation, puis un message le jour de la sortie, et rien d’autre.</p></div>
           </details>
           <details class="qr">
             <summary><span>Sur quels téléphones&#8239;?</span><span class="qr-signe" aria-hidden="true"></span></summary>
@@ -449,12 +453,12 @@
         <div class="finale-lumiere" aria-hidden="true"></div>
         <div class="attente-bloc attente-finale" data-attente data-apparait>
           <h2 id="t-liste" class="t-enseigne finale-titre">Cet hiver.</h2>
-          <p class="finale-chapeau">CarClan arrive sur iPhone et Android. Laissez votre adresse&#8239;: un e-mail le jour de la sortie, et rien d’autre.</p>
+          <p class="finale-chapeau">CarClan arrive sur iPhone et Android. Laissez votre adresse&#8239;: une confirmation tout de suite, un e-mail le jour de la sortie, et rien d’autre.</p>
           <div class="fait" tabindex="-1" hidden>
             <svg class="fait-coche" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" /><path d="M7.5 12.4l3.1 3.1 6-6.6" /></svg>
             <p class="fait-titre" data-fait-titre>Vous y êtes.</p>
           </div>
-          <form class="attente" novalidate data-formulaire>
+          <form class="attente" method="post" novalidate data-formulaire>
             <label class="sr-only" for="email-bas">Adresse e-mail</label>
             <div class="attente-rangee">
               <input id="email-bas" name="email" type="email" inputmode="email" autocomplete="email" placeholder="votre@adresse.fr" required aria-describedby="note-bas etat-bas" />
@@ -466,7 +470,7 @@
                  0070 du dépôt CarClan), masqué tant qu'il n'est pas un
                  argument : voir SEUIL_COMPTEUR dans waitlist.js. -->
             <p id="compteur-attente" class="compteur" hidden></p>
-            <p id="note-bas" class="note">Votre adresse sert à une chose&#8239;: vous prévenir quand CarClan sort. Pas de newsletter, pas de revente, effacement sur simple demande. En l’envoyant, vous déclarez avoir 15&nbsp;ans ou plus et avoir lu la <a href="/confidentialite/">politique de confidentialité</a>.</p>
+            <p id="note-bas" class="note">Votre adresse sert à une chose&#8239;: vous prévenir quand CarClan sort, après un e-mail de confirmation. Pas de newsletter, pas de revente, effacement sur simple demande. En l’envoyant, vous déclarez avoir 15&nbsp;ans ou plus et avoir lu la <a href="/confidentialite/">politique de confidentialité</a>.</p>
           </form>
           <div class="fait-actions" data-fait-actions hidden>
             <button class="btn btn-contour btn-petit" type="button" data-autre>Inscrire quelqu’un d’autre</button>
@@ -518,7 +522,7 @@
           <a href="/cookies/">Cookies</a>
         </nav>
       </div>
-      <p class="pied-bas">© 2026 CarClan · Fait à Tourcoing · Aucun cookie sur ce site · Cartes © OpenFreeMap © OpenMapTiles © contributeurs OpenStreetMap</p>
+      <p class="pied-bas">© 2026 CarClan · Fait à Tourcoing · Aucun cookie sur ce site · Cartes © <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">contributeurs OpenStreetMap</a>, OpenMapTiles, OpenFreeMap</p>
     </footer>
   </body>
 </html>

@@ -158,19 +158,22 @@ export function setupWaitlist(form) {
     dire(MESSAGES.envoi);
 
     const controleur = new AbortController();
-    const minuteur = setTimeout(() => controleur.abort(), 9000);
+    // 15 s : la fonction attend l'envoi de l'accusé de réception avant de
+    // répondre, et l'adresse est déjà en base à ce moment-là.
+    const minuteur = setTimeout(() => controleur.abort(), 15000);
 
     try {
       // Voie normale : la fonction `waitlist` inscrit ET envoie l'accusé de
       // réception. Elle seule détient la clé Resend, qui ne peut pas vivre ici.
+      // ⚠️ Aucun en-tête `apikey` ni `Authorization` ici : la fonction ne
+      // les demande pas (déployée sans vérification de jeton) et son CORS
+      // n'autorise que `content-type`. Avec eux, le navigateur refusait la
+      // requête au préflight et TOUTE inscription échouait, du 21 au
+      // 27 septembre 2026, sans que rien ne le montre côté serveur.
       const res = await fetch(`${SUPABASE_URL}/functions/v1/waitlist`, {
         method: 'POST',
         signal: controleur.signal,
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           source: 'site',
@@ -194,8 +197,19 @@ export function setupWaitlist(form) {
         occupe(false);
       }
     } catch {
-      dire(MESSAGES.echec, true);
-      occupe(false);
+      // La fonction est injoignable (réseau, CORS, délai dépassé) : on tente
+      // l'insertion directe avec son propre délai avant de renoncer. Une
+      // adresse déjà inscrite répond 409, ce qui est un succès pour la
+      // personne.
+      const secours = new AbortController();
+      const minuteurSecours = setTimeout(() => secours.abort(), 9000);
+      if (await inscrireEnDirect(email, secours.signal)) {
+        conclure('fait', email);
+      } else {
+        dire(MESSAGES.echec, true);
+        occupe(false);
+      }
+      clearTimeout(minuteurSecours);
     } finally {
       clearTimeout(minuteur);
     }
