@@ -281,10 +281,10 @@ if (participe) {
 // `p` : l'image portrait.
 
 const REPERES = [
-  { lieu: 'Tourcoing', quand: 'En direct', type: 'Rasso', direct: true, d: [69.93, 17.51], p: [42.25, 21.95] },
+  { lieu: 'Tourcoing', quand: 'En direct', type: 'Rasso', direct: true, d: [69.93, 17.51], p: [51.67, 73.61], court: true },
   { lieu: 'Wattrelos', quand: 'Sam. 20 h', type: 'Expo', gauche: true, d: [88.04, 36.36], p: [null, null] },
   { lieu: 'Villeneuve-d’Ascq', quand: 'Dim. 9 h', type: 'Balade', d: [39.6, 88.29], p: [null, null] },
-  { lieu: 'Roubaix', quand: 'Ven. 21 h', type: 'Club', gauche: true, d: [null, null], p: [75.17, 31.17] },
+  { lieu: 'Roubaix', quand: 'Ven. 21 h', type: 'Club', gauche: true, d: [null, null], p: [null, null] },
 ];
 
 // La région : les villes où la carte se remplit d'abord, Tourcoing en ambre.
@@ -314,8 +314,9 @@ function poser(liste, cible, portrait) {
     const legende = document.createElement('span');
     legende.className = 'repere-legende t-donnee';
     if (r.quand) {
+      // Debout, la légende est courte : la bande de ville est étroite.
       const b = document.createElement('b');
-      b.textContent = `${r.quand} · ${r.type} · `;
+      b.textContent = portrait && r.court ? `${r.quand} · ` : `${r.quand} · ${r.type} · `;
       legende.append(b);
     }
     legende.append(r.lieu);
@@ -330,52 +331,73 @@ if (ouverture && 'IntersectionObserver' in window) {
 }
 
 const portrait = matchMedia('(max-aspect-ratio: 4/5)');
+// Debout, la ville est 40 % plus grande que l'écran : on la décale pour
+// que le rasso en direct tombe au milieu de la bande de ville visible entre
+// le formulaire et le téléphone. Sans décalage possible, le repère reste où
+// il est et le masquage ci-dessous décide s'il se montre.
+const ville = document.querySelector('.ville');
+function caler() {
+  if (!ville) return;
+  if (!portrait.matches) { ville.style.removeProperty('--dy'); return; }
+  const plan = ville.querySelector('.ville-plan');
+  const texte = (document.querySelector('.exemple-mobile') || document.querySelector('.attente-ouverture'))?.getBoundingClientRect();
+  const tel = document.querySelector('.tel-ouverture .tel-coque')?.getBoundingClientRect();
+  if (!plan || !texte || !tel) return;
+  const cadre = ville.getBoundingClientRect();
+  const H = plan.offsetHeight;
+  const direct = REPERES.find((r) => r.direct);
+  const cible = (texte.bottom + tel.top) / 2 - cadre.top;
+  const dy = Math.max(cadre.height - H, Math.min(0, cible - (direct.p[1] / 100) * H));
+  ville.style.setProperty('--dy', `${Math.round(dy)}px`);
+}
+
+// Un repère qui toucherait un texte, le téléphone ou le bord n'est pas montré.
+function masquer(liste, obstacles) {
+  if (!liste) return;
+  const rects = obstacles.map((o) => o.getBoundingClientRect()).filter((r) => r.width && r.height);
+  liste.querySelectorAll('.repere').forEach((li) => {
+    const a = li.querySelector('.repere-legende').getBoundingClientRect();
+    const b = li.querySelector('.repere-point').getBoundingClientRect();
+    const boite = { l: Math.min(a.left, b.left) - 8, r: Math.max(a.right, b.right) + 8, t: Math.min(a.top, b.top) - 8, b: Math.max(a.bottom, b.bottom) + 8 };
+    const touche = rects.some((r) => !(boite.r < r.left || boite.l > r.right || boite.b < r.top || boite.t > r.bottom));
+    const dehors = boite.l < 0 || boite.r > document.documentElement.clientWidth;
+    li.classList.toggle('masque', touche || dehors);
+  });
+}
+
+const obstaclesHaut = () => [...document.querySelectorAll('.ouverture h1, .ouverture .chapeau, .attente-ouverture, .exemple-mobile, .tel-ouverture .tel-coque, .ouverture-mention')];
+const obstaclesRegion = () => [...document.querySelectorAll('.territoire-texte h2, .territoire-texte p')];
+
 const poserTout = () => {
   poser(REPERES, document.querySelector('[data-reperes]'), portrait.matches);
   poser(REGION, document.querySelector('[data-reperes-region]'), false);
+  caler();
+  requestAnimationFrame(() => {
+    masquer(document.querySelector('[data-reperes]'), obstaclesHaut());
+    masquer(document.querySelector('[data-reperes-region]'), obstaclesRegion());
+  });
 };
 poserTout();
 portrait.addEventListener?.('change', poserTout);
+window.addEventListener('resize', () => requestAnimationFrame(poserTout), { passive: true });
+document.fonts?.ready.then(poserTout);
+// Après les apparitions du premier écran et la pose de la ville.
+setTimeout(poserTout, 1300);
+setTimeout(poserTout, reduit ? 0 : 9200);
 
-// ---- Le rail des affiches -----------------------------------------------------------
+// ---- Le tableau des départs ------------------------------------------------------
+// Sur un écran large, l'affiche du type survolé s'allume en grand à côté.
 
-const railAllume = document.querySelector('[data-rail-affiches]');
-if (railAllume) {
-  railAllume.querySelectorAll('li').forEach((li, i) => li.querySelector('img')?.style.setProperty('--i', String(i)));
-  if (!reduit && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { railAllume.classList.add('allume'); io.disconnect(); }
-    }, { threshold: 0.35 });
-    io.observe(railAllume);
-  } else {
-    railAllume.classList.add('allume');
-  }
-}
-
-const railAffiches = document.querySelector('[data-rail-affiches]');
-const fleches = document.querySelector('[data-fleches]');
-if (railAffiches && fleches) {
-  const [prec, suiv] = fleches.querySelectorAll('[data-fleche]');
-  // aria-disabled et non disabled : un bouton désactivé perd le focus, qui
-  // retomberait sur le haut de la page au clavier.
-  const majFleches = () => {
-    const max = railAffiches.scrollWidth - railAffiches.clientWidth - 4;
-    prec.setAttribute('aria-disabled', String(railAffiches.scrollLeft <= 4));
-    suiv.setAttribute('aria-disabled', String(railAffiches.scrollLeft >= max));
+const depart = document.querySelector('[data-depart]');
+const vedettes = [...document.querySelectorAll('[data-vedette]')];
+if (depart && vedettes.length) {
+  const lignes = [...depart.querySelectorAll('.depart-ligne')];
+  const choisir = (ligne) => {
+    const cle = ligne.dataset.type;
+    lignes.forEach((l) => l.classList.toggle('actif', l === ligne));
+    vedettes.forEach((v) => v.classList.toggle('actif', v.dataset.vedette === cle));
   };
-  const pas = () => {
-    const li = railAffiches.querySelector('li');
-    return li ? (li.getBoundingClientRect().width + 20) * 2 : 600;
-  };
-  fleches.querySelectorAll('[data-fleche]').forEach((b) => b.addEventListener('click', () => {
-    if (b.getAttribute('aria-disabled') === 'true') return;
-    railAffiches.scrollBy({ left: Number(b.dataset.fleche) * pas(), behavior: reduit ? 'auto' : 'smooth' });
-  }));
-  railAffiches.addEventListener('scroll', majFleches, { passive: true });
-  const montrer = () => { fleches.hidden = !pointeurFin.matches; majFleches(); };
-  pointeurFin.addEventListener?.('change', montrer);
-  window.addEventListener('resize', majFleches, { passive: true });
-  montrer();
+  lignes.forEach((l) => l.addEventListener('mouseenter', () => { if (pointeurFin.matches) choisir(l); }));
 }
 
 // ---- Le pouce -------------------------------------------------------------------------
