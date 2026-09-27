@@ -12,7 +12,11 @@
 //
 // Balisage accepté dans les chaînes : **gras** et [texte](adresse).
 
-export const SITE_VERSION = '21 septembre 2026';
+// Doit valoir SITE_VERSION de `src/legal-version.js`, qui part en base avec
+// une inscription à la liste d'attente. Les textes du site ont changé le
+// 27 septembre 2026 (commit ca779d3) sans que cette date-ci suive : les pages
+// affichaient encore le 21.
+export const SITE_VERSION = '27 septembre 2026';
 
 const EDITEUR = 'Mathys Liénart';
 const VILLE = 'Tourcoing (France)';
