@@ -424,6 +424,7 @@ button, input { font-family: inherit; }
 
 .carte-credit { margin: var(--s-4) 0 0 !important; font-size: 12px !important; line-height: 16px !important; color: var(--bitume) !important; }
 .carte-credit a, .ouverture-mention a, .pied-bas a { color: inherit; }
+.pied .pied-bas { display: block; }
 .pied .pied-bas a { display: inline; min-height: 0; padding: 0; margin: 0; text-decoration: underline; color: var(--bitume-clair); }
 
 /* ---- Le formulaire (deux fois dans la page) ------------------------------ */
@@ -668,7 +669,7 @@ button, input { font-family: inherit; }
   left: -1px;
   top: -2px;
   bottom: -2px;
-  width: 2px;
+  width: 1px;
   background: var(--ambre);
   transform: scaleY(0);
   transition: transform 0.5s var(--expo);
@@ -773,7 +774,7 @@ button, input { font-family: inherit; }
 .depart-ligne {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(7.5em, auto) minmax(0, 1fr);
+  grid-template-columns: clamp(124px, 11vw, 152px) minmax(0, 1fr);
   align-items: baseline;
   gap: var(--s-5);
   padding: 18px 0 18px 18px;
@@ -786,7 +787,7 @@ button, input { font-family: inherit; }
   left: 0;
   top: 14px;
   bottom: 14px;
-  width: 2px;
+  width: 1px;
   background: var(--ambre);
   transform: scaleY(0);
   transition: transform 0.45s var(--expo);
