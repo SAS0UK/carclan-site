@@ -82,7 +82,7 @@ document.querySelectorAll('[data-autre]').forEach((b) => b.addEventListener('cli
 }));
 
 document.querySelectorAll('[data-partager]').forEach((b) => b.addEventListener('click', async () => {
-  const donnees = { title: 'CarClan', text: 'Tous les rassos près de chez vous, sur une carte. L’app sort cet hiver.', url: 'https://carclan.fr' };
+  const donnees = { title: 'CarClan', text: 'Tous les rassos autour de toi, sur une carte. L’app sort cet hiver.', url: 'https://carclan.fr' };
   b.dataset.libelle ??= b.textContent;
   try {
     if (navigator.share) { await navigator.share(donnees); return; }
@@ -243,8 +243,8 @@ if (participe) {
   const COCHE = '<svg class="coche-tracee" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.6 10.4 8.4 15.2 16.8 5.6" /></svg>';
   const ETATS = {
     repos: { html: '<svg class="ic" aria-hidden="true"><use href="#cc-check" /></svg>Je participe', classe: null, note: noteRepos },
-    engage: { html: `${COCHE}Vous y allez`, classe: 'engage', note: 'Dans l’application, c’est fait : vos amis le voient.' },
-    inviter: { html: '<svg class="ic" aria-hidden="true"><use href="#cc-amis" /></svg>Inviter des amis', classe: 'inviter', note: 'Touchez encore pour recommencer.' },
+    engage: { html: `${COCHE}Vous y allez`, classe: 'engage', note: 'Dans l’app, c’est fait : tes amis le voient.' },
+    inviter: { html: '<svg class="ic" aria-hidden="true"><use href="#cc-amis" /></svg>Inviter des amis', classe: 'inviter', note: 'Touche encore pour recommencer.' },
   };
   let etat = 'repos';
   let minuteurs = [];

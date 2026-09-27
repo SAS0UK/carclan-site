@@ -14,7 +14,7 @@ export { CONSENT_VERSION };
 
 const MESSAGES = {
   envoi: 'Un instant…',
-  echec: 'Impossible d’enregistrer pour le moment. Écrivez à contact@carclan.fr, on vous ajoute à la main.',
+  echec: 'Ton adresse n’a pas pu être enregistrée. Écris à contact@carclan.fr, on t’ajoute à la main.',
 };
 
 // Un message d'erreur nomme le problème, il ne le constate pas : « cette
@@ -29,8 +29,8 @@ const diagnostic = (v) => {
 // La confirmation rappelle l'adresse enregistrée : c'est la seule façon de
 // rattraper une faute de frappe une fois le champ effacé.
 const CONFIRMATION = {
-  fait: { titre: 'Vous y êtes.', detail: (email) => (email ? `On écrit à ${email} le jour de la sortie.` : 'On vous écrit le jour de la sortie.') },
-  deja: { titre: 'Vous y êtes déjà.', detail: (email) => (email ? `${email} est sur la liste depuis un moment. À bientôt.` : 'Cette adresse est déjà sur la liste. À bientôt.') },
+  fait: { titre: 'T’es sur la liste.', detail: (email) => (email ? `On écrit à ${email} le jour de la sortie.` : 'On t’écrit le jour de la sortie.') },
+  deja: { titre: 'T’es déjà sur la liste.', detail: (email) => (email ? `${email} est sur la liste depuis un moment. À bientôt.` : 'Cette adresse est déjà sur la liste. À bientôt.') },
 };
 
 const ressembleAUnEmail = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);

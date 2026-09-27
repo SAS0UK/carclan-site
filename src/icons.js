@@ -20,6 +20,12 @@ const ICONS = {
   chevron: `<path d="M9 5l7 7-7 7" ${S}/>`,
   precedent: `<path d="M20 12H4M10 6l-6 6 6 6" ${S}/>`,
   fermer: `<path d="M6 6l12 12M18 6L6 18" ${S}/>`,
+  // Les cinq icônes de la barre du bas de l'application (cc_icon_data.dart).
+  'tab-rassos': `<rect x="3" y="5" width="18" height="16" rx="2" ${S}/><path d="M3 10h18M8 3v4M16 3v4" ${S}/>`,
+  'tab-carte': `<path d="M12 21s-6-5.2-6-11a6 6 0 0 1 12 0c0 5.8-6 11-6 11Z" ${S}/><circle cx="12" cy="10" r="2" ${S}/>`,
+  'tab-clan': `<circle cx="12" cy="7" r="3" ${S}/><circle cx="6" cy="17" r="3" ${S}/><circle cx="18" cy="17" r="3" ${S}/>`,
+  'tab-messages': `<path d="M6 4h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" ${S}/>`,
+  'tab-profil': `<circle cx="12" cy="8" r="4" ${S}/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" ${S}/>`,
 };
 
 export function mountIcons() {
