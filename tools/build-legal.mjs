@@ -143,7 +143,7 @@ function construire(page) {
     <meta property="og:site_name" content="CarClan" />
     <meta property="og:title" content="${echapper(page.titre)} · CarClan" />
     <meta property="og:description" content="${echapper(page.description)}" />
-    <meta property="og:image" content="https://carclan.fr/og.png" />
+    <meta property="og:image" content="https://carclan.fr/og.jpg" />
     <meta property="og:image:alt" content="CarClan, les rassos près de chez vous" />
     <meta property="og:url" content="https://carclan.fr/${page.chemin}/" />
     <meta property="og:locale" content="fr_FR" />

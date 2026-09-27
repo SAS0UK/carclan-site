@@ -22,7 +22,7 @@ import path from 'node:path';
 const SUPABASE_URL = 'https://zheixbgssdfquresgtai.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5BXrkwGrcB-YXA2uN5UqAA_mAY3iScd';
 const SITE_URL = 'https://carclan.fr';
-const DEFAULT_IMAGE = `${SITE_URL}/og.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/og.jpg`;
 const OUT_DIR = path.resolve('dist', 'rasso');
 // A remplacer par le vrai lien de la fiche App Store des la publication
 // (TestFlight puis App Store, prevue le 25 octobre 2026). Meme repli que
