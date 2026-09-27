@@ -18,6 +18,8 @@ const ICONS = {
   check: `<path d="M5 12l5 5 9-10" ${S}/>`,
   lien: `<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" ${S}/>`,
   chevron: `<path d="M9 5l7 7-7 7" ${S}/>`,
+  precedent: `<path d="M20 12H4M10 6l-6 6 6 6" ${S}/>`,
+  fermer: `<path d="M6 6l12 12M18 6L6 18" ${S}/>`,
 };
 
 export function mountIcons() {

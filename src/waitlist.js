@@ -29,7 +29,7 @@ const diagnostic = (v) => {
 // La confirmation rappelle l'adresse enregistrée : c'est la seule façon de
 // rattraper une faute de frappe une fois le champ effacé.
 const CONFIRMATION = {
-  fait: { titre: 'C’est noté.', detail: (email) => (email ? `On écrit à ${email} le jour de la sortie.` : 'On vous écrit le jour de la sortie.') },
+  fait: { titre: 'Vous y êtes.', detail: (email) => (email ? `On écrit à ${email} le jour de la sortie.` : 'On vous écrit le jour de la sortie.') },
   deja: { titre: 'Vous y êtes déjà.', detail: (email) => (email ? `${email} est sur la liste depuis un moment. À bientôt.` : 'Cette adresse est déjà sur la liste. À bientôt.') },
 };
 
@@ -96,7 +96,10 @@ export function setupWaitlist(form) {
   const bouton = form.querySelector('button[type="submit"]');
   if (!champ || !etat || !bouton) return;
 
-  const bloc = form.closest('.bloc');
+  // Le bloc porte le formulaire ET sa confirmation. La page en a deux (en
+  // haut et en bas) : chacun a le sien, et une inscription les ferme tous
+  // les deux (voir main.js, l'événement « attente:fait »).
+  const bloc = form.closest('[data-attente]');
   const fait = bloc?.querySelector('.fait');
   const libelle = bouton.querySelector('[data-libelle]');
   const libelleRepos = libelle ? libelle.textContent : '';
@@ -131,6 +134,7 @@ export function setupWaitlist(form) {
     }
     dire(detail(email));
     fait?.focus();
+    document.dispatchEvent(new CustomEvent('attente:fait', { detail: { bloc, cle, email } }));
   };
 
   form.addEventListener('submit', async (event) => {

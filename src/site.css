@@ -1,527 +1,1181 @@
-/* L'accueil de carclan.fr, sur les jetons de tokens.css.
-   Le rythme de la page : la scène en ouverture, le produit posé dedans ;
-   puis des sections sur fond nuit plein, où l'on lit ; puis la scène
-   revient pour la fin. Le texte n'est jamais posé directement sur la
-   lumière : là où la scène est visible, il a son voile, et le contraste ne
-   dépend pas de ce qui passe derrière. Sans JavaScript, la scène n'existe
-   pas et tout se lit sur le fond nuit. */
+/* L'accueil de carclan.fr, refait le 27 septembre 2026.
+   Une seule idée : le téléphone est le héros, éclairé comme une voiture sous
+   un lampadaire au sodium, et la ville de nuit est son décor. L'ambre n'est
+   jamais une décoration : c'est de la lumière (un halo, un rasso en direct
+   qui pulse) ou l'unique bouton d'action. Les jetons viennent de tokens.css,
+   lus dans le code de l'application. */
 
-/* ---- La scène ----------------------------------------------------------------- */
-
-#scene {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 1.6s ease;
+:root {
+  --largeur: 1320px;
+  --expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --barre-h: 68px;
+  --lampe: rgba(226, 162, 31, 0.16);
 }
 
-#scene.on { opacity: 1; }
+html {
+  scroll-padding-top: calc(var(--barre-h) + 12px);
+  scrollbar-color: #3a3631 var(--nuit);
+  caret-color: var(--ambre);
+}
 
-/* ---- La barre haute ------------------------------------------------------------ */
+body { overflow-x: clip; }
 
-.topbar {
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--nuit); }
+::-webkit-scrollbar-thumb { background: #3a3631; border-radius: 10px; border: 2px solid var(--nuit); }
+
+/* Le grain : la même texture que le fond de l'application. Sans elle, les
+   grands aplats de nuit se lisent comme un écran éteint, et les dégradés de
+   lumière montrent leurs paliers. */
+body::after {
+  content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+a { text-underline-offset: 3px; text-decoration-thickness: 1px; }
+strong { font-variation-settings: 'wght' 700, 'wdth' 100; color: var(--craie); }
+img { max-width: 100%; }
+button, input { font-family: inherit; }
+
+/* La donnée : capitales condensées, comme les surtitres de l'app. Elle sert
+   aux légendes, aux repères et aux détails, jamais au-dessus d'un titre. */
+.t-donnee {
+  font-size: 12px;
+  line-height: 16px;
+  font-variation-settings: 'wght' 650, 'wdth' 75;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-enseigne {
+  margin: 0;
+  font-size: clamp(44px, 7vw, 96px);
+  line-height: 0.94;
+  font-variation-settings: 'wght' 800, 'wdth' 100;
+  letter-spacing: -0.04em;
+}
+
+.t-affiche {
+  margin: 0;
+  font-size: clamp(32px, 4.4vw, 60px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.ligne { display: block; white-space: nowrap; }
+
+/* ---- La barre ------------------------------------------------------------ */
+
+.barre {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 40;
+  height: calc(var(--barre-h) + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) var(--page) 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--s-4);
-  padding: 12px var(--page);
-  padding-top: calc(12px + env(safe-area-inset-top, 0px));
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.4s ease;
+  gap: var(--s-5);
+  background: linear-gradient(rgba(15, 14, 12, 0.72), rgba(15, 14, 12, 0));
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* La barre porte TOUJOURS son voile, même en haut de page.
-   Avant, le fond n'apparaissait qu'au défilement : en revenant en haut, il
-   disparaissait d'un coup et les liens se retrouvaient posés à nu sur les
-   lampadaires. Le saut se voyait, et le contraste du texte dépendait de ce
-   qui passait derrière. Le voile est donc un dégradé permanent, posé en
-   pseudo-élément pour qu'il déborde sous la barre sans ligne de coupe ; la
-   classe `on` ne fait que le densifier et ajouter le flou. */
-.topbar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  bottom: -28px;
-  background: linear-gradient(180deg, var(--nuit-dense) 0%, var(--nuit-heavy) 55%, rgba(15, 14, 12, 0) 100%);
-  pointer-events: none;
-  z-index: -1;
-  transition: opacity 0.4s ease;
+.barre.on {
+  background: rgba(15, 14, 12, 0.94);
+  box-shadow: 0 1px 0 var(--filet);
 }
 
-.topbar.on {
-  border-color: var(--filet);
-  background: var(--nuit-heavy);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-}
+.barre .marque { margin-right: auto; }
 
-/* Quand la barre a son propre fond opaque, le dégradé n'a plus lieu d'être :
-   il ferait une double couche plus sombre que la barre elle-même. */
-.topbar.on::before { opacity: 0; }
-
-
-.topbar nav { display: flex; align-items: center; gap: var(--s-5); }
-.topbar nav > a:not(.btn) {
+.barre-nav { display: flex; gap: var(--s-1); }
+.barre-nav a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--r-md);
   color: var(--bitume-clair);
   text-decoration: none;
   font-size: 14px;
+  font-variation-settings: 'wght' 600, 'wdth' 100;
   transition: color 0.2s ease;
 }
-.topbar nav > a:not(.btn):hover { color: var(--craie); }
+.barre-nav a:hover { color: var(--craie); }
 
-/* ---- Les éléments de texte ---------------------------------------------------------- */
-
-main { position: relative; z-index: 10; }
-
-.surtitre { display: flex; align-items: center; gap: 10px; margin: 0 0 var(--s-4); }
-.surtitre .num { color: var(--craie); font-feature-settings: 'tnum'; }
-.surtitre .puce { width: 8px; height: 8px; border-radius: var(--r-sm); background: var(--ambre); flex: none; }
-
-.lede {
-  font-size: clamp(16px, 1.3vw, 18px);
-  line-height: 1.5;
-  color: var(--bitume-clair);
-  margin: 0;
-  max-width: 34rem;
-}
-
-.para { font-size: 15px; line-height: 22px; color: var(--bitume-clair); margin: 0; max-width: 30rem; }
-
-.actions { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; }
-
-/* Les chips : hauteur 36, pilule, contour clair. */
-.chips { list-style: none; padding: 0; margin: var(--s-5) 0 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
-.chips li {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: var(--h-chip);
-  padding: 0 14px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--filet-clair);
+.barre-menu {
+  display: none;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--craie);
-  font-size: 13px;
-  line-height: 16px;
+  cursor: pointer;
+  place-items: center;
+  border-radius: var(--r-md);
 }
-.chips .ic { color: var(--ambre); width: 18px; height: 18px; }
+.barre-menu-traits,
+.barre-menu-traits::before {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+}
+.barre-menu-traits { position: relative; transform: translateY(-3px); }
+.barre-menu-traits::before { content: ''; position: absolute; top: 7px; width: 14px; }
 
-/* ---- Le téléphone ------------------------------------------------------------------ */
+/* ---- Le menu du téléphone ----------------------------------------------- */
 
-/* Un cadre en CSS, pas une image de téléphone : il suit la couleur du site
-   et n'appartient à personne. Rayon large, bord clair, ombre longue. */
-.tel {
+.menu {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: env(safe-area-inset-top, 0px) var(--page) calc(24px + env(safe-area-inset-bottom, 0px));
+  border: 0;
+  background: var(--nuit);
+  color: var(--craie);
+  flex-direction: column;
+}
+.menu[open] { display: flex; animation: menuEntre 0.45s var(--expo) both; }
+.menu::backdrop { background: rgba(15, 14, 12, 0.6); }
+@keyframes menuEntre { from { opacity: 0; transform: translateY(-12px); } }
+
+.menu-tete { height: var(--barre-h); display: flex; align-items: center; justify-content: space-between; }
+.menu-fermer {
+  width: 44px; height: 44px; margin-right: -10px;
+  display: grid; place-items: center;
+  border: 0; border-radius: var(--r-md);
+  background: none; color: var(--craie); cursor: pointer;
+}
+.menu-liens { display: flex; flex-direction: column; margin-top: var(--s-6); border-top: 1px solid var(--filet); }
+.menu-liens a {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--filet);
+  color: var(--craie);
+  text-decoration: none;
+  font-size: 30px;
+  line-height: 34px;
+  font-variation-settings: 'wght' 750, 'wdth' 100;
+  letter-spacing: -0.03em;
+}
+.menu-action { margin-top: auto; width: 100%; }
+.menu-pied { margin: var(--s-4) 0 0; text-align: center; color: var(--bitume); font-size: 13px; }
+
+/* ---- Le téléphone -------------------------------------------------------
+   Une coque de titane sombre, un filet de lumière ambre sur l'arête haute
+   (la lampe est au-dessus), et la vitre qui porte un vrai écran de l'app.
+   Toutes les mesures suivent la largeur, pour qu'un téléphone de 280 px et
+   un de 400 px aient les mêmes proportions. */
+
+.tel { --l: 340px; position: relative; margin: 0; width: var(--l); flex: none; }
+
+.tel-coque {
   position: relative;
-  width: min(320px, 74vw);
-  aspect-ratio: 9 / 19.5;
-  margin: 0 auto;
-  padding: 10px;
-  border-radius: 46px;
-  background: var(--surface-2);
-  border: 1px solid var(--filet-clair);
+  padding: calc(var(--l) * 0.034);
+  border-radius: calc(var(--l) * 0.17);
+  background:
+    linear-gradient(160deg, rgba(255, 226, 170, 0.22), rgba(255, 226, 170, 0) 22%),
+    linear-gradient(145deg, #34302b 0%, #1b1917 32%, #0d0c0b 58%, #26231f 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
-    0 60px 90px -30px rgba(0, 0, 0, 0.85),
-    0 0 0 1px rgba(0, 0, 0, 0.4);
+    inset 0 0 0 1px rgba(243, 239, 232, 0.09),
+    inset 0 1.5px 0 rgba(226, 162, 31, 0.38),
+    0 2px 0 -1px #000,
+    0 50px 90px -30px rgba(0, 0, 0, 0.95),
+    0 24px 40px -24px rgba(0, 0, 0, 0.9);
 }
 
-.tel .ecran { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; background: var(--surface); }
-.tel img { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-/* ---- Le premier écran -------------------------------------------------------------- */
-
-.hero {
+.tel-vitre {
   position: relative;
-  padding: 150px var(--page) 0;
-  display: grid;
-  justify-items: center;
-  text-align: center;
-  gap: var(--s-7);
+  overflow: hidden;
+  aspect-ratio: 402 / 874;
+  border-radius: calc(var(--l) * 0.138);
+  background: #050505;
+  isolation: isolate;
 }
 
-/* Le voile sous le texte : un dégradé vertical, dense en haut, qui se
-   dissipe sur le téléphone pour laisser passer la lumière. */
-.hero::before {
+.tel-vitre img,
+.tel-vitre picture { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* Le reflet fixe de la vitre : un voile en haut à gauche, du côté de la
+   lampe. Presque rien, mais sans lui l'écran se lit comme une capture
+   collée sur une forme. */
+.tel-vitre::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 14, 12, 0.68) 0%, rgba(15, 14, 12, 0.55) 42%, rgba(15, 14, 12, 0.28) 72%, rgba(15, 14, 12, 0) 100%);
+  z-index: 3;
   pointer-events: none;
+  background: linear-gradient(128deg, rgba(255, 244, 222, 0.09) 0%, rgba(255, 244, 222, 0.02) 30%, rgba(255, 244, 222, 0) 46%);
 }
 
-.hero-texte { position: relative; max-width: 46rem; display: grid; justify-items: center; }
-.hero-texte .surtitre { justify-content: center; }
-.hero-texte h1 {
-  margin: 0 0 var(--s-5);
-  /* Le titre se détache de la scène par son propre halo plutôt que par un
-     voile opaque posé sur toute l'image : on garde la lumière derrière. */
-  text-shadow: 0 2px 40px rgba(15, 14, 12, 0.9), 0 1px 12px rgba(15, 14, 12, 0.8);
-}
-
-/* Le slogan tient en deux lignes, c'est sa forme. Le plancher de 44 px de
-   `.t-enseigne` faisait passer « Tous les rassos. » sur deux lignes en dessous
-   de 430 px, soit trois lignes en tout et le rythme cassé. On descend le
-   plancher plutôt que de laisser le titre se replier n'importe où. */
-@media (max-width: 430px) {
-  .hero-texte h1 { font-size: clamp(30px, 9.8vw, 44px); }
-}
-
-.hero-texte .lede, .hero-texte .surtitre {
-  text-shadow: 0 1px 16px rgba(15, 14, 12, 0.9);
-}
-.hero-texte .lede { margin: 0 auto var(--s-6); }
-.hero-texte .actions { justify-content: center; }
-
-.tel-hero { width: min(360px, 78vw); }
-
-/* Le reflet du téléphone dans le bitume : sa propre image retournée,
-   noyée dans un dégradé, comme la lampe dans la flaque. */
-.tel-hero::after {
-  content: '';
+/* Le passage sous un lampadaire : une bande de lumière chaude balaie la
+   vitre, comme un réverbère sur un pare-brise. C'est le seul geste de la
+   visite, et il accompagne chaque changement d'écran. */
+.tel-lumiere {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + 6px);
-  height: 46%;
-  border-radius: 46px 46px 0 0;
-  background: linear-gradient(180deg, rgba(226, 162, 31, 0.16), rgba(226, 162, 31, 0) 80%);
-  filter: blur(14px);
+  inset: -10% -60%;
+  z-index: 4;
   pointer-events: none;
+  background: linear-gradient(104deg,
+    rgba(255, 214, 140, 0) 38%,
+    rgba(255, 214, 140, 0.16) 45%,
+    rgba(255, 238, 205, 0.34) 50%,
+    rgba(255, 214, 140, 0.14) 55%,
+    rgba(255, 214, 140, 0) 62%);
+  mix-blend-mode: screen;
+  transform: translateX(-75%);
+  opacity: 0;
 }
 
-/* ---- Les sections pleines --------------------------------------------------------- */
+.balaye .tel-lumiere { animation: balayage 1.25s var(--expo) both; }
 
-/* La barre haute est fixe : sans cette marge, cliquer « Questions » amène la
-   section sous la barre et son titre disparaît. */
-/* La barre haute est fixe et fait 69 px : toute cible d'ancre doit s'en
-   écarter, pas seulement les sections. Les cartes `#organisateurs` et
-   `#partenaires` arrivaient à top = -10 px, titre tranché en deux. */
-.section, .hero, main [id] { scroll-margin-top: 84px; }
-
-.section { position: relative; }
-.section.pleine { background: var(--nuit); padding: 120px 0; }
-.section.pleine + .section.pleine { padding-top: 0; }
-
-/* L'entrée dans le fond nuit, symétrique du raccord de `.section.finale` plus
-   bas. Sans elle, le fond opaque tranche la scène d'un trait parfaitement
-   horizontal : lampadaires sectionnés, cônes de lumière coupés en plein halo,
-   bas du téléphone du hero coupé net. Le raccord de sortie existait, celui
-   d'entrée avait été oublié. */
-.hero + .section.pleine::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -120px;
-  height: 120px;
-  background: linear-gradient(180deg, rgba(15, 14, 12, 0), var(--nuit));
-  pointer-events: none;
-}
-.cadre { max-width: 1160px; margin: 0 auto; padding: 0 var(--page); }
-
-.intro { max-width: 44rem; margin-bottom: var(--s-7); }
-.intro h2 { margin: 0 0 var(--s-4); }
-
-.rangee-2 {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--s-7);
-  align-items: center;
-  padding: var(--s-7) 0;
-  border-top: 1px solid var(--filet);
+@keyframes balayage {
+  0% { transform: translateX(-75%); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translateX(75%); opacity: 0.2; }
 }
 
-.rangee-2 .texte h3 { margin: 0 0 var(--s-4); }
-.rangee-2.inverse .texte { order: 2; }
-.rangee-2 .tel { width: min(300px, 70vw); }
+/* ---- Le premier écran ----------------------------------------------------- */
 
-.etapes {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--s-4);
-}
-
-.etapes li {
-  padding: var(--s-5);
-  background: var(--surface);
-  border: 1px solid var(--filet);
-  border-radius: var(--r-lg);
-}
-
-.etapes h3 { margin: var(--s-4) 0 var(--s-2); }
-
-.etape-n {
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-md);
-  background: var(--ambre);
-  color: var(--nuit);
-  font-size: 18px;
-  font-variation-settings: 'wght' 800, 'wdth' 100;
-}
-
-.publics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); }
-
-.carte {
-  display: grid;
-  align-content: start;
-  gap: var(--s-4);
-  padding: var(--s-6);
-  background: var(--surface);
-  border: 1px solid var(--filet);
-  border-radius: var(--r-xl);
-}
-
-.carte .surtitre { margin: 0; }
-.carte h3 { margin: 0; }
-.carte .btn { justify-self: start; margin-top: var(--s-2); }
-
-.territoire { max-width: 44rem; padding-top: var(--s-7); border-top: 1px solid var(--filet); }
-.territoire h2 { margin: 0 0 var(--s-4); }
-
-/* ---- La fin, sur la scène ------------------------------------------------------------ */
-
-/* Le raccord avec la section pleine au-dessus : sans lui, le fond nuit
-   s'arrête net sur le sol éclairé de la scène, et la couture se voit. */
-.section.finale::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -120px;
-  height: 120px;
-  background: linear-gradient(180deg, var(--nuit), rgba(15, 14, 12, 0));
-  pointer-events: none;
-}
-
-.section.finale {
+.ouverture {
+  position: relative;
   min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ville {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  container-type: size;
+  background: var(--nuit);
+}
+
+/* Le plan garde les proportions de l'image quel que soit l'écran : c'est ce
+   qui permet de poser les repères en pourcentage de l'image et de les voir
+   tomber sur la bonne ville, à toutes les largeurs. */
+.ville-plan {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, 160cqh);
+  aspect-ratio: 1.6;
+  transform: translate(-50%, -50%);
+}
+
+.ville-image { width: 100%; height: 100%; display: block; }
+
+/* Les voiles : le texte s'écrit toujours sur de la nuit, jamais sur une rue
+   éclairée. À gauche sur un écran large, en haut sur un téléphone, et vers
+   le bas partout pour que la section suivante naisse sans couture. */
+.ville::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(15, 14, 12, 0.94) 0%, rgba(15, 14, 12, 0.84) 30%, rgba(15, 14, 12, 0.36) 58%, rgba(15, 14, 12, 0.08) 80%),
+    linear-gradient(0deg, var(--nuit) 0%, rgba(15, 14, 12, 0) 26%),
+    linear-gradient(180deg, rgba(15, 14, 12, 0.7) 0%, rgba(15, 14, 12, 0) 16%);
+}
+
+.ville-calque { z-index: 2; pointer-events: none; }
+
+.reperes { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; }
+
+.repere {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 0;
+  height: 0;
+}
+
+.repere-point {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--craie);
+  box-shadow: 0 0 0 3px rgba(15, 14, 12, 0.85);
+}
+
+.repere-legende {
+  position: absolute;
+  left: 14px;
+  top: -10px;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  background: rgba(15, 14, 12, 0.82);
+  color: var(--craie);
+  white-space: nowrap;
+}
+
+.repere-legende b { font-weight: inherit; color: var(--bitume-clair); }
+
+/* Près du bord droit, la légende passe à gauche du point. */
+.repere.gauche .repere-legende { left: auto; right: 14px; }
+.repere.direct.gauche .repere-legende { right: 16px; }
+
+/* Sur la carte de la région, la ville d'origine porte un point ambre fixe :
+   c'est ici que ça commence. Il ne pulse pas, rien n'y est en direct. */
+.repere.origine .repere-point { background: var(--ambre); width: 10px; height: 10px; left: -5px; top: -5px; }
+
+/* Le rasso en direct : le seul repère ambre, et le seul qui respire, comme
+   dans l'application. */
+.repere.direct .repere-point {
+  left: -6px;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--ambre);
+  box-shadow: 0 0 0 3px rgba(15, 14, 12, 0.85);
+}
+.repere.direct .repere-point::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--ambre);
+  animation: pouls 1.6s cubic-bezier(0.33, 1, 0.68, 1) infinite;
+}
+.ouverture.hors-vue .repere.direct .repere-point::after { animation-play-state: paused; }
+.repere.direct .repere-legende { color: var(--nuit); background: var(--ambre); left: 16px; }
+.repere.direct .repere-legende b { color: var(--nuit); }
+
+/* La pulsation de l'application (map_screen.dart, _HaloEnDirect) : 1,6 s,
+   easeOutCubic, un anneau qui part du bord du disque et s'écarte jusqu'à
+   1,7 fois le rayon en s'affinant de 4 à 2 px, opacité 0,6 vers 0. */
+@keyframes pouls {
+  0% { transform: scale(1); opacity: 0.6; box-shadow: 0 0 0 4px var(--ambre); }
+  100% { transform: scale(1.7); opacity: 0; box-shadow: 0 0 0 2px var(--ambre); }
+}
+
+.ouverture-corps {
+  flex: 1;
+  width: 100%;
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: calc(var(--barre-h) + clamp(24px, 6vh, 72px)) var(--page) 0;
   display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: var(--s-6);
   align-items: center;
-  justify-items: center;
-  padding: 120px var(--page);
-  text-align: center;
 }
 
-/* Le bloc de texte, sur son voile : nuit à 72 % et un flou, un filet, le
-   rayon des feuilles. Sur le voile, la craie tient 12:1 même devant une
-   lampe : le contraste ne dépend pas de la scène. */
-.bloc {
-  width: min(40rem, 100%);
-  padding: var(--s-6);
-  background: var(--nuit-heavy);
-  border: 1px solid var(--filet);
-  border-radius: var(--r-xl);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+.ouverture-texte { padding-bottom: clamp(56px, 10vh, 120px); }
+
+.ouverture h1 { max-width: 9.5em; }
+
+.chapeau {
+  margin: var(--s-5) 0 0;
+  max-width: 31em;
+  font-size: clamp(17px, 1.35vw, 20px);
+  line-height: 1.5;
+  color: var(--bitume-clair);
+  font-variation-settings: 'wght' 500, 'wdth' 100;
+  text-wrap: pretty;
 }
 
-.bloc .surtitre { justify-content: center; }
-.bloc h2 { margin: 0 0 var(--s-5); }
+.tel-ouverture {
+  --l: clamp(280px, 25vw, 372px);
+  align-self: end;
+  justify-self: center;
+  margin-bottom: calc(var(--l) * -0.62);
+}
 
-/* ---- La liste d'attente --------------------------------------------------------------- */
+.ouverture-mention {
+  position: absolute;
+  left: max(var(--page), calc((100vw - var(--largeur)) / 2 + var(--page)));
+  bottom: 18px;
+  z-index: 3;
+  margin: 0;
+  max-width: 36em;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--bitume);
+}
 
-.attente { display: grid; gap: var(--s-3); text-align: left; position: relative; }
-.rangee { display: flex; gap: 10px; }
+/* ---- Le formulaire (deux fois dans la page) ------------------------------ */
 
-.rangee input {
-  flex: 1 1 auto;
+.attente-bloc { margin-top: var(--s-6); max-width: 560px; }
+
+.attente { display: grid; gap: var(--s-3); }
+
+.attente-rangee { display: flex; gap: var(--s-2); }
+
+.attente input[type='email'] {
+  flex: 1;
   min-width: 0;
-  min-height: var(--h-champ);
-  height: var(--h-champ);
-  padding: 0 16px;
-  border-radius: var(--r-md);
-  background: var(--surface);
+  height: 56px;
+  padding: 0 18px;
   border: 1px solid var(--trait);
+  border-radius: var(--r-md);
+  background: rgba(27, 25, 23, 0.88);
   color: var(--craie);
   font: inherit;
   font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-variation-settings: 'wght' 550, 'wdth' 100;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
+.attente input[type='email']::placeholder { color: var(--bitume); }
+.attente input[type='email']:hover { border-color: var(--bitume); }
+.attente input[type='email']:focus-visible { outline: 2px solid var(--ambre); outline-offset: 2px; border-color: var(--ambre); }
+.attente input[aria-invalid='true'] { border-color: var(--danger); }
 
-.rangee input:focus { border-color: var(--ambre); box-shadow: 0 0 0 4px rgba(226, 162, 31, 0.24); }
-.rangee input:focus-visible { outline: none; }
-.rangee input::placeholder { color: var(--bitume); }
+.attente .btn-ambre { height: 56px; min-width: 164px; }
 
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 
-.note { margin: 0; font-size: 13px; line-height: 18px; color: var(--bitume-clair); }
-.note a { color: var(--craie); text-underline-offset: 3px; }
+.note { margin: 0; font-size: 13px; line-height: 18px; color: var(--bitume); max-width: 46em; }
+.note a { color: var(--bitume-clair); }
+.note a:hover { color: var(--craie); }
 
 .etat-envoi { min-height: 20px; margin: 0; font-size: 14px; line-height: 20px; color: var(--craie); display: flex; align-items: center; gap: 8px; }
 .etat-envoi:empty { display: none; }
-.etat-envoi.erreur::before { content: '!'; flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: var(--r-sm); background: var(--danger); color: var(--craie); font-size: 12px; }
-.attente.done .rangee { display: none; }
+.etat-envoi.erreur::before {
+  content: '!';
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-sm);
+  background: var(--danger);
+  color: var(--craie);
+  font-size: 12px;
+  font-variation-settings: 'wght' 800, 'wdth' 100;
+}
 
-/* ---- La confirmation ------------------------------------------------------------------ */
-
-/* Après l'envoi, le bloc ne demande plus rien. Le titre à l'impératif, la
-   mention légale au futur et le champ s'effacent : ils demandaient de faire
-   ce qui venait d'être fait, et pesaient trois lignes contre une. C'est le
-   dernier écran du parcours, c'est celui dont on se souvient. */
-.bloc.done .surtitre,
-.bloc.done > h2,
-.bloc.done .note,
-.bloc.done .compteur { display: none; }
-
-/* Le compte de la liste. En ambre, parce que c'est la seule preuve chiffrée
-   de la page et qu'elle doit se voir ; à la taille de la note, parce qu'elle
-   ne dispute pas la vedette au champ. */
 .compteur { margin: 0; font-size: 13px; line-height: 18px; color: var(--ambre); font-variation-settings: 'wght' 700, 'wdth' 100; }
 .compteur[hidden] { display: none; }
 
-.fait { display: grid; justify-items: center; gap: var(--s-3); margin: 0 0 var(--s-4); }
+/* « Vous y êtes » : le bouton de la liste d'attente fait ce que fait
+   « Je participe » dans l'application. La coche se trace, le cercle
+   se ferme, et plus rien n'est demandé. */
+.fait { display: flex; align-items: center; gap: 14px; outline: none; }
 .fait[hidden] { display: none; }
-.fait .ic-fait { width: 40px; height: 40px; color: var(--ambre); }
-.fait h3 { margin: 0; }
-.fait:focus { outline: none; }
+.fait-coche { width: 48px; height: 48px; flex: none; fill: none; stroke: var(--ambre); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.fait-coche circle { stroke-dasharray: 66; stroke-dashoffset: 66; animation: trace 0.7s var(--expo) 0.05s forwards; }
+.fait-coche path { stroke-width: 2; stroke-dasharray: 16; stroke-dashoffset: 16; animation: trace 0.45s var(--expo) 0.45s forwards; }
+@keyframes trace { to { stroke-dashoffset: 0; } }
+.fait-titre {
+  margin: 0;
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variation-settings: 'wght' 800, 'wdth' 100;
+}
 
-.bloc.done .attente { text-align: center; }
-.bloc.done .etat-envoi { justify-content: center; font-size: 17px; line-height: 26px; color: var(--bitume-clair); }
+.attente-bloc.done .attente-rangee,
+.attente-bloc.done .note,
+.attente-bloc.done .compteur { display: none; }
+.attente-bloc.done .etat-envoi { margin-top: var(--s-3); font-size: 17px; line-height: 26px; color: var(--bitume-clair); }
 
-.magasins { list-style: none; padding: 0; margin: var(--s-5) 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2); }
-.magasin {
+/* Après l'inscription : on passe le téléphone, ou on partage. */
+.fait-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-4); }
+.fait-actions[hidden] { display: none; }
+.attente-finale .fait-actions { justify-content: center; }
+
+/* ---- Le QR code ---------------------------------------------------------------- */
+
+.qr {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) var(--page) calc(24px + env(safe-area-inset-bottom, 0px));
+  border: 0;
+  background: var(--nuit);
+  color: var(--craie);
+  place-items: center;
+}
+.qr[open] { display: grid; animation: menuEntre 0.45s var(--expo) both; }
+.qr::backdrop { background: rgba(15, 14, 12, 0.8); }
+.qr-fermer { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: var(--page); margin: 0; }
+.qr-corps-dialog { display: flex; flex-direction: column; align-items: center; text-align: center; width: min(100%, 420px); }
+.qr-code { width: min(78vw, 60vh, 380px); height: auto; display: block; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--filet-clair), 0 40px 80px -30px rgba(226, 162, 31, 0.35); }
+.qr-titre { margin: var(--s-6) 0 0; font-size: clamp(26px, 6vw, 34px); line-height: 1.05; letter-spacing: -0.035em; font-variation-settings: 'wght' 800, 'wdth' 100; text-wrap: balance; }
+.qr-adresse { margin: var(--s-3) 0 0; color: var(--bitume-clair); font-size: 14px; }
+
+.menu-qr { width: 100%; margin-top: var(--s-2); }
+
+.pied-lien {
   display: inline-flex;
   align-items: center;
-  height: var(--h-chip);
-  padding: 0 14px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--filet-clair);
-  color: var(--bitume-clair);
-  font-size: 13px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--craie);
+  font-size: 14px;
+  font-variation-settings: 'wght' 600, 'wdth' 100;
+  cursor: pointer;
+  text-align: left;
+}
+.pied-lien:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- La visite ------------------------------------------------------------- */
+
+.visite {
+  position: relative;
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: clamp(96px, 16vh, 180px) var(--page) clamp(64px, 10vh, 120px);
 }
 
-/* ---- Les apparitions --------------------------------------------------------------- */
+.visite-tete { max-width: 46rem; }
+.visite-intro { margin: var(--s-5) 0 0; font-size: 18px; line-height: 1.55; color: var(--bitume-clair); max-width: 36em; }
 
-html.js [data-reveal] { opacity: 0; transform: translateY(10px); transition: opacity 0.7s ease, transform 0.7s var(--courbe); }
-html.js [data-reveal].in { opacity: 1; transform: none; }
-
-/* ---- Sans JavaScript ---------------------------------------------------------------- */
-
-noscript .sansjs { padding: 12px var(--page); background: var(--surface); border-bottom: 1px solid var(--filet); color: var(--bitume-clair); font-size: 14px; position: relative; z-index: 30; }
-
-/* ---- Écrans moyens et petits ------------------------------------------------------- */
-
-@media (max-width: 900px) {
-  .rangee-2 { grid-template-columns: 1fr; gap: var(--s-6); }
-  .rangee-2.inverse .texte { order: 0; }
-  .etapes { grid-template-columns: 1fr; }
-  .publics { grid-template-columns: 1fr; }
-  .topbar nav > a:not(.btn) { display: none; }
+.visite-corps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s-7);
+  margin-top: clamp(24px, 6vh, 64px);
 }
 
-@media (max-width: 720px) {
-  .hero { padding-top: 120px; gap: var(--s-6); }
-  .section.pleine { padding: 88px 0; }
-  .bloc { padding: var(--s-5); }
-  .rangee { flex-direction: column; }
-  /* En colonne, le champ ne doit plus se laisser etirer ni comprimer par le
-     calcul flex : il garde sa hauteur de 52. */
-  .rangee input { flex: none; }
-  .rangee .btn { width: 100%; }
+.visite-chapitres { grid-column: 1; grid-row: 1; }
+
+.chapitre {
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 30rem;
+  opacity: 0.32;
+  transition: opacity 0.6s var(--expo);
 }
+.chapitre.actif { opacity: 1; }
+.chapitre:first-child { min-height: 70vh; justify-content: flex-start; padding-top: 14vh; }
+.chapitre:last-child { min-height: 80vh; }
+
+.t-titre-chapitre {
+  margin: 0;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-variation-settings: 'wght' 780, 'wdth' 100;
+  text-wrap: balance;
+}
+
+.chapitre p { margin: var(--s-4) 0 0; font-size: 18px; line-height: 1.55; color: var(--bitume-clair); text-wrap: pretty; }
+
+.chapitre .chapitre-details {
+  margin-top: var(--s-5);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--filet-clair);
+  font-size: 12px;
+  line-height: 16px;
+  font-variation-settings: 'wght' 650, 'wdth' 75;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bitume);
+}
+
+.tel-chapitre { display: none; }
+
+.visite-scene {
+  grid-column: 2;
+  grid-row: 1;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-6);
+}
+
+/* La lampe au-dessus du téléphone : un cône de lumière chaude, doux, qui
+   tombe d'en haut. Il ne se voit pas comme une forme, seulement comme la
+   raison pour laquelle l'arête de la coque brille. */
+.visite-scene::before {
+  content: '';
+  position: absolute;
+  inset: -10% -20% 0;
+  z-index: -1;
+  background: radial-gradient(34% 30% at 62% 36%, var(--lampe), rgba(226, 162, 31, 0.05) 60%, rgba(226, 162, 31, 0) 100%);
+  pointer-events: none;
+}
+
+.tel-visite { --l: min(350px, calc((100svh - 140px) / 2.34)); }
+
+.tel-visite .ecran {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.015);
+  transition: opacity 0.55s ease, transform 0.9s var(--expo);
+}
+.tel-visite .ecran.actif { opacity: 1; transform: none; }
+.tel-visite .tel-vitre { background: #0a0908; }
+
+.visite-rail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-left: 1px solid var(--filet-clair);
+}
+.visite-rail li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 16px;
+  font-variation-settings: 'wght' 650, 'wdth' 75;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bitume);
+  transition: color 0.4s ease;
+}
+.visite-rail li::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--ambre);
+  transform: scaleY(0);
+  transition: transform 0.5s var(--expo);
+}
+.visite-rail li.actif { color: var(--craie); }
+.visite-rail li.actif::before { transform: none; }
+
+/* Le bouton « Je participe » de l'application, reproduit. */
+.essai { margin-top: var(--s-5); }
+.participe {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  height: var(--h-bouton);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--ambre);
+  color: var(--nuit);
+  font-size: 15px;
+  line-height: 20px;
+  font-variation-settings: 'wght' 700, 'wdth' 100;
+  cursor: pointer;
+  transition: background-color 0.24s ease, color 0.24s ease, box-shadow 0.24s ease, transform 0.2s var(--expo);
+}
+.participe:active { transform: scale(0.98); }
+.participe-libelle { display: inline-flex; align-items: center; gap: 8px; animation: etatEntre 0.24s cubic-bezier(0.33, 1, 0.68, 1) both; }
+@keyframes etatEntre { from { opacity: 0; transform: translateY(6px); } }
+.participe.envoi { cursor: progress; }
+.participe.envoi .participe-libelle::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(15, 14, 12, 0.28);
+  border-top-color: var(--nuit);
+  border-radius: 50%;
+  animation: tourne 0.7s linear infinite;
+}
+.participe.inviter { background: transparent; color: var(--craie); box-shadow: inset 0 0 0 1px var(--trait); }
+.participe.inviter:hover { box-shadow: inset 0 0 0 1px var(--craie); }
+.coche-tracee { width: 20px; height: 20px; flex: none; fill: none; stroke: var(--nuit); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.coche-tracee path { stroke-dasharray: 20; stroke-dashoffset: 20; animation: trace 0.36s cubic-bezier(0.33, 1, 0.68, 1) forwards; }
+.essai-note { margin: var(--s-3) 0 0 !important; font-size: 14px !important; line-height: 20px !important; color: var(--bitume) !important; }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js [data-reveal] { opacity: 1; transform: none; transition: none; }
-  .btn, .topbar { transition: none; }
+  .participe-libelle { animation: none; }
+  .coche-tracee path { animation: none; stroke-dashoffset: 0; }
 }
 
-/* ---- La planche d'affiches ---------------------------------------------- */
+/* ---- Les affiches --------------------------------------------------------- */
 
-/* Les affiches de rasso : nos propres visuels, en Sodium. Elles remplacent
-   une capture là où l'app afficherait des photos qui ne nous appartiennent
-   pas, et elles disent ce qu'est un rasso mieux qu'une liste. */
-.affiches {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.affiches { padding: clamp(80px, 14vh, 160px) 0; }
+
+.affiches-tete {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: 0 var(--page);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: var(--s-6);
+  align-items: end;
 }
+.affiches-tete p { margin: 0; font-size: 18px; line-height: 1.55; color: var(--bitume-clair); max-width: 30em; }
 
-.affiches li { margin: 0; }
+.affiches-cadre { position: relative; margin-top: clamp(32px, 6vh, 56px); }
 
-.affiches img {
+.affiches-rail {
+  --marge: max(var(--page), calc((100vw - var(--largeur)) / 2 + var(--page)));
+  list-style: none;
+  margin: 0;
+  padding: 4px var(--marge) 20px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(232px, 24vw, 330px);
+  gap: clamp(14px, 1.6vw, 22px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--marge);
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.affiches-rail::-webkit-scrollbar { display: none; }
+.affiches-rail:focus-visible { outline-offset: -2px; border-radius: 0; }
+
+.affiches-rail li { scroll-snap-align: start; }
+.affiches-rail figure { margin: 0; }
+.affiches-rail img {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: var(--r-lg);
-  border: 1px solid var(--filet);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--filet);
+  transition: transform 0.6s var(--expo), filter 0.6s var(--expo);
+}
+.affiches-rail li:hover img { transform: translateY(-4px); filter: brightness(1.28); }
+
+/* Les affiches s'allument en entrant dans l'écran, l'une après l'autre,
+   comme les lampes de la ville au premier écran. */
+html.js .affiches-rail img { filter: brightness(0.45) saturate(1.3); transition: transform 0.6s var(--expo), filter 1.4s cubic-bezier(0.3, 0.1, 0.2, 1); transition-delay: 0s, calc(var(--i, 0) * 0.12s); }
+html.js .affiches-rail.allume img { filter: brightness(1.14); }
+html.js .affiches-rail.allume li:hover img { filter: brightness(1.28); transition-delay: 0s; }
+.affiches-rail figcaption { margin-top: var(--s-3); font-size: 14px; line-height: 20px; color: var(--bitume-clair); max-width: 26em; }
+.affiches-rail figcaption .t-donnee { display: block; margin-bottom: 4px; color: var(--craie); }
+
+.affiches-fleches {
+  max-width: var(--largeur);
+  margin: var(--s-3) auto 0;
+  padding: 0 var(--page);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}
+.affiches-fleches[hidden] { display: none; }
+.fleche {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--trait);
+  border-radius: 50%;
+  background: none;
+  color: var(--craie);
+  cursor: pointer;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+.fleche:hover { border-color: var(--craie); }
+.fleche:disabled { opacity: 0.3; cursor: default; border-color: var(--trait); }
+
+/* ---- Organisateurs et partenaires ------------------------------------------ */
+
+.publics {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: clamp(64px, 10vh, 120px) var(--page);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--filet);
 }
 
-/* La première affiche déborde légèrement : la planche respire au lieu de
-   former un bloc de quatre carrés identiques. */
-.affiches li:nth-child(1) { transform: translateY(-14px); }
-.affiches li:nth-child(4) { transform: translateY(14px); }
+.public { padding-right: clamp(24px, 5vw, 72px); }
+.public + .public { padding-right: 0; padding-left: clamp(24px, 5vw, 72px); border-left: 1px solid var(--filet); }
+.public .t-affiche { font-size: clamp(30px, 3.4vw, 46px); max-width: 12em; }
+.public-chapeau { margin: var(--s-5) 0 0; font-size: 18px; line-height: 1.55; color: var(--bitume-clair); max-width: 30em; }
 
-@media (max-width: 900px) {
-  .affiches li:nth-child(1), .affiches li:nth-child(4) { transform: none; }
+/* Le lien court, dessiné comme une plaque : c'est un objet que le milieu
+   connaît par cœur, et c'est ce qu'on colle dans une story. */
+.lien-court {
+  display: inline-flex;
+  align-items: baseline;
+  margin: var(--s-5) 0 0;
+  padding: 10px 16px 9px;
+  border: 1px solid var(--trait);
+  border-radius: 6px;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1;
+  font-variation-settings: 'wght' 650, 'wdth' 88;
+  letter-spacing: 0.02em;
+  color: var(--bitume-clair);
+  box-shadow: inset 0 0 0 3px var(--nuit), inset 0 0 0 4px var(--filet);
+}
+.lien-court-code { color: var(--craie); font-variation-settings: 'wght' 800, 'wdth' 112; letter-spacing: 0.12em; }
+
+.traits { list-style: none; margin: var(--s-6) 0 var(--s-6); padding: 0; }
+.traits li { padding: 16px 0; border-top: 1px solid var(--filet); font-size: 16px; line-height: 1.55; color: var(--bitume-clair); max-width: 34em; }
+.traits li:last-child { border-bottom: 1px solid var(--filet); }
+
+/* ---- Les règles ------------------------------------------------------------ */
+
+.regles {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: clamp(64px, 12vh, 140px) var(--page);
+}
+.regles .t-affiche { max-width: 14em; }
+
+.regles-liste {
+  list-style: none;
+  margin: clamp(32px, 6vh, 64px) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--filet-clair);
+}
+.regles-liste li { padding: var(--s-5) clamp(16px, 2.4vw, 36px) 0 0; }
+.regles-liste li + li { padding-left: clamp(16px, 2.4vw, 36px); border-left: 1px solid var(--filet); }
+.regle-titre {
+  margin: 0;
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'wght' 800, 'wdth' 100;
+  color: var(--craie);
+}
+.regles-liste li p:not(.regle-titre) { margin: var(--s-3) 0 0; font-size: 16px; line-height: 1.55; color: var(--bitume-clair); max-width: 26em; }
+
+/* ---- Le territoire --------------------------------------------------------- */
+
+.territoire {
+  position: relative;
+  min-height: clamp(520px, 86vh, 860px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
 }
 
-/* ---- Les questions ------------------------------------------------------- */
+.territoire-carte { position: absolute; inset: 0; z-index: -1; container-type: size; }
+.territoire-plan {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, 160cqh);
+  aspect-ratio: 1.6;
+  transform: translate(-50%, -50%);
+}
+.territoire-plan img { display: block; width: 100%; height: 100%; }
+.territoire-carte::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, var(--nuit) 0%, rgba(15, 14, 12, 0) 22%, rgba(15, 14, 12, 0) 52%, rgba(15, 14, 12, 0.9) 84%, var(--nuit) 100%),
+    linear-gradient(90deg, rgba(15, 14, 12, 0.7) 0%, rgba(15, 14, 12, 0) 50%);
+}
 
-/* Un <details> natif : il s'ouvre sans JavaScript, se navigue au clavier, et
-   son contenu reste dans la page pour les moteurs et les assistants, même
-   replié. Le balisage FAQPage de l'accueil reprend les mêmes textes. */
-.questions { max-width: 46rem; border-top: 1px solid var(--filet); }
+.territoire-texte {
+  width: 100%;
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: 0 var(--page) clamp(48px, 9vh, 96px);
+}
+.territoire-texte .t-affiche { max-width: 12em; }
+.territoire-texte p { margin: var(--s-5) 0 0; font-size: 18px; line-height: 1.55; color: var(--bitume-clair); max-width: 34em; }
+
+/* ---- Les questions --------------------------------------------------------- */
+
+.questions {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: clamp(80px, 12vh, 140px) var(--page);
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--s-7);
+  align-items: start;
+}
+.questions > .t-affiche { position: sticky; top: calc(var(--barre-h) + 32px); max-width: 8em; }
+
+.questions-liste { border-top: 1px solid var(--filet-clair); }
 
 .qr { border-bottom: 1px solid var(--filet); }
-
 .qr summary {
+  list-style: none;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-4);
   min-height: 64px;
-  padding: var(--s-4) 0;
+  padding: 18px 0;
   cursor: pointer;
-  list-style: none;
-  font-size: 16px;
-  line-height: 24px;
-  font-variation-settings: 'wght' 700, 'wdth' 100;
+  font-size: 19px;
+  line-height: 1.35;
+  font-variation-settings: 'wght' 650, 'wdth' 100;
   letter-spacing: -0.01em;
   color: var(--craie);
-  transition: color 0.2s ease;
 }
-
 .qr summary::-webkit-details-marker { display: none; }
-.qr summary:hover { color: var(--ambre); }
-.qr summary:focus-visible { outline-offset: -2px; }
+.qr summary:hover .qr-signe { border-color: var(--craie); }
 
-.qr summary .ic {
+.qr-signe {
+  position: relative;
   flex: none;
-  width: 18px;
-  height: 18px;
-  color: var(--bitume);
-  transform: rotate(90deg);
-  transition: transform 0.25s var(--courbe), color 0.2s ease;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--trait);
+  border-radius: 50%;
+  transition: border-color 0.2s ease, transform 0.45s var(--expo);
+}
+.qr-signe::before,
+.qr-signe::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 1.5px;
+  background: var(--craie);
+  transform: translate(-50%, -50%);
+}
+.qr-signe::after { transform: translate(-50%, -50%) rotate(90deg); transition: transform 0.45s var(--expo); }
+.qr[open] .qr-signe { transform: rotate(180deg); border-color: var(--ambre); }
+.qr[open] .qr-signe::after { transform: translate(-50%, -50%) rotate(0deg); }
+
+.qr-corps { padding: 0 48px 24px 0; }
+.qr-corps p { margin: 0; font-size: 17px; line-height: 1.6; color: var(--bitume-clair); max-width: 38em; }
+.qr-corps a { color: var(--craie); }
+
+/* ---- La fin ------------------------------------------------------------------ */
+
+.finale {
+  position: relative;
+  min-height: 92vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(96px, 16vh, 180px) var(--page) clamp(80px, 12vh, 140px);
+  overflow: hidden;
+  isolation: isolate;
+  text-align: center;
 }
 
-.qr[open] summary .ic { transform: rotate(-90deg); color: var(--ambre); }
+/* La lampe revient : un cône d'ambre qui tombe d'en haut sur le formulaire,
+   et sa flaque sur le sol. */
+.finale-lumiere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  background:
+    radial-gradient(42% 58% at 50% 10%, rgba(255, 214, 140, 0.22), rgba(226, 162, 31, 0.11) 40%, rgba(226, 162, 31, 0.035) 68%, rgba(226, 162, 31, 0) 100%),
+    radial-gradient(40% 12% at 50% 86%, rgba(226, 162, 31, 0.09), rgba(226, 162, 31, 0) 100%);
+}
 
-.qr-corps { padding: 0 0 var(--s-5); max-width: 40rem; }
-.qr-corps p { margin: 0; font-size: 15px; line-height: 24px; color: var(--bitume-clair); }
+.attente-finale { margin: 0 auto; max-width: 640px; display: flex; flex-direction: column; align-items: center; }
+.finale-titre { font-size: clamp(44px, 6.4vw, 88px); max-width: 8.5em; text-wrap: balance; }
+.finale-chapeau { margin: var(--s-5) 0 var(--s-6); font-size: 19px; line-height: 1.5; color: var(--bitume-clair); max-width: 28em; }
+.attente-finale .attente { width: 100%; max-width: 560px; text-align: left; }
+.attente-finale .fait { justify-content: center; }
+.attente-finale.done .etat-envoi { justify-content: center; text-align: center; }
+
+.magasins {
+  list-style: none;
+  margin: var(--s-6) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-2);
+}
+.magasins li {
+  padding: 8px 14px;
+  border: 1px solid var(--filet-clair);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--bitume-clair);
+}
+
+/* ---- Le pouce ------------------------------------------------------------------ */
+
+.pouce { display: none; }
+
+/* ---- Le pied de page ------------------------------------------------------------ */
+
+.pied {
+  position: relative;
+  border-top: 1px solid var(--filet);
+  padding: var(--s-7) var(--page) calc(var(--s-6) + env(safe-area-inset-bottom, 0px));
+  color: var(--bitume-clair);
+  font-size: 14px;
+  line-height: 20px;
+}
+.pied > * { max-width: var(--largeur); margin-left: auto; margin-right: auto; }
+.pied-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-4); }
+.pied-slogan { margin: 0; color: var(--bitume); font-variation-settings: 'wght' 600, 'wdth' 100; }
+.pied-colonnes { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--s-4) clamp(32px, 8vw, 120px); margin-top: var(--s-6); }
+.pied-colonnes nav { display: flex; flex-direction: column; }
+.pied-colonnes a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--craie);
+  text-decoration: none;
+}
+.pied-colonnes a:hover { text-decoration: underline; }
+.pied-bas { margin-top: var(--s-6); margin-bottom: 0; padding-top: var(--s-4); border-top: 1px solid var(--filet); font-size: 13px; color: var(--bitume); }
+
+noscript .sansjs { padding: 12px var(--page); background: var(--surface); border-bottom: 1px solid var(--filet); color: var(--bitume-clair); font-size: 14px; position: relative; z-index: 30; margin-top: var(--barre-h); }
+
+/* ---- Mouvement --------------------------------------------------------------
+   Trois règles. La lumière révèle, rien ne glisse de loin : une apparition,
+   c'est une opacité et dix pixels, une fois. Seul ce qui est « en direct »
+   boucle. Et la page entière reste lisible si rien de tout ça ne joue. */
+
+html.js [data-apparait] { opacity: 0; transform: translateY(10px); transition: opacity 0.9s var(--expo), transform 0.9s var(--expo); }
+html.js [data-apparait].in { opacity: 1; transform: none; }
+
+/* Les lampes chauffent : au chargement, la ville passe d'un rouge sourd à
+   l'ambre, comme un lampadaire au sodium qu'on allume. */
+html.js .ville-image { animation: chauffe 2.6s cubic-bezier(0.3, 0.1, 0.2, 1) both; }
+@keyframes chauffe {
+  0% { filter: brightness(0.12) saturate(1.8) hue-rotate(-22deg); }
+  45% { filter: brightness(0.6) saturate(1.35) hue-rotate(-9deg); }
+  100% { filter: none; }
+}
+
+html.js .ouverture .ville-plan { animation: pose 9s var(--expo) both; }
+@keyframes pose { from { transform: translate(-50%, -50%) scale(1.07); } to { transform: translate(-50%, -50%) scale(1); } }
+
+html.js .ouverture h1 .ligne,
+html.js .ouverture .chapeau,
+html.js .attente-ouverture { animation: monte 1.1s var(--expo) both; }
+html.js .ouverture h1 .ligne:nth-child(2) { animation-delay: 0.08s; }
+html.js .ouverture .chapeau { animation-delay: 0.2s; }
+html.js .attente-ouverture { animation-delay: 0.3s; }
+@keyframes monte { from { opacity: 0; transform: translateY(14px); } }
+
+html.js .tel-ouverture { animation: leve 1.6s var(--expo) 0.25s both; }
+@keyframes leve { from { opacity: 0; transform: translateY(48px); } }
+
+html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s + var(--i, 0) * 0.18s); }
+@keyframes allume { from { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .qr summary .ic { transition: none; }
+  html.js [data-apparait] { opacity: 1; transform: none; transition: none; }
+  html.js .ville-image,
+  html.js .ouverture .ville-plan,
+  html.js .ouverture h1 .ligne,
+  html.js .ouverture .chapeau,
+  html.js .attente-ouverture,
+  html.js .tel-ouverture,
+  html.js .repere { animation: none; }
+  .repere.direct .repere-point::after { animation: none; transform: scale(1.25); opacity: 0.35; }
+  .balaye .tel-lumiere { animation: none; }
+  .tel-visite .ecran, .chapitre, .visite-rail li, .visite-rail li::before { transition: none; }
+  .fait-coche circle, .fait-coche path { animation: none; stroke-dashoffset: 0; }
+  html.js .affiches-rail img { filter: brightness(1.14); transition: none; }
+  .menu[open] { animation: none; }
+}
+
+/* ---- Écrans moyens -------------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+  .barre-nav a { padding: 0 8px; }
+}
+
+@media (max-width: 960px) {
+  .barre-nav, .barre-action { display: none; }
+  .barre-menu { display: grid; }
+
+  .ouverture-corps { grid-template-columns: 1fr; gap: 0; align-items: start; }
+  .ouverture-texte { padding-bottom: var(--s-6); }
+  .tel-ouverture { --l: min(78vw, 340px); margin-bottom: calc(var(--l) * -1.1); }
+
+  .visite-corps { display: block; }
+  .visite-scene { display: none; }
+  .chapitre, .chapitre:first-child, .chapitre:last-child { min-height: 0; opacity: 1; max-width: 36rem; margin-top: clamp(72px, 12vh, 112px); padding-top: 0; }
+  .tel-chapitre { display: block; --l: min(76vw, 330px); margin: var(--s-6) auto 0; }
+
+  .affiches-tete { grid-template-columns: 1fr; gap: var(--s-4); }
+
+  .publics { grid-template-columns: 1fr; }
+  .public, .public + .public { padding: 0; border-left: 0; }
+  .public + .public { margin-top: var(--s-7); padding-top: var(--s-7); border-top: 1px solid var(--filet); }
+
+  .regles-liste { grid-template-columns: 1fr; }
+  .regles-liste li, .regles-liste li + li { padding: var(--s-5) 0; border-left: 0; }
+  .regles-liste li + li { border-top: 1px solid var(--filet); }
+
+  .questions { grid-template-columns: 1fr; gap: var(--s-6); }
+  .questions > .t-affiche { position: static; }
+
+  .pouce {
+    display: inline-flex;
+    position: fixed;
+    left: var(--page);
+    right: var(--page);
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 45;
+    height: 56px;
+    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(15, 14, 12, 0.5);
+    transform: translateY(calc(100% + 32px));
+    transition: transform 0.5s var(--expo);
+  }
+  .pouce[hidden] { display: none; }
+  .pouce.visible { transform: none; }
+}
+
+/* ---- Le téléphone ------------------------------------------------------------------- */
+
+@media (max-aspect-ratio: 4/5) {
+  .ville-plan { width: max(100cqw, 46.2cqh); aspect-ratio: 1170 / 2532; }
+  /* Debout, le texte occupe le haut de la ville : les repères tomberaient
+     dessous. Le téléphone porte déjà le rasso en direct. */
+  .ouverture .ville-calque { display: none; }
+  .ville::after {
+    background:
+      linear-gradient(180deg, rgba(15, 14, 12, 0.9) 0%, rgba(15, 14, 12, 0.78) 34%, rgba(15, 14, 12, 0.3) 62%, rgba(15, 14, 12, 0.5) 82%, var(--nuit) 100%);
+  }
+}
+
+@media (max-width: 640px) {
+  .ouverture-corps { padding-top: calc(var(--barre-h) + 20px); }
+  .t-enseigne { font-size: clamp(30px, 10.4vw, 60px); }
+  .attente input[type='email'] { flex: none; width: 100%; }
+  .chapeau { font-size: 17px; }
+  .attente-rangee { flex-direction: column; }
+  .attente .btn-ambre { width: 100%; }
+  .ouverture-mention { display: none; }
+  .visite-intro, .chapitre p, .affiches-tete p, .public-chapeau, .territoire-texte p { font-size: 17px; }
+  .qr summary { font-size: 17px; }
+  .qr-corps { padding-right: 0; }
+  .qr-corps p { font-size: 16px; }
+  .finale-chapeau { font-size: 17px; }
+  .pied-colonnes { grid-template-columns: 1fr 1fr; }
+  .pied-colonnes nav:last-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 640px) {
+  /* La région recentrée sur la métropole, légendes à gauche des points :
+     sur un écran étroit, tout ce qui est à droite sortirait du cadre. */
+  .territoire-plan { transform: translate(-62%, -50%); }
+  .reperes-region .repere .repere-legende { left: auto; right: 14px; }
+  .tel-chapitre { --l: min(66vw, 300px); }
+}
+
+@media (max-width: 360px) {
+  .repere-legende { font-size: 11px; }
 }

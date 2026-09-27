@@ -1,105 +1,393 @@
 // L'accueil de carclan.fr. Le HTML se suffit : tout ce qui suit est un
-// supplément, jamais une condition pour lire la page. La scène 3D se charge
-// après le contenu, dans un temps mort du navigateur, et n'existe pas pour
-// qui a demandé moins de mouvement.
+// supplément, jamais une condition pour lire la page ou s'inscrire.
 import './tokens.css';
 import './site.css';
 import { mountIcons } from './icons.js';
 import { setupWaitlist, setupCompteur } from './waitlist.js';
 
 mountIcons();
-setupWaitlist(document.getElementById('waitlist'));
-setupCompteur(document.getElementById('compteur-attente'));
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const touch = matchMedia('(hover: none), (pointer: coarse)').matches;
-const cores = navigator.hardwareConcurrency || 8;
-const params = new URLSearchParams(location.search);
-const lite = touch || cores < 4 || params.has('lite');
+const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const large = matchMedia('(min-width: 961px)');
+const pointeurFin = matchMedia('(hover: hover) and (pointer: fine)');
 
-// Les apparitions : une fois, à l'entrée dans l'écran, huit pixels de
-// translation. Sans JavaScript, ou en mouvement réduit, tout est visible
-// d'emblée (voir site.css, html.js [data-reveal]).
-if (!reduced && 'IntersectionObserver' in window) {
-  const io = new IntersectionObserver((entries) => {
-    for (const e of entries) {
+// ---- Les deux formulaires ----------------------------------------------------
+
+document.querySelectorAll('[data-formulaire]').forEach((f) => setupWaitlist(f));
+
+// Le compteur n'interroge Supabase que si on approche du formulaire du bas :
+// un visiteur qui repart du premier écran ne touche aucun serveur tiers.
+const compteur = document.getElementById('compteur-attente');
+if (compteur && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entrees) => {
+    if (entrees.some((e) => e.isIntersecting)) { setupCompteur(compteur); io.disconnect(); }
+  }, { rootMargin: '400px 0px' });
+  io.observe(compteur.closest('section') || compteur);
+}
+
+// Une inscription ferme l'autre formulaire aussi : on ne redemande pas en bas
+// une adresse qu'on vient de donner en haut.
+let inscrit = false;
+document.addEventListener('attente:fait', (e) => {
+  inscrit = true;
+  document.querySelectorAll('[data-fait-actions]').forEach((a) => { a.hidden = false; });
+  const source = e.detail?.bloc;
+  const titre = source?.querySelector('[data-fait-titre]')?.textContent;
+  const detail = source?.querySelector('.etat-envoi')?.textContent;
+  document.querySelectorAll('[data-attente]').forEach((bloc) => {
+    if (bloc === source || bloc.classList.contains('done')) return;
+    bloc.classList.add('done');
+    bloc.querySelector('.attente')?.classList.add('done');
+    const fait = bloc.querySelector('.fait');
+    if (fait) {
+      const t = fait.querySelector('[data-fait-titre]');
+      if (t && titre) t.textContent = titre;
+      fait.hidden = false;
+    }
+    const etat = bloc.querySelector('.etat-envoi');
+    if (etat && detail) etat.textContent = detail;
+  });
+  majPouce();
+});
+
+// Après une inscription : le téléphone passe de main en main sur un rasso, donc
+// « Inscrire quelqu'un d'autre » rouvre le formulaire, vide, prêt.
+document.querySelectorAll('[data-autre]').forEach((b) => b.addEventListener('click', () => {
+  const bloc = b.closest('[data-attente]');
+  if (!bloc) return;
+  bloc.classList.remove('done');
+  const form = bloc.querySelector('.attente');
+  form?.classList.remove('done');
+  const fait = bloc.querySelector('.fait');
+  if (fait) fait.hidden = true;
+  bloc.querySelector('[data-fait-actions]').hidden = true;
+  const etat = bloc.querySelector('.etat-envoi');
+  if (etat) { etat.textContent = ''; etat.classList.remove('erreur'); }
+  const champ = bloc.querySelector('input[type="email"]');
+  const bouton = bloc.querySelector('button[type="submit"]');
+  if (bouton) {
+    bouton.disabled = false;
+    const l = bouton.querySelector('[data-libelle]');
+    if (l) l.textContent = 'Me prévenir';
+  }
+  if (champ) { champ.value = ''; champ.setAttribute('aria-invalid', 'false'); champ.focus(); }
+}));
+
+document.querySelectorAll('[data-partager]').forEach((b) => b.addEventListener('click', async () => {
+  const donnees = { title: 'CarClan', text: 'Tous les rassos près de chez vous, sur une carte. L’app sort cet hiver.', url: 'https://carclan.fr' };
+  try {
+    if (navigator.share) { await navigator.share(donnees); return; }
+    await navigator.clipboard.writeText(donnees.url);
+    const avant = b.textContent;
+    b.textContent = 'Lien copié';
+    setTimeout(() => { b.textContent = avant; }, 2000);
+  } catch {
+    // Partage annulé : rien à dire.
+  }
+}));
+
+// ---- La barre ---------------------------------------------------------------------
+
+const barre = document.querySelector('[data-barre]');
+const surScroll = () => barre?.classList.toggle('on', window.scrollY > 24);
+window.addEventListener('scroll', surScroll, { passive: true });
+surScroll();
+
+// ---- Le menu du téléphone ---------------------------------------------------------
+
+const menu = document.getElementById('menu');
+const ouvreMenu = document.querySelector('[data-ouvre-menu]');
+if (menu && ouvreMenu && typeof menu.showModal === 'function') {
+  ouvreMenu.addEventListener('click', () => {
+    menu.showModal();
+    ouvreMenu.setAttribute('aria-expanded', 'true');
+  });
+  menu.addEventListener('close', () => ouvreMenu.setAttribute('aria-expanded', 'false'));
+  // Un lien du menu ferme le menu PUIS laisse le navigateur aller à l'ancre :
+  // la page derrière n'est plus inerte au moment où elle défile.
+  menu.querySelectorAll('[data-ferme-menu]').forEach((el) => el.addEventListener('click', () => menu.close()));
+  menu.addEventListener('click', (e) => { if (e.target === menu) menu.close(); });
+} else if (ouvreMenu) {
+  // Sans <dialog> modal : le bouton mène au pied de page, qui porte tous les liens.
+  ouvreMenu.addEventListener('click', () => document.querySelector('.pied')?.scrollIntoView());
+}
+
+// ---- Le QR code ----------------------------------------------------------------------
+
+const qr = document.getElementById('qr');
+if (qr && typeof qr.showModal === 'function') {
+  const ouvrirQr = () => { if (!qr.open) { if (menu?.open) menu.close(); qr.showModal(); } };
+  document.querySelectorAll('[data-ouvre-qr]').forEach((b) => b.addEventListener('click', ouvrirQr));
+  qr.querySelector('[data-ferme-qr]')?.addEventListener('click', () => qr.close());
+  qr.addEventListener('click', (e) => { if (e.target === qr) qr.close(); });
+  qr.addEventListener('close', () => { if (location.hash === '#qr') history.replaceState(null, '', location.pathname + location.search); });
+  const surHash = () => { if (location.hash === '#qr') ouvrirQr(); };
+  window.addEventListener('hashchange', surHash);
+  surHash();
+} else {
+  document.querySelectorAll('[data-ouvre-qr]').forEach((b) => { b.hidden = true; });
+}
+
+// « Être prévenu » : on descend au formulaire du bas, et sur un ordinateur le
+// champ prend le focus une fois arrivé. Sur un téléphone, on n'ouvre pas le
+// clavier sans qu'on l'ait demandé.
+document.querySelectorAll('[data-vers-liste]').forEach((a) => {
+  a.addEventListener('click', () => {
+    if (!pointeurFin.matches || inscrit) return;
+    setTimeout(() => document.getElementById('email-bas')?.focus({ preventScroll: true }), reduit ? 0 : 700);
+  });
+});
+
+// ---- Les apparitions ----------------------------------------------------------------
+
+const apparaitre = document.querySelectorAll('[data-apparait]');
+if (!reduit && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entrees) => {
+    for (const e of entrees) {
       if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
     }
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-  document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.06 });
+  apparaitre.forEach((el) => io.observe(el));
 } else {
-  document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in'));
+  apparaitre.forEach((el) => el.classList.add('in'));
 }
 
-// La barre haute se remplit d'un voile dès qu'on quitte le haut de page.
-const topbar = document.querySelector('.topbar');
-const onScroll = () => topbar && topbar.classList.toggle('on', window.scrollY > 24);
-window.addEventListener('scroll', onScroll, { passive: true });
-onScroll();
+// ---- Le balayage de lumière ---------------------------------------------------------
 
-// ---- La scène ------------------------------------------------------------------
-const canvas = document.getElementById('scene');
+function balayer(vitre) {
+  if (!vitre || reduit) return;
+  vitre.classList.remove('balaye');
+  void vitre.offsetWidth; // relance l'animation même si elle vient de jouer
+  vitre.classList.add('balaye');
+}
 
-async function mountScene() {
-  if (!canvas || params.has('noscene')) return;
-  let world;
-  try {
-    const { createScene } = await import('./scene.js');
-    world = createScene(canvas, { lite, reduced, touch });
-  } catch (err) {
-    // Pas de WebGL, ou un pilote qui refuse : la page reste entière.
-    console.warn('Scène indisponible :', err);
-    canvas.remove();
-    return;
-  }
+// Le téléphone du premier écran reçoit son passage de lampe une fois monté.
+const vitreOuverture = document.querySelector('.tel-ouverture .tel-vitre');
+setTimeout(() => balayer(vitreOuverture), 1500);
 
-  const doc = document.documentElement;
-  let ticking = false;
-  const update = () => {
-    ticking = false;
-    const max = Math.max(1, doc.scrollHeight - window.innerHeight);
-    world.setProgress(window.scrollY / max);
+// ---- La visite ------------------------------------------------------------------------
+// Sur un écran large, le téléphone est collant et change d'écran avec le
+// chapitre lu. Sur un téléphone, chaque chapitre a son écran, et le passage de
+// lampe joue quand il entre dans la vue.
+
+const chapitres = [...document.querySelectorAll('[data-chapitre]')];
+const rail = [...document.querySelectorAll('[data-rail] li')];
+const vitreVisite = document.querySelector('[data-vitre]');
+const ecrans = vitreVisite ? [...vitreVisite.querySelectorAll('[data-ecran]')] : [];
+let courant = 0;
+
+function activer(i) {
+  if (i < 0 || (i === courant && chapitres[i]?.classList.contains('actif'))) return;
+  courant = i;
+  chapitres.forEach((c, j) => c.classList.toggle('actif', j === i));
+  rail.forEach((li, j) => li.classList.toggle('actif', j === i));
+  const cle = chapitres[i]?.dataset.chapitre;
+  ecrans.forEach((img) => img.classList.toggle('actif', img.dataset.ecran === cle));
+  balayer(vitreVisite);
+}
+
+if (chapitres.length && 'IntersectionObserver' in window) {
+  // Les écrans de la visite se chargent tous dès qu'on approche de la
+  // section, pour qu'aucun ne clignote en arrivant.
+  const visite = document.getElementById('application');
+  const precharge = new IntersectionObserver((entrees) => {
+    if (entrees.some((e) => e.isIntersecting)) {
+      ecrans.forEach((img) => { img.loading = 'eager'; });
+      precharge.disconnect();
+    }
+  }, { rootMargin: '800px 0px' });
+  if (visite) precharge.observe(visite);
+
+  const lecture = new IntersectionObserver((entrees) => {
+    if (!large.matches) return;
+    for (const e of entrees) {
+      if (e.isIntersecting) activer(chapitres.indexOf(e.target));
+    }
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  chapitres.forEach((c) => lecture.observe(c));
+  chapitres[0].classList.add('actif');
+
+  const vitresMobiles = document.querySelectorAll('.tel-chapitre .tel-vitre');
+  const entree = new IntersectionObserver((entrees) => {
+    for (const e of entrees) {
+      if (e.isIntersecting) { balayer(e.target); entree.unobserve(e.target); }
+    }
+  }, { threshold: 0.55 });
+  vitresMobiles.forEach((v) => entree.observe(v));
+} else {
+  chapitres.forEach((c) => c.classList.add('actif'));
+}
+
+// ---- Le bouton « Je participe » -------------------------------------------------------
+// Les mêmes états que l'application : ambre pendant l'envoi, « Vous y allez »
+// avec la coche tracée et une vibration franche, tenu 1,6 s, puis « Inviter
+// des amis ». Un nouveau toucher recommence.
+
+const participe = document.querySelector('[data-participe]');
+if (participe) {
+  const note = document.querySelector('[data-note-participe]');
+  const noteRepos = note?.textContent || '';
+  const COCHE = '<svg class="coche-tracee" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.6 10.4 8.4 15.2 16.8 5.6" /></svg>';
+  const ETATS = {
+    repos: { html: '<svg class="ic" aria-hidden="true"><use href="#cc-check" /></svg>Je participe', classe: null, note: noteRepos },
+    engage: { html: `${COCHE}Vous y allez`, classe: 'engage', note: 'Inscription confirmée. Vos amis le voient.' },
+    inviter: { html: '<svg class="ic" aria-hidden="true"><use href="#cc-amis" /></svg>Inviter des amis', classe: 'inviter', note: 'Touchez encore pour recommencer.' },
   };
-  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-  window.addEventListener('resize', () => { world.resize(); update(); });
-  update();
-  world.start();
+  let etat = 'repos';
+  let minuteurs = [];
+  // Le libellé est recréé à chaque état, pour que son entrée rejoue.
+  const poser = (cle, envoi = false) => {
+    const e = ETATS[cle];
+    participe.classList.remove('envoi', 'engage', 'inviter');
+    if (e.classe) participe.classList.add(e.classe);
+    if (envoi) participe.classList.add('envoi');
+    const span = document.createElement('span');
+    span.className = 'participe-libelle';
+    span.innerHTML = envoi ? participe.querySelector('.participe-libelle').innerHTML : e.html;
+    participe.replaceChildren(span);
+    if (note && !envoi) note.textContent = e.note;
+  };
+  participe.addEventListener('click', () => {
+    minuteurs.forEach(clearTimeout);
+    minuteurs = [];
+    if (etat !== 'repos') { etat = 'repos'; poser('repos'); return; }
+    etat = 'envoi';
+    poser('repos', true);
+    minuteurs.push(setTimeout(() => {
+      etat = 'engage';
+      poser('engage');
+      try { navigator.vibrate?.(24); } catch { /* pas de vibreur */ }
+      minuteurs.push(setTimeout(() => { etat = 'inviter'; poser('inviter'); }, 1600));
+    }, reduit ? 0 : 420));
+  });
+}
 
-  // Quatre secondes de mesure après le départ : sous 45 images par
-  // seconde, on dégrade une fois, sans le dire.
-  if (!reduced) {
-    let frames = 0;
-    const t0 = performance.now();
-    const count = () => {
-      frames++;
-      const t = performance.now() - t0;
-      if (t < 4000) requestAnimationFrame(count);
-      else if (frames / (t / 1000) < 45) world.degrade();
-    };
-    requestAnimationFrame(count);
+// ---- Les repères de la ville --------------------------------------------------------
+// Positions en pourcentage de chaque image, calculées par la carte elle-même
+// au moment du rendu (map.project), pas placées à l'œil. `d` : l'image large,
+// `p` : l'image portrait.
+
+const REPERES = [
+  { lieu: 'Tourcoing', quand: 'En direct', type: 'Rasso', direct: true, d: [69.93, 17.51], p: [42.25, 21.95] },
+  { lieu: 'Wattrelos', quand: 'Sam. 20 h', type: 'Expo', gauche: true, d: [88.04, 36.36], p: [null, null] },
+  { lieu: 'Villeneuve-d’Ascq', quand: 'Dim. 9 h', type: 'Balade', d: [39.6, 88.29], p: [null, null] },
+  { lieu: 'Roubaix', quand: 'Ven. 21 h', type: 'Club', gauche: true, d: [null, null], p: [75.17, 31.17] },
+];
+
+// La région : les villes où la carte se remplit d'abord, Tourcoing en ambre.
+const REGION = [
+  { lieu: 'Tourcoing', origine: true, d: [61.86, 33.89] },
+  { lieu: 'Lille', gauche: true, d: [59.47, 39.37] },
+  { lieu: 'Courtrai', d: [64.56, 27.18] },
+  { lieu: 'Tournai', d: [67.63, 41.33] },
+  { lieu: 'Dunkerque', d: [42.1, 13.91] },
+  { lieu: 'Calais', d: [28.83, 19.14] },
+  { lieu: 'Valenciennes', d: [71.07, 57.12] },
+];
+
+function poser(liste, cible, portrait) {
+  if (!cible) return;
+  cible.textContent = '';
+  liste.forEach((r, i) => {
+    const [x, y] = portrait ? r.p : r.d;
+    if (x == null || y == null) return;
+    const li = document.createElement('li');
+    li.className = `repere${r.direct ? ' direct' : ''}${r.gauche ? ' gauche' : ''}${r.origine ? ' origine' : ''}`;
+    li.style.setProperty('--x', `${x}%`);
+    li.style.setProperty('--y', `${y}%`);
+    li.style.setProperty('--i', String(i));
+    const point = document.createElement('span');
+    point.className = 'repere-point';
+    const legende = document.createElement('span');
+    legende.className = 'repere-legende t-donnee';
+    if (r.quand) {
+      const b = document.createElement('b');
+      b.textContent = `${r.quand} · ${r.type} · `;
+      legende.append(b);
+    }
+    legende.append(r.lieu);
+    li.append(point, legende);
+    cible.appendChild(li);
+  });
+}
+
+const ouverture = document.querySelector('.ouverture');
+if (ouverture && 'IntersectionObserver' in window) {
+  new IntersectionObserver(([e]) => ouverture.classList.toggle('hors-vue', !e.isIntersecting)).observe(ouverture);
+}
+
+const portrait = matchMedia('(max-aspect-ratio: 4/5)');
+const poserTout = () => {
+  poser(REPERES, document.querySelector('[data-reperes]'), portrait.matches);
+  poser(REGION, document.querySelector('[data-reperes-region]'), false);
+};
+poserTout();
+portrait.addEventListener?.('change', poserTout);
+
+// ---- Le rail des affiches -----------------------------------------------------------
+
+const railAllume = document.querySelector('[data-rail-affiches]');
+if (railAllume) {
+  railAllume.querySelectorAll('li').forEach((li, i) => li.querySelector('img')?.style.setProperty('--i', String(i)));
+  if (!reduit && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { railAllume.classList.add('allume'); io.disconnect(); }
+    }, { threshold: 0.35 });
+    io.observe(railAllume);
+  } else {
+    railAllume.classList.add('allume');
   }
 }
 
-// La scène ne démarre qu'une fois la page entièrement chargée, puis dans un
-// temps mort du navigateur. Monter trois cents objets et compiler leurs
-// shaders coûte près de deux secondes de fil principal : fait plus tôt, ce
-// travail retarde le premier clic possible sur « Être prévenu », qui est la
-// seule chose que la page ait à faire. La scène est un décor, elle passe
-// après.
-function planifierScene() {
-  // Une seconde de marge après le chargement, PUIS un temps mort. Le shader
-  // du sol est gros (bruit cellulaire, boucle sur quatorze lampes, sept
-  // prélèvements de reflet) et sa compilation bloque le fil principal
-  // quelques centaines de millisecondes : mesuré à 460 ms au montage
-  // immédiat, contre 90 ms une fois sorti de la fenêtre de chargement. Rien
-  // sur cette page n'attend la scène, et la personne qui arrive doit pouvoir
-  // cliquer « Être prévenu » tout de suite.
-  const lancer = () => {
-    if ('requestIdleCallback' in window) requestIdleCallback(mountScene, { timeout: 4000 });
-    else setTimeout(mountScene, 400);
+const railAffiches = document.querySelector('[data-rail-affiches]');
+const fleches = document.querySelector('[data-fleches]');
+if (railAffiches && fleches) {
+  const [prec, suiv] = fleches.querySelectorAll('[data-fleche]');
+  const majFleches = () => {
+    const max = railAffiches.scrollWidth - railAffiches.clientWidth - 4;
+    prec.disabled = railAffiches.scrollLeft <= 4;
+    suiv.disabled = railAffiches.scrollLeft >= max;
   };
-  setTimeout(lancer, 1000);
+  const pas = () => {
+    const li = railAffiches.querySelector('li');
+    return li ? (li.getBoundingClientRect().width + 20) * 2 : 600;
+  };
+  fleches.querySelectorAll('[data-fleche]').forEach((b) => b.addEventListener('click', () => {
+    railAffiches.scrollBy({ left: Number(b.dataset.fleche) * pas(), behavior: reduit ? 'auto' : 'smooth' });
+  }));
+  railAffiches.addEventListener('scroll', majFleches, { passive: true });
+  const montrer = () => { fleches.hidden = !pointeurFin.matches; majFleches(); };
+  pointeurFin.addEventListener?.('change', montrer);
+  window.addEventListener('resize', majFleches, { passive: true });
+  montrer();
 }
 
-if (document.readyState === 'complete') planifierScene();
-else window.addEventListener('load', planifierScene, { once: true });
+// ---- Le pouce -------------------------------------------------------------------------
+// Visible sur téléphone entre les deux formulaires, jamais par-dessus l'un d'eux.
+
+const pouce = document.querySelector('[data-pouce]');
+const formHaut = document.querySelector('.attente-ouverture');
+const formBas = document.getElementById('liste');
+const vus = new Set(['haut']);
+
+function majPouce() {
+  if (!pouce) return;
+  const montrer = !inscrit && !vus.has('haut') && !vus.has('bas');
+  pouce.classList.toggle('visible', montrer);
+  pouce.setAttribute('aria-hidden', montrer ? 'false' : 'true');
+  pouce.tabIndex = montrer ? 0 : -1;
+}
+
+if (pouce && formHaut && formBas && 'IntersectionObserver' in window) {
+  pouce.hidden = false;
+  majPouce();
+  const io = new IntersectionObserver((entrees) => {
+    for (const e of entrees) {
+      const cle = e.target === formHaut ? 'haut' : 'bas';
+      if (e.isIntersecting) vus.add(cle); else vus.delete(cle);
+    }
+    majPouce();
+  });
+  io.observe(formHaut);
+  io.observe(formBas);
+}

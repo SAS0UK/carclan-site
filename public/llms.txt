@@ -21,8 +21,10 @@ Ce que fait l'application :
   rallyes et sport automobile.
 - Y aller : inscription en un geste, itinéraire délégué à Waze, Google Maps ou
   Plans, et la liste de qui vient avec quelle voiture.
+- Sur place : pendant un rassemblement, une conversation en direct réservée
+  aux inscrits et à l'organisateur, effacée à la fin du rasso.
 - Revivre : le fil de photos des participants, les avis, le garage de chacun,
-  et les prochaines dates du même organisateur.
+  les clans (un organisateur, ses annonces et ses habitués).
 - Organisateurs : chaque rassemblement publié a une page publique consultable
   sans compte, avec une adresse courte partageable. Un organisateur peut
   revendiquer une fiche saisie pour lui.
