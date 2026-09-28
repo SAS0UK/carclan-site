@@ -39,6 +39,7 @@ const TYPE_LABELS = {
   photo_session: 'Session photo',
   brand_meet: 'Rencontre marque',
   community_meet: 'Rencontre communauté',
+  swap_meet: 'Bourse d’échange',
 };
 const ENTRY_LABELS = {
   free_entry: 'Entrée libre',
@@ -164,7 +165,7 @@ const STYLES = (() => {
   return bloc[1];
 })();
 
-// Les neuf pictogrammes de type, repris de
+// Les dix pictogrammes de type, repris de
 // lib/shared/icons/cc_icon_data.dart du depot CarClan. Grille 24.
 const PICTOS = {
   gathering: '<circle cx="12" cy="5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="8.5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="15.5" r="2.5" fill="currentColor"/><circle cx="12" cy="19" r="2.5" fill="currentColor"/><circle cx="5.9" cy="15.5" r="2.5" fill="currentColor"/><circle cx="5.9" cy="8.5" r="2.5" fill="currentColor"/>',
@@ -176,6 +177,7 @@ const PICTOS = {
   photo_session: '<path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/><circle cx="12" cy="12" r="3.5"/>',
   brand_meet: '<path d="M12 3l8 3v6c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6z"/><circle cx="12" cy="11" r="2.5" fill="currentColor"/>',
   community_meet: '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>',
+  swap_meet: '<path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/>',
 };
 const ITINERAIRE = '<path d="M5 20v-9a4 4 0 0 1 4-4h9M15 4l3 3-3 3"/>';
 const VERIFIE = '<circle cx="12" cy="12" r="8"/><path d="M8.3 12.3l2.6 2.6 5-5.2" stroke-width="2.4"/>';
