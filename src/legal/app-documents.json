@@ -185,8 +185,8 @@
           "Pour fonctionner, CarClan s’appuie sur des services extérieurs :"
         ],
         "bullets": [
-          "Supabase : base de données, authentification et stockage des photos. Serveurs situés à Francfort, en Allemagne, dans l’Union européenne.",
-          "Resend : envoi des e-mails de compte. Serveurs situés en Irlande, dans l’Union européenne.",
+          "Supabase (Supabase Pte. Ltd, Singapour) : base de données, authentification et stockage des photos, sur des serveurs situés à Francfort, en Allemagne, dans l’Union européenne. La société étant établie hors de l’Union, ce transfert est encadré par les clauses contractuelles types de la Commission européenne.",
+          "Resend (Plus Five Five, Inc., États-Unis) : envoi des e-mails de compte. La société traite l’essentiel de ses données aux États-Unis ; ce transfert est encadré par les clauses contractuelles types de la Commission européenne et, selon Resend, par le Data Privacy Framework.",
           "OpenFreeMap, opéré par Hyperknot Software Kft. (Hongrie, Union européenne) : fond de carte. Votre appareil télécharge les tuiles de la carte, ce qui transmet son adresse IP à ce service.",
           "Photon, par Komoot (Allemagne) : recherche d’adresse. Lui sont transmis le texte que vous saisissez, l’adresse IP de votre appareil, et les coordonnées du point que vous posez sur la carte quand vous cherchez l’adresse correspondante.",
           "Google et Apple : connexion à votre compte, uniquement si vous choisissez de passer par eux. Le fournisseur nous transmet alors votre identifiant chez lui, votre adresse e-mail et votre nom : Google nous transmet ce nom à chaque connexion, Apple seulement à la première. Apple vous laisse en outre masquer votre adresse réelle derrière une adresse relais. De son côté, le fournisseur apprend que vous vous connectez à CarClan. Ces deux sociétés sont établies aux États-Unis : ce transfert hors de l’Union européenne est encadré par les clauses contractuelles types de la Commission européenne. Si vous vous connectez par e-mail et mot de passe, rien ne leur est transmis.",
@@ -285,7 +285,7 @@
       {
         "heading": "Hébergement",
         "paragraphs": [
-          "Les données sont hébergées par Supabase, Inc. (supabase.com), sur des serveurs Amazon Web Services situés à Francfort, en Allemagne."
+          "Les données sont hébergées par Supabase Pte. Ltd (supabase.com), société établie à Singapour, sur des serveurs Amazon Web Services situés à Francfort, en Allemagne."
         ],
         "bullets": []
       },

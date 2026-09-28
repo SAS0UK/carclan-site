@@ -53,7 +53,8 @@ document.addEventListener('attente:fait', (e) => {
 });
 
 // Après une inscription : le téléphone passe de main en main sur un rasso, donc
-// « Inscrire quelqu'un d'autre » rouvre le formulaire, vide, prêt.
+// « Une autre personne s'inscrit » rouvre le formulaire, vide, prêt : c'est la
+// personne elle-même qui tape son adresse (RGPD 4.11, audit du 28 septembre).
 // Tous les blocs se rouvrent : aucun ne garde l'adresse de la personne
 // précédente, et le focus va au champ du bloc touché.
 document.querySelectorAll('[data-autre]').forEach((b) => b.addEventListener('click', () => {
