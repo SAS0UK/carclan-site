@@ -48,7 +48,8 @@ Ce que fait l'application :
 Le site ne dépose aucun cookie, n'utilise aucun traceur et ne mesure pas son
 audience. La seule donnée qu'il collecte est celle de la liste d'attente : une
 adresse e-mail, avec la date de saisie et la version du texte accepté,
-conservées jusqu'à la sortie de l'application puis trois mois au plus, et
+conservées jusqu'à ce que le site devienne la vitrine de l'application sortie,
+et au plus tard le 31 décembre 2027, et
 hébergées chez Supabase à Francfort (Union européenne) ; l'e-mail de
 confirmation est envoyé par Resend, société américaine. Les transferts hors de
 l'Union européenne sont détaillés dans la politique de confidentialité.

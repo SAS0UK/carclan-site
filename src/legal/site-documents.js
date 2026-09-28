@@ -23,7 +23,11 @@
 // une inscription à la liste d'attente. Les textes du site ont changé le
 // 27 septembre 2026 (commit ca779d3) sans que cette date-ci suive : les pages
 // affichaient encore le 21.
-export const SITE_VERSION = '28 septembre 2026';
+// Le 28 septembre 2026 à 16 h 30 : la durée de la liste d'attente décidée par
+// Mathys (jusqu'au site vitrine, au plus tard fin 2027) et l'export d'analyse
+// détruit après usage. Les inscrits d'avant gardent la durée qu'on leur avait
+// annoncée, que `consent_version` permet de retrouver.
+export const SITE_VERSION = '28 septembre 2026, 16 h 30';
 
 const EDITEUR = 'Mathys Liénart';
 const VILLE = 'Tourcoing (France)';
@@ -138,13 +142,14 @@ export const PAGES = [
             tableau: {
               entetes: ['Donnée', 'Pourquoi', 'Combien de temps'],
               lignes: [
-                ['Votre adresse e-mail', 'Vous envoyer un e-mail de confirmation au moment de l’inscription, puis un message le jour où CarClan sort, et rien d’autre.', 'Jusqu’à la sortie de l’application, puis trois mois au plus.'],
+                ['Votre adresse e-mail', 'Vous envoyer un e-mail de confirmation au moment de l’inscription, puis un message le jour où CarClan sort, et rien d’autre.', 'Jusqu’à ce que le site devienne la vitrine de l’application sortie, et au plus tard le 31 décembre 2027.'],
                 ['La date de votre inscription', 'Prouver quand le consentement a été donné, comme le RGPD l’exige.', 'Idem.'],
                 ['La version de cette politique', 'Savoir quel texte vous aviez sous les yeux au moment de vous inscrire.', 'Idem.'],
               ],
             },
           },
-          'Au terme de cette durée, la liste ne s’efface pas d’elle-même : aucun effacement automatique n’est programmé, c’est l’éditeur qui la supprime lui-même.',
+          'Si vous vous êtes inscrit avant le 28 septembre 2026 à 16 h 30, votre adresse suit la durée qui vous avait été annoncée : jusqu’à la sortie de l’application, puis trois mois au plus.',
+          'Au terme de cette durée, la liste ne s’efface pas d’elle-même : aucun effacement automatique n’est programmé, c’est l’éditeur qui la supprime lui-même. Juste avant, il en tire un export qui sert à une seule chose : mesurer quand et d’où sont venues les inscriptions. Cet export n’est transmis à personne, ne sert à écrire à personne, et il est supprimé une fois cette mesure faite.',
           '**La base légale est votre consentement** : vous saisissez votre adresse vous-même, sous un texte qui dit à quoi elle sert. Vous pouvez le retirer à tout moment en écrivant à l’adresse de contact, ce qui entraîne l’effacement de votre adresse.',
           'Ces adresses sont enregistrées dans une base exploitée par **Supabase** (Supabase Pte. Ltd, Singapour), sur des serveurs situés à Francfort, dans l’Union européenne, et ne sont lues que par l’éditeur. Les deux e-mails sont envoyés par **Resend** (Plus Five Five, Inc., États-Unis), qui reçoit pour cela votre adresse, le message et des données techniques d’envoi, et traite l’essentiel de ses données aux États-Unis. Ces transferts hors de l’Union sont détaillés [plus bas](#transferts-hors-de-l-union-europeenne). Votre adresse n’est jamais revendue, ni transmise à un annonceur, ni utilisée pour une lettre d’information.',
           'Le formulaire porte un champ caché que seul un robot remplit. Sa valeur n’est jamais enregistrée : elle sert uniquement à écarter les envois automatiques.',
