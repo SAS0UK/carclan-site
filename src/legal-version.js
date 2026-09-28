@@ -14,7 +14,7 @@
 // avec une inscription à la liste d'attente (`consent_version`), pour
 // qu'on sache ce que la personne avait sous les yeux.
 
-export const APP_VERSION = '28 septembre 2026';
+export const APP_VERSION = '28 septembre 2026, 16 h';
 export const SITE_VERSION = '28 septembre 2026';
 
 // La même date, au format que la base attend (migration 0046 : au plus

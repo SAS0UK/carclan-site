@@ -1,12 +1,12 @@
 {
-  "updatedOn": "28 septembre 2026",
+  "updatedOn": "28 septembre 2026, 16 h",
   "publisherName": "Mathys Liénart",
   "publisherCity": "Tourcoing (France)",
   "contactEmail": "contact@carclan.fr",
   "minimumAge": 15,
   "terms": {
     "title": "Conditions générales d’utilisation",
-    "updatedOn": "28 septembre 2026",
+    "updatedOn": "28 septembre 2026, 16 h",
     "intro": "Ces conditions encadrent l’utilisation de l’application mobile CarClan. En créant un compte, vous les acceptez. Elles disent ce que CarClan fait pour vous, ce que vous vous engagez à respecter, et ce qui se passe quand ce n’est pas le cas.",
     "sections": [
       {
@@ -120,7 +120,7 @@
   },
   "privacy": {
     "title": "Politique de confidentialité",
-    "updatedOn": "28 septembre 2026",
+    "updatedOn": "28 septembre 2026, 16 h",
     "intro": "Cette politique explique quelles données CarClan collecte, pourquoi, où elles sont stockées et comment exercer vos droits. Elle s’applique à l’application mobile CarClan et respecte le règlement général sur la protection des données (RGPD).",
     "sections": [
       {
@@ -257,6 +257,7 @@
           "L’application n’utilise ni cookie, ni outil publicitaire, ni outil d’analyse d’audience tiers.",
           "Elle garde en revanche sur votre appareil votre session de connexion, pour ne pas vous redemander votre mot de passe à chaque ouverture, et un cache du fond de carte, pour éviter de retélécharger les mêmes tuiles. Elle y dépose aussi, le temps d’un envoi, une copie des photos que vous choisissez. Tout disparaît quand vous désinstallez l’application.",
           "Pour vous montrer les événements même sans réseau, elle garde la dernière liste des événements publics qu’elle a reçue, avec sa date. N’y entrent que des événements publiés et publics, avec le nom public de leur organisateur : aucune conversation, aucun profil de membre. Cette liste est effacée dès que vous n’êtes plus connecté, que vous vous déconnectiez, que vous supprimiez votre compte ou que votre session expire.",
+          "Elle garde aussi les photos de voitures et de profil qu’elle vous a déjà montrées, pour ne pas les retélécharger à chaque ouverture : les vôtres, et celles des garages et des profils que vous avez regardés. Ce cache est limité à 100 Mo, le système peut le vider quand le téléphone manque de place, et il est effacé dès que vous n’êtes plus connecté, dans les mêmes cas que la liste des événements.",
           "Enfin, les images que vous créez pour partager un rasso en story restent dans un dossier temporaire du téléphone, jusqu’à ce que le système le vide, et l’application retient si vous avez déjà vu le récap du mois."
         ],
         "bullets": []
@@ -272,7 +273,7 @@
   },
   "legalNotice": {
     "title": "Mentions légales et contact",
-    "updatedOn": "28 septembre 2026",
+    "updatedOn": "28 septembre 2026, 16 h",
     "intro": "Qui édite CarClan, où sont hébergées les données, et comment nous écrire.",
     "sections": [
       {
