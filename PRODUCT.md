@@ -21,8 +21,8 @@ CarClan est une application mobile iOS et Android, gratuite, des rassemblements 
 Six à quatorze applis concurrentes, aucune avec de la traction. CarClan revendique l'exhaustivité (« Tous les rassos. Un seul clan. ») et une exécution soignée. Ce qu'aucun concurrent ne montre : la carte « au sodium » (les rues éclairées d'ambre, un rasso en cours qui pulse), l'inscription en un geste avec « Qui vient » et leurs voitures, le chat en direct pendant le rasso, le fil de photos après, le garage de chacun, les clans (un organisateur et ses habitués). Né à Tourcoing, démarre dans les Hauts-de-France.
 
 ## Operating Context
-- Rassos : expos, rassos statiques, balades (convois), trackdays (piste), rallyes légaux, séances photo, rencontres de marque, rencontres de club, compétitions officielles.
-- Neuf types dans l'app, chacun avec son mot d'affiche : RASSO, COURSE, PISTE, EXPO, RALLYE, BALADE, PHOTO, MARQUE, CLUB.
+- Rassos : expos, rassos statiques, balades (convois), trackdays (piste), rallyes légaux, séances photo, rencontres de marque, rencontres de club, compétitions officielles, bourses d'échange.
+- Dix types dans l'app, chacun avec son mot d'affiche : RASSO, COURSE, PISTE, EXPO, RALLYE, BALADE, PHOTO, MARQUE, CLUB, BOURSE (depuis la migration 0078 du 28 septembre 2026).
 - Dans l'app : cinq onglets Rassos, Carte, Clan, Messages, Profil. « Je participe » devient « Vous y allez ». Itinéraire délégué à Waze, Google Maps ou Plans. Page publique d'un rasso sur carclan.fr/rasso/<id>, lien court carclan.fr/r/<code>, partage en story Instagram et Snapchat.
 
 ## Capabilities and Constraints
