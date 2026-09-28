@@ -6,6 +6,13 @@
 // 21 septembre 2026 dans `src/waitlist.js`, `public/404.html` et sur le site
 // en ligne (`curl -I https://carclan.fr` : aucun `Set-Cookie`).
 //
+// Les prestataires, les sociétés qui les exploitent et leurs transferts hors
+// de l'Union ont été revus le 28 septembre 2026 sur leurs propres textes :
+// accords de traitement des données de Supabase et de Resend, déclaration de
+// confidentialité de GitHub. Ce qu'on n'a pas pu vérifier n'est pas écrit :
+// la région d'où Resend envoie les e-mails du site, par exemple, n'est pas
+// affirmée, parce que seul son tableau de bord la dit.
+//
 // Les textes de l'application ne sont pas ici : ils sont extraits du code de
 // CarClan par `tools/sync-legal.dart` et repris mot pour mot par
 // `tools/build-legal.mjs`.
@@ -16,7 +23,7 @@
 // une inscription à la liste d'attente. Les textes du site ont changé le
 // 27 septembre 2026 (commit ca779d3) sans que cette date-ci suive : les pages
 // affichaient encore le 21.
-export const SITE_VERSION = '27 septembre 2026';
+export const SITE_VERSION = '28 septembre 2026';
 
 const EDITEUR = 'Mathys Liénart';
 const VILLE = 'Tourcoing (France)';
@@ -38,7 +45,7 @@ export const PAGES = [
           `Contact : [${CONTACT}](mailto:${CONTACT}).`,
           {
             encadre: [
-              'CarClan est aujourd’hui un projet personnel, sans activité commerciale et sans société. L’éditeur agit donc à titre non professionnel, au sens de l’article 6-III-2 de la loi du 21 juin 2004 pour la confiance dans l’économie numérique, ce qui lui permet de ne pas publier son adresse postale complète. Son identité est en revanche connue de l’hébergeur du site. Dès qu’une structure sera immatriculée, cette page portera sa dénomination, son adresse, son numéro SIREN et, le cas échéant, son numéro de TVA.',
+              'CarClan est aujourd’hui un projet personnel, sans activité commerciale et sans société. L’éditeur agit donc à titre non professionnel, au sens du II de l’article 1-1 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique, qui permet à un éditeur non professionnel de ne publier ni son domicile ni son numéro de téléphone, à condition d’avoir communiqué à l’hébergeur du site ses nom, prénoms, domicile et numéro de téléphone. Dès qu’une structure sera immatriculée, cette page portera sa dénomination, son adresse, son numéro d’immatriculation et, le cas échéant, son numéro de TVA.',
             ],
           },
         ],
@@ -58,7 +65,7 @@ export const PAGES = [
               ['GitHub, Inc. (GitHub Pages)', '88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis. Téléphone : +1 877 448 4820. Site : github.com.'],
             ],
           },
-          'Ce service se limite à servir des fichiers : il ne reçoit ni compte, ni mot de passe, ni contenu que vous saisiriez sur ce site.',
+          'Ce service se limite à servir des fichiers : il ne reçoit ni compte, ni mot de passe, ni contenu que vous saisiriez sur ce site. Il enregistre en revanche l’adresse IP des visiteurs, pour la sécurité de son service.',
         ],
       },
       {
@@ -67,11 +74,11 @@ export const PAGES = [
           'Les données que ce site enregistre, c’est-à-dire les adresses de la liste d’attente, et celles de l’application CarClan sont hébergées par :',
           {
             defs: [
-              ['Supabase, Inc.', 'Base de données, authentification et stockage des fichiers, sur des serveurs Amazon Web Services situés à Francfort, en Allemagne, dans l’Union européenne.'],
-              ['Resend', 'Envoi des courriels liés à un compte de l’application, et des deux courriels de la liste d’attente (la confirmation d’inscription, puis l’annonce de la sortie). Serveurs situés en Irlande, dans l’Union européenne.'],
+              ['Supabase Pte. Ltd', '65 Chulia Street #38-02/03, OCBC Centre, Singapour 049513. Base de données, authentification et stockage des fichiers, sur des serveurs Amazon Web Services situés à Francfort, en Allemagne, dans l’Union européenne.'],
+              ['Resend (Plus Five Five, Inc.)', '2261 Market Street #5039, San Francisco, CA 94114, États-Unis. Envoi des courriels liés à un compte de l’application, et des deux courriels de la liste d’attente (la confirmation d’inscription, puis l’annonce de la sortie). La société traite l’essentiel de ses données aux États-Unis.'],
             ],
           },
-          'La [politique de confidentialité](/confidentialite/) détaille ce qui est collecté, pourquoi et pendant combien de temps.',
+          'Supabase, Resend et GitHub sont établis hors de l’Union européenne. La [politique de confidentialité](/confidentialite/) détaille ce qui est collecté, pourquoi, pendant combien de temps, et comment ces transferts sont encadrés.',
         ],
       },
       {
@@ -117,7 +124,7 @@ export const PAGES = [
         blocs: [
           {
             encadre: [
-              '**Ce site ne dépose aucun cookie, n’utilise aucun traceur et ne mesure pas son audience.** Il n’enregistre qu’une seule chose, et seulement si vous la saisissez vous-même : votre adresse e-mail, pour vous prévenir de la sortie de l’application.',
+              '**Ce site ne dépose aucun cookie, n’utilise aucun traceur et ne mesure pas son audience.** Il n’enregistre qu’une seule chose, et seulement si vous la saisissez vous-même : votre adresse e-mail, pour vous prévenir de la sortie de l’application. Si vous nous écrivez, nous gardons aussi votre message, pour vous répondre.',
             ],
           },
           `Le responsable du traitement est **${EDITEUR}**, ${VILLE}, joignable à [${CONTACT}](mailto:${CONTACT}).`,
@@ -137,8 +144,9 @@ export const PAGES = [
               ],
             },
           },
+          'Au terme de cette durée, la liste ne s’efface pas d’elle-même : aucun effacement automatique n’est programmé, c’est l’éditeur qui la supprime lui-même.',
           '**La base légale est votre consentement** : vous saisissez votre adresse vous-même, sous un texte qui dit à quoi elle sert. Vous pouvez le retirer à tout moment en écrivant à l’adresse de contact, ce qui entraîne l’effacement de votre adresse.',
-          'Ces adresses sont enregistrées chez **Supabase** (serveurs situés à Francfort, dans l’Union européenne) et ne sont lues que par l’éditeur, depuis le tableau de bord de ce service. Les deux e-mails partent par **Resend** (serveurs situés en Irlande, dans l’Union européenne), qui ne reçoit que votre adresse et le message. Elles ne sont jamais revendues, ni transmises à un annonceur, ni utilisées pour une lettre d’information.',
+          'Ces adresses sont enregistrées dans une base exploitée par **Supabase** (Supabase Pte. Ltd, Singapour), sur des serveurs situés à Francfort, dans l’Union européenne, et ne sont lues que par l’éditeur. Les deux e-mails sont envoyés par **Resend** (Plus Five Five, Inc., États-Unis), qui reçoit pour cela votre adresse, le message et des données techniques d’envoi, et traite l’essentiel de ses données aux États-Unis. Ces transferts hors de l’Union sont détaillés [plus bas](#transferts-hors-de-l-union-europeenne). Votre adresse n’est jamais revendue, ni transmise à un annonceur, ni utilisée pour une lettre d’information.',
           'Le formulaire porte un champ caché que seul un robot remplit. Sa valeur n’est jamais enregistrée : elle sert uniquement à écarter les envois automatiques.',
         ],
       },
@@ -146,28 +154,52 @@ export const PAGES = [
         titre: 'La page publique d’un rassemblement',
         blocs: [
           'Une adresse de la forme carclan.fr/rasso/… ou carclan.fr/r/… affiche la fiche d’un rassemblement publié dans l’application. Cette page **lit** des informations, elle n’en enregistre aucune : ni compte, ni cookie, ni relevé de visite.',
-          'Elle montre le titre, la date, le lieu, l’organisateur, la description, l’affiche et le tarif. **Elle ne montre jamais la liste ni les noms des inscrits.**',
+          `Elle montre le type, le titre, la date, le lieu, l’organisateur, la description, l’affiche, le tarif et le lien éventuel vers le site de l’organisateur, ainsi que le nombre d’inscrits et la note moyenne. **Elle ne montre jamais la liste ni les noms des inscrits.** Un organisateur nommé sur une fiche peut demander la modification ou le retrait de son nom à [${CONTACT}](mailto:${CONTACT}).`,
           'Le bouton « Y aller » ouvre Google Maps avec les coordonnées du lieu. Si vous l’utilisez, c’est Google qui reçoit alors votre demande, selon ses propres règles.',
+        ],
+      },
+      {
+        titre: 'Les e-mails que vous nous envoyez',
+        blocs: [
+          `Quand vous écrivez à [${CONTACT}](mailto:${CONTACT}), directement ou en répondant à l’e-mail de confirmation de la liste d’attente, nous recevons votre adresse, votre nom s’il apparaît, et le contenu de votre message.`,
+          'Ces messages ne servent qu’à vous répondre et à suivre votre demande : une question, un partenariat, un rassemblement à publier, l’exercice de vos droits ou une inscription à la main sur la liste d’attente. Cela relève de notre intérêt légitime à répondre à qui nous écrit, et de nos obligations légales quand vous exercez vos droits. Une inscription à la liste d’attente demandée par e-mail repose, comme celle du formulaire, sur votre consentement.',
+          'Cette boîte est hébergée par **OVH** (OVH SAS, France). Vos messages y restent le temps de traiter votre demande et d’en garder la trace. Nous ne vous annonçons pas de durée maximale : aucun effacement n’y est programmé, et un délai écrit ici serait une promesse que rien ne tient encore. Vous pouvez demander à tout moment l’effacement de vos messages, à la même adresse.',
         ],
       },
       {
         titre: 'Ce qui est enregistré sans que nous le demandions',
         blocs: [
-          'Comme tout site, carclan.fr laisse des traces techniques chez ses prestataires. Nous ne les copions nulle part et ne nous en servons pas :',
+          'Comme tout site, carclan.fr laisse des traces techniques chez ses prestataires :',
           {
             liste: [
-              '**GitHub**, qui sert les pages, tient des journaux d’accès contenant notamment une adresse IP, selon ses propres règles de conservation.',
-              '**Supabase**, quand vous envoyez le formulaire ou qu’une page publique est consultée, tient de même des journaux techniques.',
+              '**GitHub**, qui sert les pages, enregistre l’adresse IP de chaque visiteur, pour la sécurité de son service.',
+              '**Supabase**, quand vous envoyez le formulaire ou qu’une page publique de rassemblement est consultée, tient des journaux techniques qui contiennent une adresse IP et, si l’inscription ou l’envoi de l’e-mail de confirmation échoue, parfois l’adresse e-mail saisie.',
             ],
           },
+          'Ces traces servent à faire fonctionner le site et à le protéger des abus, ce qui relève de l’intérêt légitime de ces prestataires comme du nôtre. Leur durée de conservation est celle que fixe chacun d’eux, selon ses propres règles : nous ne les effaçons pas nous-mêmes. Nous ne les copions nulle part, et ne nous en servons que pour diagnostiquer une panne.',
           'Nous n’établissons aucun profil, nous ne croisons aucune de ces traces, et nous n’avons aucun moyen de savoir qui visite ce site.',
+        ],
+      },
+      {
+        titre: 'Transferts hors de l’Union européenne',
+        blocs: [
+          'La liste d’attente est enregistrée dans l’Union européenne, à Francfort. Trois prestataires de ce site sont pourtant établis hors de l’Union, et peuvent traiter vos données, ou y accéder, depuis l’étranger :',
+          {
+            liste: [
+              '**Resend** (Plus Five Five, Inc., San Francisco, États-Unis) reçoit votre adresse et le message pour envoyer les e-mails de la liste d’attente, et traite l’essentiel de ses données aux États-Unis. Son accord de traitement des données reprend les clauses contractuelles types de la Commission européenne, et indique que Resend est certifiée au cadre de protection des données UE-États-Unis (Data Privacy Framework), reconnu par une décision d’adéquation de la Commission européenne du 10 juillet 2023 : [resend.com/legal/dpa](https://resend.com/legal/dpa).',
+              '**Supabase** (Supabase Pte. Ltd, Singapour) exploite la base de données. Vos données y sont stockées à Francfort, mais son accord de traitement des données lui permet de les traiter partout où elle-même ou ses sous-traitants disposent d’installations. Singapour ne bénéficiant d’aucune décision d’adéquation, ce transfert est encadré par les clauses contractuelles types de la Commission européenne (décision 2021/914), intégrées à cet accord : [supabase.com/legal/dpa](https://supabase.com/legal/dpa).',
+              '**GitHub** (GitHub, Inc., San Francisco, États-Unis) sert les pages de ce site et enregistre l’adresse IP des visiteurs, pour la sécurité de son service. Elle traite ses données dans plusieurs pays, dont les États-Unis. [Sa déclaration de confidentialité](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) indique qu’elle est certifiée au Data Privacy Framework, et qu’elle s’appuie aussi sur les clauses contractuelles types.',
+            ],
+          },
+          `Pour obtenir une copie de ces garanties, écrivez à [${CONTACT}](mailto:${CONTACT}).`,
         ],
       },
       {
         titre: 'Vos droits',
         blocs: [
-          'Vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité sur les données que ce site détient, c’est-à-dire votre adresse si vous l’avez inscrite sur la liste d’attente.',
+          'Vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité sur les données que nous détenons à votre sujet : votre adresse si vous l’avez inscrite sur la liste d’attente, et vos messages si vous nous avez écrit.',
           `Pour les exercer, écrivez à [${CONTACT}](mailto:${CONTACT}). Réponse sous un mois. Aucune justification n’est nécessaire pour demander l’effacement de votre adresse.`,
+          'Vous pouvez aussi définir des directives sur la conservation, l’effacement et la communication de vos données après votre décès, et nous les adresser à la même adresse.',
           'Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la Commission nationale de l’informatique et des libertés, [cnil.fr](https://www.cnil.fr).',
         ],
       },
@@ -270,8 +302,8 @@ export const PAGES = [
           'Trois cas, et aucun ne dépose quoi que ce soit dans votre navigateur :',
           {
             liste: [
-              '**Quand vous envoyez le formulaire** de la liste d’attente, votre adresse part chez Supabase, à Francfort. C’est ce que vous demandez en cliquant.',
-              '**Sur la page publique d’un rassemblement**, la fiche est lue chez Supabase pour être affichée. Rien n’est écrit.',
+              '**Quand vous envoyez le formulaire** de la liste d’attente, votre adresse part chez Supabase, qui l’enregistre à Francfort, puis chez Resend, qui vous envoie l’e-mail de confirmation. C’est ce que vous demandez en cliquant.',
+              '**Sur la page publique d’un rassemblement**, la fiche et son affiche sont lues chez Supabase pour être affichées. Rien n’est écrit dans votre navigateur.',
               '**Si vous cliquez sur « Y aller »**, Google Maps s’ouvre avec les coordonnées du lieu. Ce que fait Google ensuite relève de ses propres règles.',
             ],
           },
@@ -288,7 +320,7 @@ export const PAGES = [
       {
         titre: 'Et l’application ?',
         blocs: [
-          'L’application CarClan n’utilise ni cookie, ni outil publicitaire, ni outil de mesure d’audience tiers. Elle garde en revanche votre session de connexion sur votre appareil, ainsi qu’un cache de la carte. La [politique de confidentialité](/confidentialite/) le détaille dans sa section « Ce qui reste sur votre téléphone ».',
+          'L’application CarClan n’utilise ni cookie, ni outil publicitaire, ni outil de mesure d’audience tiers. Elle garde en revanche sur votre appareil votre session de connexion, un cache du fond de carte, la dernière liste des événements publics reçue, pour vous les montrer sans réseau, et, le temps d’un envoi, une copie des photos que vous choisissez. La [politique de confidentialité](/confidentialite/) le détaille dans sa section « Ce qui reste sur votre téléphone ».',
         ],
       },
     ],

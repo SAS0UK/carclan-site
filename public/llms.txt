@@ -46,7 +46,10 @@ Ce que fait l'application :
 ## Données
 
 Le site ne dépose aucun cookie, n'utilise aucun traceur et ne mesure pas son
-audience. Le seul traitement est la liste d'attente : une adresse e-mail, la
-date de saisie et la version du texte accepté, conservées jusqu'à la sortie de
-l'application puis trois mois au plus, hébergées chez Supabase à Francfort
-(Union européenne). Effacement sur simple demande à contact@carclan.fr.
+audience. La seule donnée qu'il collecte est celle de la liste d'attente : une
+adresse e-mail, avec la date de saisie et la version du texte accepté,
+conservées jusqu'à la sortie de l'application puis trois mois au plus, et
+hébergées chez Supabase à Francfort (Union européenne) ; l'e-mail de
+confirmation est envoyé par Resend, société américaine. Les transferts hors de
+l'Union européenne sont détaillés dans la politique de confidentialité.
+Effacement sur simple demande à contact@carclan.fr.
