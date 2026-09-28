@@ -205,11 +205,15 @@ svg.ic [fill='currentColor'] { stroke: none; }
 
 /* ---- Le lien d'évitement -------------------------------------------------
    Partagé par toutes les pages : il doit exister partout, pas seulement sur
-   l'accueil. Caché hors focus, il apparaît au premier Tab. */
+   l'accueil. Invisible hors focus, il apparaît au premier Tab.
+   ⚠️ Il n'est PAS rangé au-dessus de l'écran par une translation : depuis
+   iOS 26, Safari dessine la page sous sa barre d'état, et un bouton poussé
+   au-dessus du haut se voyait entre l'heure et la batterie (vu sur iPhone le
+   27 septembre 2026). Hors focus, il n'occupe donc aucun pixel, nulle part. */
 
 .skip {
   position: fixed;
-  top: 12px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
   left: 12px;
   z-index: 100;
   padding: 12px 16px;
@@ -218,15 +222,19 @@ svg.ic [fill='currentColor'] { stroke: none; }
   border-radius: var(--r-md);
   text-decoration: none;
   font-variation-settings: 'wght' 700, 'wdth' 100;
-  transform: translateY(-200%);
-  transition: transform 0.2s var(--courbe);
 }
 
-.skip:focus-visible { transform: none; outline-offset: 2px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .skip { transition: none; }
+.skip:not(:focus) {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  opacity: 0;
 }
+
+.skip:focus-visible { outline-offset: 2px; }
 
 /* ---- Les boutons ------------------------------------------------------------------ */
 

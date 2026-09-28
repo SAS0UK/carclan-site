@@ -73,7 +73,9 @@ document.querySelectorAll('[data-autre]').forEach((b) => b.addEventListener('cli
     if (bouton) {
       bouton.disabled = false;
       const l = bouton.querySelector('[data-libelle]');
-      if (l) l.textContent = 'Me prévenir';
+      // Chaque bouton retrouve SON libellé : celui du haut dit « Me prévenir »,
+      // celui de « Cet hiver » le même texte que le pouce qui s'y emboîte.
+      if (l) l.textContent = l.dataset.repos || l.textContent;
     }
   });
   inscrit = false;
@@ -401,31 +403,128 @@ if (depart && vedettes.length) {
 }
 
 // ---- Le pouce -------------------------------------------------------------------------
-// Visible sur téléphone entre les deux formulaires, jamais par-dessus l'un d'eux.
+// Sur téléphone, une fois le premier formulaire passé, l'action suit le
+// défilement. Au bout de la page, elle ne s'efface pas : elle vient
+// s'emboîter dans le bouton du formulaire « Cet hiver », qui a exactement sa
+// taille et son libellé (demandé par Mathys le 28 septembre 2026).
+// Tant que ce bouton est plus bas que le pouce, il reste invisible ; dès qu'il
+// atteint sa place, les deux s'échangent d'une image à l'autre, et le bouton
+// de la page repart avec le défilement. En remontant, le pouce se détache au
+// même endroit. Jamais par-dessus le premier formulaire.
 
 const pouce = document.querySelector('[data-pouce]');
 const formHaut = document.querySelector('.attente-ouverture');
-const formBas = document.getElementById('liste');
-const vus = new Set(['haut']);
+const cible = document.querySelector('#liste .attente-rangee button[type="submit"]');
+let hautVisible = true;
+let amarre = false;
+let planifie = false;
+
+document.querySelectorAll('[data-libelle]').forEach((l) => { l.dataset.repos = l.textContent; });
 
 function majPouce() {
+  planifie = false;
   if (!pouce) return;
-  const montrer = !inscrit && !vus.has('haut') && !vus.has('bas');
+  const actif = getComputedStyle(pouce).display !== 'none';
+  if (!actif || !cible) {
+    cible?.classList.remove('attend-pouce');
+    pouce.classList.remove('visible');
+    pouce.setAttribute('aria-hidden', 'true');
+    pouce.tabIndex = -1;
+    return;
+  }
+  // La place du pouce au repos, calculée et non lue : sa transformation
+  // le déplace quand il est caché.
+  const reposHaut = window.innerHeight - (parseFloat(getComputedStyle(pouce).bottom) || 0) - pouce.offsetHeight;
+  const r = cible.getBoundingClientRect();
+  const cibleAffichee = r.width > 0 && r.height > 0;
+  const accroche = cibleAffichee && r.top <= reposHaut + 0.5;
+  const montrer = !inscrit && !hautVisible && !accroche;
+  const etaitVisible = pouce.classList.contains('visible');
+
+  cible.classList.toggle('attend-pouce', !inscrit && cibleAffichee && !accroche);
+
+  if (accroche !== amarre) {
+    amarre = accroche;
+    // Le pouce et le bouton sont au même endroit à cet instant : l'échange se
+    // fait sans glissement, sinon on verrait le pouce plonger sous la page.
+    if (etaitVisible || montrer) pouce.classList.add('sans-transition');
+    if (accroche && etaitVisible && !reduit) {
+      cible.classList.remove('accroche');
+      void cible.offsetWidth;
+      cible.classList.add('accroche');
+    }
+  }
+
   pouce.classList.toggle('visible', montrer);
   pouce.setAttribute('aria-hidden', montrer ? 'false' : 'true');
   pouce.tabIndex = montrer ? 0 : -1;
+  if (pouce.classList.contains('sans-transition')) {
+    requestAnimationFrame(() => requestAnimationFrame(() => pouce.classList.remove('sans-transition')));
+  }
 }
 
-if (pouce && formHaut && formBas && 'IntersectionObserver' in window) {
+function planifierPouce() {
+  if (planifie) return;
+  planifie = true;
+  requestAnimationFrame(majPouce);
+}
+
+if (pouce && formHaut && cible && 'IntersectionObserver' in window) {
   pouce.hidden = false;
-  majPouce();
-  const io = new IntersectionObserver((entrees) => {
-    for (const e of entrees) {
-      const cle = e.target === formHaut ? 'haut' : 'bas';
-      if (e.isIntersecting) vus.add(cle); else vus.delete(cle);
-    }
+  cible.addEventListener('animationend', (e) => { if (e.animationName === 'accroche') cible.classList.remove('accroche'); });
+  new IntersectionObserver(([e]) => {
+    hautVisible = e.isIntersecting;
     majPouce();
-  });
-  io.observe(formHaut);
-  io.observe(formBas);
+  }).observe(formHaut);
+  window.addEventListener('scroll', planifierPouce, { passive: true });
+  window.addEventListener('resize', planifierPouce, { passive: true });
+  majPouce();
+}
+
+// ---- La ville au défilement -----------------------------------------------------------
+// En quittant le premier écran, la carte avance doucement vers le rasso en
+// direct, comme une caméra qui plonge sur Tourcoing. Une transformation
+// seulement, calculée une fois par image, et rien si l'on a demandé moins
+// d'animations.
+
+let zoomOrigine = null;
+let zoomEchelle = 1;
+let zoomPlanifie = false;
+
+function origineZoom() {
+  const point = document.querySelector('[data-reperes] .repere.direct .repere-point');
+  if (!point || !ouverture) return null;
+  const a = point.getBoundingClientRect();
+  const b = ouverture.getBoundingClientRect();
+  const x = a.left + a.width / 2 - b.left;
+  const y = a.top + a.height / 2 - b.top;
+  // Mesuré pendant un zoom, le repère a déjà bougé : on défait l'échelle.
+  if (!zoomOrigine || zoomEchelle === 1) return { x, y };
+  return { x: zoomOrigine.x + (x - zoomOrigine.x) / zoomEchelle, y: zoomOrigine.y + (y - zoomOrigine.y) / zoomEchelle };
+}
+
+function majVille() {
+  zoomPlanifie = false;
+  if (!ville || !ouverture) return;
+  const h = ouverture.offsetHeight || 1;
+  const p = Math.min(1, Math.max(0, window.scrollY / h));
+  if (!zoomOrigine) zoomOrigine = origineZoom();
+  if (!zoomOrigine) return;
+  // Douce au départ, franche ensuite : la caméra démarre, elle ne sursaute pas.
+  zoomEchelle = 1 + 0.12 * p * p * (3 - 2 * p);
+  ville.style.transformOrigin = `${zoomOrigine.x.toFixed(1)}px ${zoomOrigine.y.toFixed(1)}px`;
+  ville.style.transform = zoomEchelle === 1 ? '' : `scale(${zoomEchelle.toFixed(4)})`;
+}
+
+if (ville && ouverture && !reduit) {
+  ville.style.willChange = 'transform';
+  const planifierVille = () => {
+    if (zoomPlanifie || ouverture.classList.contains('hors-vue')) return;
+    zoomPlanifie = true;
+    requestAnimationFrame(majVille);
+  };
+  window.addEventListener('scroll', planifierVille, { passive: true });
+  // Les repères sont reposés à chaque redimensionnement : l'origine suit.
+  window.addEventListener('resize', () => requestAnimationFrame(() => { zoomOrigine = origineZoom(); majVille(); }), { passive: true });
+  setTimeout(() => { zoomOrigine = origineZoom(); majVille(); }, 1400);
 }

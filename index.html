@@ -554,7 +554,7 @@
             <label class="sr-only" for="email-bas">Adresse e-mail</label>
             <div class="attente-rangee">
               <input id="email-bas" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ton@adresse.fr" required aria-describedby="note-bas etat-bas" />
-              <button class="btn btn-ambre" type="submit"><span data-libelle>Me prévenir</span><svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></button>
+              <button class="btn btn-ambre" type="submit"><span data-libelle>Me prévenir à la sortie</span><svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></button>
             </div>
             <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
             <p id="etat-bas" class="etat-envoi" role="status" aria-live="polite"></p>
@@ -578,8 +578,9 @@
     </main>
 
     <!-- Sur un téléphone, une fois le premier formulaire passé, l'action reste
-         à portée du pouce. Elle s'efface quand le formulaire du bas est à
-         l'écran, et pour de bon après une inscription. -->
+         à portée du pouce. Au bout de la page, elle s'emboîte dans le bouton
+         de « Cet hiver », qui porte le même libellé ; elle s'efface pour de
+         bon après une inscription. -->
     <a class="pouce btn btn-ambre" href="#liste" data-pouce data-vers-liste hidden>Me prévenir à la sortie <svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg></a>
 
     <footer class="pied">

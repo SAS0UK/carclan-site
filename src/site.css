@@ -26,15 +26,24 @@ body { overflow-x: clip; }
 
 /* Le grain : la même texture que le fond de l'application. Sans elle, les
    grands aplats de nuit se lisent comme un écran éteint, et les dégradés de
-   lumière montrent leurs paliers. */
+   lumière montrent leurs paliers.
+   ⚠️ Sans `mix-blend-mode` : un calque fixé qui se mélange à toute la page
+   oblige Safari sur Mac à composer à part, sur du noir, les éléments animés
+   qui sont dessous. Le téléphone de la visite s'entourait alors d'un
+   rectangle sombre à angles droits, plus grand que sa coque (photo de
+   Mathys, 27 septembre 2026). Un grain posé normalement, plus léger, ne
+   force rien. */
+/* ⚠️ Il commence SOUS le bandeau : Safari sur iOS 26 prend la couleur de sa
+   barre d'état sur l'élément fixé le plus haut qui touche le bord, et ce
+   grain posé par-dessus tout la lui cachait. La page défilait alors sous
+   l'heure (mesuré sur simulateur le 28 septembre 2026, avec et sans grain). */
 body::after {
   content: '';
   position: fixed;
-  inset: 0;
+  inset: var(--barre-h) 0 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.07;
-  mix-blend-mode: overlay;
+  opacity: 0.028;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
 }
 
@@ -86,8 +95,26 @@ button, input { font-family: inherit; }
   transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }
 
+/* La barre d'état de l'iPhone. Depuis iOS 26, Safari dessine la page sous
+   l'heure et la batterie, et ne peint cette bande d'une couleur pleine que si
+   un élément fixé, plein, touche le haut de la page dès le chargement (mesuré
+   sur simulateur le 28 septembre 2026). Sans lui, le texte défilait sous
+   l'heure, au-dessus du bandeau. Ce filet de 2 px, de la couleur de la nuit,
+   ne se voit pas sur l'ordinateur : il est posé sur le haut du bandeau. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 41;
+  background: var(--nuit);
+  pointer-events: none;
+}
+
 .barre.on {
-  background: rgba(15, 14, 12, 0.94);
+  background: var(--nuit);
   box-shadow: 0 1px 0 var(--filet);
 }
 
@@ -664,9 +691,13 @@ button, input { font-family: inherit; }
 
 .tel-visite { --l: min(350px, calc((100svh - 140px) / 2.34)); }
 
+/* Chaque écran porte son propre arrondi : même si un navigateur compose
+   l'image à part pendant sa transition, elle ne peut plus sortir de la vitre
+   en rectangle. */
 .tel-visite .ecran {
   position: absolute;
   inset: 0;
+  border-radius: calc(var(--l) * 0.138);
   opacity: 0;
   transform: scale(1.015);
   transition: opacity 0.55s ease, transform 0.9s var(--expo);
@@ -680,14 +711,16 @@ button, input { font-family: inherit; }
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
   border-left: 1px solid var(--filet-clair);
 }
+/* 13 px et non 12 : demandé « vraiment légèrement » plus grand par Mathys
+   le 28 septembre 2026, c'est le sommaire de la visite. */
 .visite-rail li {
   position: relative;
-  padding-left: 16px;
-  font-size: 12px;
-  line-height: 16px;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 18px;
   font-variation-settings: 'wght' 650, 'wdth' 75;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1097,6 +1130,27 @@ html.js .onglet[data-apparait]:nth-child(5) { transition-delay: 0.24s; }
 
 .pouce { display: none; }
 
+/* Le moment où le pouce s'emboîte dans le bouton de « Cet hiver » : le bouton
+   de la page prend le relais d'un petit coup, avec l'onde du repère en
+   direct et la flèche qui avance. */
+.btn.accroche { animation: accroche 0.7s var(--expo) both; }
+.btn.accroche .ic { animation: accroche-fleche 0.7s var(--expo) both; }
+
+@keyframes accroche {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(226, 162, 31, 0.6); }
+  22% { transform: scale(1.03); }
+  100% { transform: scale(1); box-shadow: 0 0 0 16px rgba(226, 162, 31, 0); }
+}
+
+@keyframes accroche-fleche {
+  0%, 100% { transform: none; }
+  35% { transform: translateX(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.accroche, .btn.accroche .ic { animation: none; }
+}
+
 /* ---- Le pied de page ------------------------------------------------------------ */
 
 .pied {
@@ -1230,20 +1284,44 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
   .questions { grid-template-columns: 1fr; gap: var(--s-6); }
   .questions > .t-affiche { position: static; }
 
+  /* Le pouce a la largeur et la hauteur exactes du bouton de « Cet hiver »,
+     pour s'y emboîter sans saut (voir « Le pouce » dans main.js).
+     ⚠️ Caché, il n'est pas seulement glissé vers le bas : depuis iOS 26,
+     Safari dessine la page sous sa barre d'outils, et un bouton simplement
+     poussé hors de la fenêtre se voyait à travers le verre de la barre, sur
+     le premier écran comme à la fin de la page (captures de Mathys du
+     27 septembre 2026). Il devient donc aussi transparent et invisible. */
   .pouce {
     display: inline-flex;
     position: fixed;
-    left: var(--page);
-    right: var(--page);
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+    width: min(560px, calc(100% - 2 * var(--page)));
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 45;
-    height: 56px;
+    height: 56px; /* celle des boutons des formulaires (.attente .btn-ambre) */
     box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(15, 14, 12, 0.5);
     transform: translateY(calc(100% + 32px));
-    transition: transform 0.5s var(--expo);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.5s var(--expo), opacity 0.3s ease, visibility 0s linear 0.5s;
   }
   .pouce[hidden] { display: none; }
-  .pouce.visible { transform: none; }
+  .pouce.visible {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.5s var(--expo), opacity 0.2s ease, visibility 0s;
+  }
+  /* L'échange avec le bouton de la page se fait d'une image à l'autre. */
+  .pouce.sans-transition { transition: none; }
+
+  /* Le formulaire de « Cet hiver » passe en colonne : son bouton prend la
+     largeur du pouce. Tant qu'il est plus bas que le pouce, il reste
+     invisible, sinon on verrait deux boutons ambre l'un sous l'autre. */
+  .attente-finale .attente-rangee { flex-direction: column; }
+  .attente-finale .attente-rangee .btn.attend-pouce:not(:focus-visible) { opacity: 0; }
 }
 
 /* ---- Le téléphone ------------------------------------------------------------------- */
