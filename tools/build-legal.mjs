@@ -131,10 +131,10 @@ function construire(page) {
     <meta name="description" content="${echapper(page.description)}" />
     <meta name="theme-color" content="#0f0e0c" />
     <meta name="color-scheme" content="dark" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
-    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
-    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="/icone-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/icone-48.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/icone-96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/icone-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
