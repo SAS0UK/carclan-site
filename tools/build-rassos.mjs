@@ -165,19 +165,24 @@ const STYLES = (() => {
   return bloc[1];
 })();
 
-// Les dix pictogrammes de type, repris de
-// lib/shared/icons/cc_icon_data.dart du depot CarClan. Grille 24.
+// Les dix pictogrammes de type, repris de tools/icons-sodium/type-*.svg du
+// depot CarClan (la source de lib/shared/icons/cc_icon_data.dart), dans leur
+// version du 29 septembre 2026 (commit a288a2f, « pour se lire sans
+// legende ») : une voiture de face, le drapeau a damier, un volant, la
+// voiture sur son socle, la tulipe du road book, la route qui serpente,
+// l appareil photo, l ecusson aile, trois personnes, un ecrou. Grille 24.
+// A reprendre ici ET dans public/404.html a chaque nouveau dessin.
 const PICTOS = {
-  gathering: '<circle cx="12" cy="5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="8.5" r="2.5" fill="currentColor"/><circle cx="18.1" cy="15.5" r="2.5" fill="currentColor"/><circle cx="12" cy="19" r="2.5" fill="currentColor"/><circle cx="5.9" cy="15.5" r="2.5" fill="currentColor"/><circle cx="5.9" cy="8.5" r="2.5" fill="currentColor"/>',
-  official_motorsport: '<path d="M6 21V4h12l-3 4.5 3 4.5H6"/><rect x="9" y="6" width="3" height="3" fill="currentColor"/><rect x="12" y="9" width="3" height="2" fill="currentColor"/>',
-  track_day: '<path d="M7 7h10a4 4 0 0 1 0 8h-6a3 3 0 0 0 0 6h8"/><circle cx="7" cy="7" r="2.5" fill="currentColor"/>',
-  exhibition: '<path d="M3 19h18M6 19v-4h12v4"/><circle cx="12" cy="9" r="3.5"/>',
-  legal_rally: '<path d="M5 19l5-6 4 2 5-8"/><circle cx="5" cy="19" r="2.5" fill="currentColor"/><circle cx="19" cy="7" r="2.5" fill="currentColor"/>',
-  convoy: '<path d="M4 18c4 0 4-12 8-12s4 12 8 12"/><circle cx="4" cy="18" r="2.5" fill="currentColor"/>',
-  photo_session: '<path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/><circle cx="12" cy="12" r="3.5"/>',
-  brand_meet: '<path d="M12 3l8 3v6c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6z"/><circle cx="12" cy="11" r="2.5" fill="currentColor"/>',
-  community_meet: '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>',
-  swap_meet: '<path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/>',
+  gathering: '<path d="M5 11l2.5-6h9l2.5 6"/><rect x="3" y="11" width="18" height="6"/><circle cx="7" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="17" cy="14" r="1.6" fill="currentColor" stroke="none"/><rect x="4" y="17" width="4" height="4" fill="currentColor" stroke="none"/><rect x="16" y="17" width="4" height="4" fill="currentColor" stroke="none"/>',
+  official_motorsport: '<path d="M4 2v20"/><rect x="5" y="3" width="16" height="12"/><rect x="5" y="3" width="4" height="4" fill="currentColor" stroke="none"/><rect x="13" y="3" width="4" height="4" fill="currentColor" stroke="none"/><rect x="9" y="7" width="4" height="4" fill="currentColor" stroke="none"/><rect x="17" y="7" width="4" height="4" fill="currentColor" stroke="none"/><rect x="5" y="11" width="4" height="4" fill="currentColor" stroke="none"/><rect x="13" y="11" width="4" height="4" fill="currentColor" stroke="none"/>',
+  track_day: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="13" r="2.5" fill="currentColor" stroke="none"/><path d="M3.5 11h6M14.5 11h6M12 15.5V21"/>',
+  exhibition: '<rect x="3" y="9" width="18" height="5" rx="1"/><path d="M5 9l2-4.5h10L19 9"/><circle cx="7.5" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/><path d="M2 17h20v4H2z" fill="currentColor" stroke="none"/>',
+  legal_rally: '<circle cx="8" cy="19" r="2.5" fill="currentColor" stroke="none"/><path d="M8 17V4M8 11h7"/><path d="M14 6.5l6 4.5-6 4.5z" fill="currentColor" stroke="none"/>',
+  convoy: '<path d="M1.5 22C4.22 15.62 14.89 12.16 11.7 4"/><path d="M21.5 22C15.44 17.58 21.94 8.54 15.3 4"/><path d="M11.5 22L11.29 19.12M12.09 16.63L13.1 14.78M14.23 12.79L14.84 11.34"/>',
+  photo_session: '<rect x="2" y="7" width="20" height="14" rx="1"/><path d="M7.5 7l1.5-3h6l1.5 3"/><circle cx="12" cy="14" r="4.2" fill="currentColor" stroke="none"/><rect x="17" y="9.5" width="2.5" height="2" fill="currentColor" stroke="none"/>',
+  brand_meet: '<path d="M6.9 7.2L1.1 7.2L2.7 10.4L6.9 10.4zM6.9 12.6L2.9 12.6L4.5 15.8L6.9 15.8zM17.1 7.2L17.1 10.4L21.3 10.4L22.9 7.2zM17.1 12.6L17.1 15.8L19.5 15.8L21.1 12.6z" fill="currentColor" stroke="none"/><path d="M17.4 12a5.4 5.4 0 1 1-10.8 0a5.4 5.4 0 1 1 10.8 0zM14.3 12a2.3 2.3 0 1 0-4.6 0a2.3 2.3 0 1 0 4.6 0z" fill="currentColor" stroke="none"/>',
+  community_meet: '<circle cx="12" cy="6.8" r="3.3" fill="currentColor" stroke="none"/><path d="M5.5 21.5v-2a6.5 6.5 0 0 1 13 0v2z" fill="currentColor" stroke="none"/><circle cx="4.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M1 17.5v-.6a3.6 3.6 0 0 1 3.5-3.6c.7 0 1.3.2 1.8.5a8.8 8.8 0 0 0-1.9 3.7z" fill="currentColor" stroke="none"/><circle cx="19.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M23 17.5v-.6a3.6 3.6 0 0 0-3.5-3.6c-.7 0-1.3.2-1.8.5a8.8 8.8 0 0 1 1.9 3.7z" fill="currentColor" stroke="none"/>',
+  swap_meet: '<path d="M7.5 4.2h9L21 12l-4.5 7.8h-9L3 12zM15.5 12a3.5 3.5 0 1 0-7 0a3.5 3.5 0 1 0 7 0z" fill="currentColor" stroke="none"/>',
 };
 const ITINERAIRE = '<path d="M5 20v-9a4 4 0 0 1 4-4h9M15 4l3 3-3 3"/>';
 const VERIFIE = '<circle cx="12" cy="12" r="8"/><path d="M8.3 12.3l2.6 2.6 5-5.2" stroke-width="2.4"/>';

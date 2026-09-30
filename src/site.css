@@ -877,7 +877,7 @@ html.js .onglet[data-apparait]:nth-child(5) { transition-delay: 0.24s; }
 .depart-ligne {
   position: relative;
   display: grid;
-  grid-template-columns: clamp(124px, 11vw, 152px) minmax(0, 1fr);
+  grid-template-columns: clamp(156px, 14vw, 190px) minmax(0, 1fr);
   align-items: baseline;
   gap: var(--s-5);
   padding: 18px 0 18px 18px;
@@ -909,6 +909,17 @@ html.js .onglet[data-apparait]:nth-child(5) { transition-delay: 0.24s; }
   transition: color 0.3s ease;
 }
 .depart-ligne.actif .depart-mot { color: var(--craie); }
+/* Le pictogramme du type, celui du repère sur la carte de l'app. Sans
+   couleur à lui : il suit le mot, bitume au repos, craie quand la ligne
+   s'allume (pas de couleur par type, comme dans l'app). */
+.depart-ic {
+  display: inline-block;
+  width: 0.74em;
+  height: 0.74em;
+  margin-right: 0.3em;
+  vertical-align: -0.02em;
+  flex: none;
+}
 .depart-texte { font-size: 16px; line-height: 1.45; color: var(--bitume-clair); }
 
 /* ---- Organisateurs et partenaires ------------------------------------------ */

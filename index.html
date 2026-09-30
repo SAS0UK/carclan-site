@@ -386,7 +386,9 @@
         <!-- Le tableau des départs : les dix types d'un coup, sur des filets,
              comme un panneau de gare. Sur un écran large, l'affiche du type
              survolé s'allume en grand à côté ; sur un téléphone, chaque ligne
-             porte sa vignette. -->
+             porte sa vignette. Devant chaque mot, le pictogramme du type tel
+             que la carte de l'app le pose dans son repère (tools/icons-sodium
+             du dépôt CarClan, dessin du 29 septembre 2026). -->
         <div class="depart">
           <figure class="depart-vedette" aria-hidden="true" data-vedettes>
             <picture><source type="image/avif" srcset="/affiches/rasso.avif" /><img class="vedette actif" data-vedette="rasso" src="/affiches/rasso.jpg" width="1080" height="1350" alt="" loading="lazy" decoding="async" /></picture>
@@ -403,52 +405,52 @@
           <ol class="depart-liste" aria-label="Les dix types de rassos" data-depart>
             <li class="depart-ligne actif" data-type="rasso">
               <picture><source type="image/avif" srcset="/affiches/rasso.avif" /><img class="depart-vignette" src="/affiches/rasso.jpg" width="1080" height="1350" alt="Affiche générée : RASSO." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Rasso</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 11l2.5-6h9l2.5 6"/><rect x="3" y="11" width="18" height="6"/><circle cx="7" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="17" cy="14" r="1.6" fill="currentColor" stroke="none"/><rect x="4" y="17" width="4" height="4" fill="currentColor" stroke="none"/><rect x="16" y="17" width="4" height="4" fill="currentColor" stroke="none"/></svg>Rasso</span>
               <span class="depart-texte">Le rassemblement statique, sur un parking ou une esplanade.</span>
             </li>
             <li class="depart-ligne" data-type="expo">
               <picture><source type="image/avif" srcset="/affiches/expo.avif" /><img class="depart-vignette" src="/affiches/expo.jpg" width="1080" height="1350" alt="Affiche générée : EXPO." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Expo</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="5" rx="1"/><path d="M5 9l2-4.5h10L19 9"/><circle cx="7.5" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/><path d="M2 17h20v4H2z" fill="currentColor" stroke="none"/></svg>Expo</span>
               <span class="depart-texte">L’exposition, voitures alignées, capots ouverts.</span>
             </li>
             <li class="depart-ligne" data-type="balade">
               <picture><source type="image/avif" srcset="/affiches/balade.avif" /><img class="depart-vignette" src="/affiches/balade.jpg" width="1080" height="1350" alt="Affiche générée : BALADE." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Balade</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><path d="M1.5 22C4.22 15.62 14.89 12.16 11.7 4"/><path d="M21.5 22C15.44 17.58 21.94 8.54 15.3 4"/><path d="M11.5 22L11.29 19.12M12.09 16.63L13.1 14.78M14.23 12.79L14.84 11.34"/></svg>Balade</span>
               <span class="depart-texte">Le convoi, au code de la route, d’un point à un autre.</span>
             </li>
             <li class="depart-ligne" data-type="piste">
               <picture><source type="image/avif" srcset="/affiches/piste.avif" /><img class="depart-vignette" src="/affiches/piste.jpg" width="1080" height="1350" alt="Affiche générée : PISTE." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Piste</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="13" r="2.5" fill="currentColor" stroke="none"/><path d="M3.5 11h6M14.5 11h6M12 15.5V21"/></svg>Piste</span>
               <span class="depart-texte">Le trackday, sur circuit fermé et encadré.</span>
             </li>
             <li class="depart-ligne" data-type="rallye">
               <picture><source type="image/avif" srcset="/affiches/rallye.avif" /><img class="depart-vignette" src="/affiches/rallye.jpg" width="1080" height="1350" alt="Affiche générée : RALLYE." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Rallye</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="19" r="2.5" fill="currentColor" stroke="none"/><path d="M8 17V4M8 11h7"/><path d="M14 6.5l6 4.5-6 4.5z" fill="currentColor" stroke="none"/></svg>Rallye</span>
               <span class="depart-texte">Le rallye de régularité, road-book en main.</span>
             </li>
             <li class="depart-ligne" data-type="club">
               <picture><source type="image/avif" srcset="/affiches/club.avif" /><img class="depart-vignette" src="/affiches/club.jpg" width="1080" height="1350" alt="Affiche générée : CLUB." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Club</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="6.8" r="3.3" fill="currentColor" stroke="none"/><path d="M5.5 21.5v-2a6.5 6.5 0 0 1 13 0v2z" fill="currentColor" stroke="none"/><circle cx="4.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M1 17.5v-.6a3.6 3.6 0 0 1 3.5-3.6c.7 0 1.3.2 1.8.5a8.8 8.8 0 0 0-1.9 3.7z" fill="currentColor" stroke="none"/><circle cx="19.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M23 17.5v-.6a3.6 3.6 0 0 0-3.5-3.6c-.7 0-1.3.2-1.8.5a8.8 8.8 0 0 1 1.9 3.7z" fill="currentColor" stroke="none"/></svg>Club</span>
               <span class="depart-texte">La rencontre d’un club et de ses habitués.</span>
             </li>
             <li class="depart-ligne" data-type="marque">
               <picture><source type="image/avif" srcset="/affiches/marque.avif" /><img class="depart-vignette" src="/affiches/marque.jpg" width="1080" height="1350" alt="Affiche générée : MARQUE." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Marque</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.9 7.2L1.1 7.2L2.7 10.4L6.9 10.4zM6.9 12.6L2.9 12.6L4.5 15.8L6.9 15.8zM17.1 7.2L17.1 10.4L21.3 10.4L22.9 7.2zM17.1 12.6L17.1 15.8L19.5 15.8L21.1 12.6z" fill="currentColor" stroke="none"/><path d="M17.4 12a5.4 5.4 0 1 1-10.8 0a5.4 5.4 0 1 1 10.8 0zM14.3 12a2.3 2.3 0 1 0-4.6 0a2.3 2.3 0 1 0 4.6 0z" fill="currentColor" stroke="none"/></svg>Marque</span>
               <span class="depart-texte">La rencontre autour d’une seule marque.</span>
             </li>
             <li class="depart-ligne" data-type="photo">
               <picture><source type="image/avif" srcset="/affiches/photo.avif" /><img class="depart-vignette" src="/affiches/photo.jpg" width="1080" height="1350" alt="Affiche générée : PHOTO." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Photo</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M7.5 7l1.5-3h6l1.5 3"/><circle cx="12" cy="14" r="4.2" fill="currentColor" stroke="none"/><rect x="17" y="9.5" width="2.5" height="2" fill="currentColor" stroke="none"/></svg>Photo</span>
               <span class="depart-texte">La séance photo, à l’heure où la lumière est belle.</span>
             </li>
             <li class="depart-ligne" data-type="course">
               <picture><source type="image/avif" srcset="/affiches/course.avif" /><img class="depart-vignette" src="/affiches/course.jpg" width="1080" height="1350" alt="Affiche générée : COURSE." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Course</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2v20"/><rect x="5" y="3" width="16" height="12"/><rect x="5" y="3" width="4" height="4" fill="currentColor" stroke="none"/><rect x="13" y="3" width="4" height="4" fill="currentColor" stroke="none"/><rect x="9" y="7" width="4" height="4" fill="currentColor" stroke="none"/><rect x="17" y="7" width="4" height="4" fill="currentColor" stroke="none"/><rect x="5" y="11" width="4" height="4" fill="currentColor" stroke="none"/><rect x="13" y="11" width="4" height="4" fill="currentColor" stroke="none"/></svg>Course</span>
               <span class="depart-texte">La compétition officielle, côté public.</span>
             </li>
             <li class="depart-ligne" data-type="bourse">
               <picture><source type="image/avif" srcset="/affiches/bourse.avif" /><img class="depart-vignette" src="/affiches/bourse.jpg" width="1080" height="1350" alt="Affiche générée : BOURSE." loading="lazy" decoding="async" /></picture>
-              <span class="depart-mot">Bourse</span>
+              <span class="depart-mot"><svg class="depart-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.5 4.2h9L21 12l-4.5 7.8h-9L3 12zM15.5 12a3.5 3.5 0 1 0-7 0a3.5 3.5 0 1 0 7 0z" fill="currentColor" stroke="none"/></svg>Bourse</span>
               <span class="depart-texte">La bourse d’échange, où les pièces changent de main.</span>
             </li>
           </ol>
