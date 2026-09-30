@@ -16,15 +16,19 @@ réglé auprès de l'organisateur, hors de CarClan.
 
 Ce que fait l'application :
 - Trouver : les rassemblements sur une carte et dans un calendrier, filtrables
-  par type, par date et par organisateur. Types couverts : rassos statiques,
-  expositions, balades, trackdays, sessions photo, rencontres de marque,
-  rallyes et sport automobile.
-- Y aller : inscription en un geste, itinéraire délégué à Waze, Google Maps ou
-  Plans, et la liste de qui vient avec quelle voiture.
+  par type, par date et par organisateur. Dix types couverts : rassos
+  statiques, expositions, balades, trackdays, rallyes, rencontres de club,
+  rencontres de marque, sessions photo, compétitions officielles et bourses
+  d'échange.
+- Y aller : inscription en un geste, rappel la veille et une heure avant ou
+  ajout au calendrier, itinéraire délégué à Waze, Google Maps ou Plans, et la
+  liste de qui vient avec quelle voiture.
 - Sur place : pendant un rassemblement, une conversation en direct réservée
-  aux inscrits et à l'organisateur, effacée à la fin du rasso.
+  aux inscrits et à l'organisateur (messages et photos), effacée à la fin du
+  rasso.
 - Revivre : le fil de photos des participants, les avis, le garage de chacun,
-  les clans (un organisateur, ses annonces et ses habitués).
+  les clans (un organisateur, ses annonces et ses habitués), les crews entre
+  amis et leurs sorties.
 - Organisateurs : chaque rassemblement publié a une page publique consultable
   sans compte, avec une adresse courte partageable. Un organisateur peut
   revendiquer une fiche saisie pour lui.
