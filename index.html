@@ -336,43 +336,68 @@
         </div>
       </section>
 
-      <!-- Les cinq onglets, dans l'ordre et avec les mots de la barre du
-           bas de l'application (app_bottom_nav.dart). Les volets cités sont
-           ceux des écrans : Rassos (À venir, Terminés, Mon agenda,
-           Organisés), Clan (Fil, Garages, Entraide), Messages (Messages,
-           Crews, Publics), Profil (Mon garage, Mes amis, Mon agenda). -->
+      <!-- Les cinq onglets : la barre du bas de l'application, reproduite
+           telle quelle (app_bottom_nav.dart) et agrandie, avec le texte de
+           l'onglet choisi en dessous. Idée d'un retour sur le site du
+           1er octobre 2026 : les gens arrivent du téléphone, la barre qu'ils
+           retrouveront dans l'app parle mieux qu'une liste. Mots et ordre de
+           la barre ; volets cités ceux des écrans : Rassos (À venir,
+           Terminés, Mon agenda, Organisés), Clan (Fil, Garages, Entraide),
+           Messages (Messages, Crews, Publics), Profil (Mon garage, Mes amis,
+           Mon agenda). Sans JavaScript, les cinq textes se lisent à la suite
+           sous la barre, chacun avec son nom. -->
       <section id="onglets" class="onglets" aria-labelledby="t-onglets">
         <div class="onglets-tete" data-apparait>
           <h2 id="t-onglets" class="t-affiche">Cinq onglets. C’est tout.</h2>
-          <p>Tout CarClan tient dans la barre du bas. Voilà ce qu’il y a derrière chaque onglet.</p>
+          <p>Tout CarClan tient dans la barre du bas. Choisis un onglet pour voir ce qu’il y a derrière.</p>
         </div>
-        <ol class="onglets-liste">
-          <li class="onglet" data-apparait>
-            <svg class="onglet-ic" aria-hidden="true"><use href="#cc-tab-rassos" /></svg>
-            <p class="onglet-nom">Rassos</p>
-            <p class="onglet-texte">Les prochains rassos, ceux en direct, ton agenda, ceux que tu organises. Et ton récap du mois.</p>
-          </li>
-          <li class="onglet" data-apparait>
-            <svg class="onglet-ic" aria-hidden="true"><use href="#cc-tab-carte" /></svg>
-            <p class="onglet-nom">Carte</p>
-            <p class="onglet-texte">Tous les rassos autour de toi, sur la carte de nuit. Celui qui se passe maintenant pulse en ambre.</p>
-          </li>
-          <li class="onglet" data-apparait>
-            <svg class="onglet-ic" aria-hidden="true"><use href="#cc-tab-clan" /></svg>
-            <p class="onglet-nom">Clan</p>
-            <p class="onglet-texte">Le Fil des photos, les Garages de la commu, l’Entraide, et les clans que tu suis.</p>
-          </li>
-          <li class="onglet" data-apparait>
-            <svg class="onglet-ic" aria-hidden="true"><use href="#cc-tab-messages" /></svg>
-            <p class="onglet-nom">Messages</p>
-            <p class="onglet-texte">Tes conversations, tes crews et leurs sorties, et les crews publics à rejoindre.</p>
-          </li>
-          <li class="onglet" data-apparait>
-            <svg class="onglet-ic" aria-hidden="true"><use href="#cc-tab-profil" /></svg>
-            <p class="onglet-nom">Profil</p>
-            <p class="onglet-texte">Ton garage, tes amis, ton agenda et tes réseaux.</p>
-          </li>
-        </ol>
+        <div class="barre-app" data-apparait>
+          <div class="barre-app-onglets" role="tablist" aria-label="La barre du bas de CarClan" data-barre-app>
+            <span class="barre-app-pastille" aria-hidden="true"></span>
+            <button type="button" role="tab" id="onglet-rassos" aria-controls="panneau-rassos" aria-selected="true" tabindex="0">
+              <span class="barre-app-ic" aria-hidden="true"><svg><use href="#cc-tab-rassos" /></svg><span class="barre-app-direct"></span></span>
+              <span class="barre-app-nom">Rassos</span>
+            </button>
+            <button type="button" role="tab" id="onglet-carte" aria-controls="panneau-carte" aria-selected="false" tabindex="-1">
+              <span class="barre-app-ic" aria-hidden="true"><svg><use href="#cc-tab-carte" /></svg></span>
+              <span class="barre-app-nom">Carte</span>
+            </button>
+            <button type="button" role="tab" id="onglet-clan" aria-controls="panneau-clan" aria-selected="false" tabindex="-1">
+              <span class="barre-app-ic" aria-hidden="true"><svg><use href="#cc-tab-clan" /></svg></span>
+              <span class="barre-app-nom">Clan</span>
+            </button>
+            <button type="button" role="tab" id="onglet-messages" aria-controls="panneau-messages" aria-selected="false" tabindex="-1">
+              <span class="barre-app-ic" aria-hidden="true"><svg><use href="#cc-tab-messages" /></svg></span>
+              <span class="barre-app-nom">Messages</span>
+            </button>
+            <button type="button" role="tab" id="onglet-profil" aria-controls="panneau-profil" aria-selected="false" tabindex="-1">
+              <span class="barre-app-ic" aria-hidden="true"><svg><use href="#cc-tab-profil" /></svg></span>
+              <span class="barre-app-nom">Profil</span>
+            </button>
+          </div>
+        </div>
+        <div class="onglets-panneaux" data-panneaux>
+          <div class="onglets-panneau" role="tabpanel" id="panneau-rassos" aria-labelledby="onglet-rassos" tabindex="0">
+            <p class="onglets-panneau-nom">Rassos</p>
+            <p class="onglets-panneau-texte">Les prochains rassos, ceux en direct, ton agenda, ceux que tu organises. Et ton récap du mois.</p>
+          </div>
+          <div class="onglets-panneau" role="tabpanel" id="panneau-carte" aria-labelledby="onglet-carte" tabindex="0">
+            <p class="onglets-panneau-nom">Carte</p>
+            <p class="onglets-panneau-texte">Tous les rassos autour de toi, sur la carte de nuit. Celui qui se passe maintenant pulse en ambre.</p>
+          </div>
+          <div class="onglets-panneau" role="tabpanel" id="panneau-clan" aria-labelledby="onglet-clan" tabindex="0">
+            <p class="onglets-panneau-nom">Clan</p>
+            <p class="onglets-panneau-texte">Le Fil des photos, les Garages de la commu, l’Entraide, et les clans que tu suis.</p>
+          </div>
+          <div class="onglets-panneau" role="tabpanel" id="panneau-messages" aria-labelledby="onglet-messages" tabindex="0">
+            <p class="onglets-panneau-nom">Messages</p>
+            <p class="onglets-panneau-texte">Tes conversations, tes crews et leurs sorties, et les crews publics à rejoindre.</p>
+          </div>
+          <div class="onglets-panneau" role="tabpanel" id="panneau-profil" aria-labelledby="onglet-profil" tabindex="0">
+            <p class="onglets-panneau-nom">Profil</p>
+            <p class="onglets-panneau-texte">Ton garage, tes amis, ton agenda et tes réseaux.</p>
+          </div>
+        </div>
       </section>
 
       <!-- Les affiches générées par l'application : un rasso publié sans

@@ -166,6 +166,51 @@ if (!reduit && 'IntersectionObserver' in window) {
   apparaitre.forEach((el) => el.classList.add('in'));
 }
 
+// ---- La barre des onglets ------------------------------------------------------------
+
+// Les onglets de la barre du bas, reproduite en grand. Le survol choisit
+// (la souris seulement : un doigt passe par le clic), le clavier suit le
+// motif des onglets (flèches, Début, Fin), et la pastille glisse par --i.
+const barreApp = document.querySelector('[data-barre-app]');
+if (barreApp) {
+  const onglets = [...barreApp.querySelectorAll('[role="tab"]')];
+  const panneaux = onglets.map((o) => document.getElementById(o.getAttribute('aria-controls')));
+  const boite = document.querySelector('[data-panneaux]');
+  let actif = 0;
+  panneaux.forEach((p, i) => { p.hidden = i !== actif; });
+
+  const choisir = (i, focus = false) => {
+    if (focus) onglets[i].focus();
+    if (i === actif) return;
+    // Le sens d'abord, et un calcul de style avant de montrer : les textes en
+    // attente se rangent du bon côté sans transition, puis le nouveau part de là.
+    boite.style.setProperty('--sens', i > actif ? 1 : -1);
+    panneaux.forEach((p) => p.classList.remove('sort'));
+    void boite.offsetWidth;
+    panneaux[actif].classList.add('sort');
+    panneaux[actif].hidden = true;
+    panneaux[i].hidden = false;
+    onglets.forEach((o, j) => {
+      o.setAttribute('aria-selected', String(j === i));
+      o.tabIndex = j === i ? 0 : -1;
+    });
+    barreApp.style.setProperty('--i', i);
+    actif = i;
+  };
+
+  onglets.forEach((o, i) => {
+    o.addEventListener('click', () => choisir(i));
+    o.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') choisir(i); });
+  });
+  barreApp.addEventListener('keydown', (e) => {
+    const n = onglets.length;
+    const cible = { ArrowRight: actif + 1, ArrowLeft: actif - 1, Home: 0, End: n - 1 }[e.key];
+    if (cible === undefined) return;
+    e.preventDefault();
+    choisir((cible + n) % n, true);
+  });
+}
+
 // ---- Le balayage de lumière ---------------------------------------------------------
 
 function balayer(vitre) {

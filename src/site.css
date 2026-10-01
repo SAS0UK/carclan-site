@@ -788,8 +788,12 @@ body::before {
 /* ---- Les affiches --------------------------------------------------------- */
 
 /* ---- Les cinq onglets -------------------------------------------------------
-   La barre du bas de l'application, agrandie : cinq colonnes séparées par des
-   filets, l'icône puis le nom en capitales étroites, comme dans l'app. */
+   La barre du bas de l'application, reproduite à l'identique puis agrandie
+   (app_bottom_nav.dart) : une pilule Surface au filet Craie 14 %, une seule
+   pastille Surface 2 qui glisse d'un onglet à l'autre en 180 ms easeOutCubic,
+   l'onglet choisi en ambre et en gras, le point du rasso en direct qui
+   respire sur RASSOS. Toutes les mesures sont celles de l'app, en points,
+   multipliées par --k : 1 sur téléphone, où elle a la taille de la vraie. */
 
 .onglets {
   max-width: var(--largeur);
@@ -799,32 +803,131 @@ body::before {
 .onglets-tete { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: var(--s-6); align-items: end; }
 .onglets-tete .t-affiche { margin: 0; }
 .onglets-tete p { margin: 0; font-size: 18px; line-height: 1.55; color: var(--bitume-clair); max-width: 30em; }
-.onglets-liste {
-  list-style: none;
-  margin: clamp(32px, 6vh, 64px) 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-top: 1px solid var(--filet-clair);
+
+.barre-app {
+  --k: 1;
+  --marge: calc(4px * var(--k));
+  --glisse: 0.18s cubic-bezier(0.33, 1, 0.68, 1);
+  max-width: calc(362px * var(--k));
+  margin: clamp(40px, 7vh, 80px) auto 0;
 }
-.onglet { padding: var(--s-5) clamp(12px, 1.6vw, 28px) 0 0; }
-.onglet + .onglet { padding-left: clamp(12px, 1.6vw, 28px); border-left: 1px solid var(--filet); }
-.onglet-ic { display: block; width: 28px; height: 28px; color: var(--craie); transition: color 0.3s ease; }
-.onglet:hover .onglet-ic { color: var(--ambre); }
-.onglet-nom {
-  margin: var(--s-3) 0 0;
-  font-size: 15px;
-  line-height: 20px;
-  font-variation-settings: 'wght' 700, 'wdth' 75;
+@media (min-width: 700px) { .barre-app { --k: 1.45; } }
+@media (min-width: 1100px) { .barre-app { --k: 1.8; } }
+
+.barre-app-onglets {
+  position: relative;
+  display: flex;
+  height: calc(64px * var(--k));
+  padding: var(--marge);
+  background: var(--surface);
+  border: 1px solid var(--filet-clair);
+  border-radius: var(--r-pill);
+}
+/* Un cinquième de la largeur utile, déplacé de sa propre largeur par onglet
+   (--i, posé par main.js). */
+.barre-app-pastille {
+  position: absolute;
+  top: var(--marge);
+  bottom: var(--marge);
+  left: var(--marge);
+  width: calc((100% - 2 * var(--marge)) / 5);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  transform: translateX(calc(var(--i, 0) * 100%));
+  transition: transform var(--glisse);
+}
+.barre-app-onglets [role='tab'] {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(4px * var(--k));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--bitume-clair);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--glisse);
+}
+.barre-app-onglets [role='tab'][aria-selected='true'] { color: var(--ambre); }
+.barre-app-onglets [role='tab']:focus-visible { outline-offset: -2px; border-radius: var(--r-pill); }
+.barre-app-ic { position: relative; display: block; width: calc(22px * var(--k)); height: calc(22px * var(--k)); }
+.barre-app-ic svg { display: block; width: 100%; height: 100%; }
+/* Les capitales étroites de la barre : 11 sur 16, interlettrage 0,06 em,
+   graisse 600 qui passe à 700 en même temps que la pastille glisse. */
+.barre-app-nom {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: calc(11px * var(--k));
+  line-height: calc(16px * var(--k));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-variation-settings: 'wght' 600, 'wdth' 75;
+  transition: font-variation-settings var(--glisse);
+}
+[aria-selected='true'] > .barre-app-nom { font-variation-settings: 'wght' 700, 'wdth' 75; }
+/* PointEnDirect : 11 points, contour Surface de 1,5, opacité qui respire de
+   0,35 à 1 en 1,2 s, posé en haut à gauche de l'icône. */
+.barre-app-direct {
+  position: absolute;
+  top: calc(-3px * var(--k));
+  left: calc(-7px * var(--k));
+  box-sizing: border-box;
+  width: calc(11px * var(--k));
+  height: calc(11px * var(--k));
+  border: calc(1.5px * var(--k)) solid var(--surface);
+  border-radius: 50%;
+  background: var(--ambre);
+  animation: souffle 1.2s ease-in-out infinite alternate;
+}
+@keyframes souffle { from { opacity: 0.35; } }
+
+/* Le texte de l'onglet choisi. Les cinq occupent la même case : la hauteur
+   est celle du plus long, rien ne saute sous la barre quand on change. Il
+   part du côté où va la pastille (--sens) et l'autre arrive de l'autre. */
+.onglets-panneaux { max-width: calc(362px * 1.8); margin: var(--s-6) auto 0; }
+.onglets-panneau + .onglets-panneau { margin-top: var(--s-5); }
+.onglets-panneau:focus-visible { outline-offset: 6px; }
+.onglets-panneau-nom {
+  margin: 0 0 var(--s-1);
+  font-size: 13px;
+  line-height: 16px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--craie);
+  font-variation-settings: 'wght' 700, 'wdth' 75;
+  color: var(--bitume);
 }
-.onglet-texte { margin: var(--s-2) 0 0; font-size: 16px; line-height: 1.5; color: var(--bitume-clair); text-wrap: pretty; }
-html.js .onglet[data-apparait]:nth-child(2) { transition-delay: 0.06s; }
-html.js .onglet[data-apparait]:nth-child(3) { transition-delay: 0.12s; }
-html.js .onglet[data-apparait]:nth-child(4) { transition-delay: 0.18s; }
-html.js .onglet[data-apparait]:nth-child(5) { transition-delay: 0.24s; }
+.onglets-panneau-texte {
+  margin: 0;
+  font-size: clamp(19px, 1.7vw, 23px);
+  line-height: 1.45;
+  color: var(--craie);
+  text-wrap: balance;
+}
+html.js .onglets-panneaux { display: grid; text-align: center; }
+/* Le nouveau texte attend que l'ancien soit presque éteint : deux phrases
+   superposées à mi-chemin se lisaient en bouillie. */
+html.js .onglets-panneau { grid-area: 1 / 1; margin: 0; transition: opacity 0.24s ease 0.09s, transform 0.32s cubic-bezier(0.33, 1, 0.68, 1) 0.05s; }
+html.js .onglets-panneau-nom { display: none; }
+html.js .onglets-panneau[hidden] {
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(calc(var(--sens, 1) * 28px));
+  transition: none;
+}
+html.js .onglets-panneau[hidden].sort {
+  transform: translateX(calc(var(--sens, 1) * -28px));
+  transition: opacity 0.14s ease, transform 0.22s cubic-bezier(0.33, 1, 0.68, 1), visibility 0s linear 0.22s;
+}
 
 .affiches { padding: clamp(80px, 14vh, 160px) 0; }
 
@@ -1240,6 +1343,8 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
   .fait-coche circle, .fait-coche path { animation: none; stroke-dashoffset: 0; }
   .menu[open], .ecran-qr[open] { animation: none; }
   .pouce { transition: none; }
+  .barre-app-pastille, .barre-app-onglets [role='tab'], .barre-app-nom, html.js .onglets-panneau, html.js .onglets-panneau[hidden].sort { transition: none; }
+  .barre-app-direct { animation: none; }
 }
 
 /* ---- Écrans moyens -------------------------------------------------------------- */
@@ -1250,17 +1355,6 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
 
 @media (max-width: 960px) {
   .onglets-tete { grid-template-columns: 1fr; gap: var(--s-4); }
-  .onglets-liste { grid-template-columns: 1fr; }
-  .onglet, .onglet + .onglet {
-    display: grid;
-    grid-template-columns: 28px 1fr;
-    column-gap: var(--s-4);
-    padding: var(--s-5) 0;
-    border-left: 0;
-    border-bottom: 1px solid var(--filet);
-  }
-  .onglet-ic { grid-row: 1 / span 2; margin-top: -2px; }
-  .onglet-nom { margin: 0; }
 
   .barre-nav, .barre-action { display: none; }
   .barre-menu { display: grid; }
