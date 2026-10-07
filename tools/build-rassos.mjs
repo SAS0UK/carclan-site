@@ -40,6 +40,7 @@ const TYPE_LABELS = {
   brand_meet: 'Rencontre marque',
   community_meet: 'Rencontre communauté',
   swap_meet: 'Bourse d’échange',
+  drift: 'Drift',
 };
 const ENTRY_LABELS = {
   free_entry: 'Entrée libre',
@@ -183,6 +184,9 @@ const PICTOS = {
   brand_meet: '<path d="M6.9 7.2L1.1 7.2L2.7 10.4L6.9 10.4zM6.9 12.6L2.9 12.6L4.5 15.8L6.9 15.8zM17.1 7.2L17.1 10.4L21.3 10.4L22.9 7.2zM17.1 12.6L17.1 15.8L19.5 15.8L21.1 12.6z" fill="currentColor" stroke="none"/><path d="M17.4 12a5.4 5.4 0 1 1-10.8 0a5.4 5.4 0 1 1 10.8 0zM14.3 12a2.3 2.3 0 1 0-4.6 0a2.3 2.3 0 1 0 4.6 0z" fill="currentColor" stroke="none"/>',
   community_meet: '<circle cx="12" cy="6.8" r="3.3" fill="currentColor" stroke="none"/><path d="M5.5 21.5v-2a6.5 6.5 0 0 1 13 0v2z" fill="currentColor" stroke="none"/><circle cx="4.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M1 17.5v-.6a3.6 3.6 0 0 1 3.5-3.6c.7 0 1.3.2 1.8.5a8.8 8.8 0 0 0-1.9 3.7z" fill="currentColor" stroke="none"/><circle cx="19.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M23 17.5v-.6a3.6 3.6 0 0 0-3.5-3.6c-.7 0-1.3.2-1.8.5a8.8 8.8 0 0 1 1.9 3.7z" fill="currentColor" stroke="none"/>',
   swap_meet: '<path d="M7.5 4.2h9L21 12l-4.5 7.8h-9L3 12zM15.5 12a3.5 3.5 0 1 0-7 0a3.5 3.5 0 1 0 7 0z" fill="currentColor" stroke="none"/>',
+  // Drift (7 octobre 2026) : la voiture de face, en travers, et deux traces
+  // de glisse sous elle, comme le voyant d antipatinage.
+  drift: '<path d="M6.06 10.97L6.79 5.63L14.55 3.7L17.7 8.06"/><path d="M4.12 11.45L19.64 7.58L20.85 12.43L5.33 16.3z"/><circle cx="8.21" cy="13.01" r="1.3" fill="currentColor" stroke="none"/><circle cx="16.75" cy="10.88" r="1.3" fill="currentColor" stroke="none"/><path d="M8.5 17c-2.2 1.6 2.2 3.2 0 5M16.5 15c-2.2 1.6 2.2 3.6 0 7"/>',
 };
 const ITINERAIRE = '<path d="M5 20v-9a4 4 0 0 1 4-4h9M15 4l3 3-3 3"/>';
 const VERIFIE = '<circle cx="12" cy="12" r="8"/><path d="M8.3 12.3l2.6 2.6 5-5.2" stroke-width="2.4"/>';
