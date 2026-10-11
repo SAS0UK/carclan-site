@@ -16,10 +16,10 @@ réglé auprès de l'organisateur, hors de CarClan.
 
 Ce que fait l'application :
 - Trouver : les rassemblements sur une carte et dans un calendrier, filtrables
-  par type, par date et par organisateur. Dix types couverts : rassos
+  par type, par date et par organisateur. Onze types couverts : rassos
   statiques, expositions, balades, trackdays, rallyes, rencontres de club,
-  rencontres de marque, sessions photo, compétitions officielles et bourses
-  d'échange.
+  rencontres de marque, sessions photo, compétitions officielles, bourses
+  d'échange et drift.
 - Y aller : inscription en un geste, rappel la veille et une heure avant ou
   ajout au calendrier, itinéraire délégué à Waze, Google Maps ou Plans, et la
   liste de qui vient avec quelle voiture.

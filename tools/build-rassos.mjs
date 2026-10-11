@@ -40,6 +40,9 @@ const TYPE_LABELS = {
   brand_meet: 'Rencontre marque',
   community_meet: 'Rencontre communauté',
   swap_meet: 'Bourse d’échange',
+  drift: 'Drift',
+  hill_climb: 'Course de côte',
+  slalom: 'Slalom',
 };
 const ENTRY_LABELS = {
   free_entry: 'Entrée libre',
@@ -183,6 +186,14 @@ const PICTOS = {
   brand_meet: '<path d="M6.9 7.2L1.1 7.2L2.7 10.4L6.9 10.4zM6.9 12.6L2.9 12.6L4.5 15.8L6.9 15.8zM17.1 7.2L17.1 10.4L21.3 10.4L22.9 7.2zM17.1 12.6L17.1 15.8L19.5 15.8L21.1 12.6z" fill="currentColor" stroke="none"/><path d="M17.4 12a5.4 5.4 0 1 1-10.8 0a5.4 5.4 0 1 1 10.8 0zM14.3 12a2.3 2.3 0 1 0-4.6 0a2.3 2.3 0 1 0 4.6 0z" fill="currentColor" stroke="none"/>',
   community_meet: '<circle cx="12" cy="6.8" r="3.3" fill="currentColor" stroke="none"/><path d="M5.5 21.5v-2a6.5 6.5 0 0 1 13 0v2z" fill="currentColor" stroke="none"/><circle cx="4.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M1 17.5v-.6a3.6 3.6 0 0 1 3.5-3.6c.7 0 1.3.2 1.8.5a8.8 8.8 0 0 0-1.9 3.7z" fill="currentColor" stroke="none"/><circle cx="19.5" cy="8.3" r="2.5" fill="currentColor" stroke="none"/><path d="M23 17.5v-.6a3.6 3.6 0 0 0-3.5-3.6c-.7 0-1.3.2-1.8.5a8.8 8.8 0 0 1 1.9 3.7z" fill="currentColor" stroke="none"/>',
   swap_meet: '<path d="M7.5 4.2h9L21 12l-4.5 7.8h-9L3 12zM15.5 12a3.5 3.5 0 1 0-7 0a3.5 3.5 0 1 0 7 0z" fill="currentColor" stroke="none"/>',
+  // Drift, Course de cote et Slalom (7 octobre 2026, migration 0106 de
+  // l app) : les traces de l app, tools/icons-sodium/type-drift.svg,
+  // type-cote.svg et type-slalom.svg du depot car_clan. La voiture du
+  // rassemblement penchee dans sa fumee ; la montagne et son fanion ; les
+  // plots et la trajectoire.
+  drift: '<path d="M9.21 9.61L9.77 4.83L16.17 2.99L19.17 6.75"/><path d="M7.79 10.01L20.59 6.34L21.82 10.61L9.01 14.28z"/><circle cx="11.25" cy="11.33" r="1.2" fill="currentColor" stroke="none"/><circle cx="18.36" cy="9.29" r="1.2" fill="currentColor" stroke="none"/><path d="M9.73 14.08L12.57 13.26L13.39 16.11L10.54 16.92zM18.26 11.63L21.11 10.81L21.92 13.66L19.08 14.47z" fill="currentColor" stroke="none"/><circle cx="6.2" cy="17.6" r="2.8" fill="currentColor" stroke="none"/><circle cx="10.6" cy="19.6" r="2.2" fill="currentColor" stroke="none"/><circle cx="3.4" cy="13.6" r="1.6" fill="currentColor" stroke="none"/>',
+  hill_climb: '<path d="M2 21L9.5 8.5l3 4.5 2.5-3.5L22 21z"/><path d="M9.5 8.5V2"/><path d="M9.5 2h5.5l-1.5 2 1.5 2h-5.5z" fill="currentColor" stroke="none"/>',
+  slalom: '<path d="M5 12.5l1.8 5.5H3.2zM12.5 12.5l1.8 5.5h-3.6zM20 12.5l1.8 5.5h-3.6z" fill="currentColor" stroke="none"/><path d="M1.5 9h4.5c3 0 1.5 12.5 4.5 12.5h4c3 0 1.5-12.5 4.5-12.5h3"/>',
 };
 const ITINERAIRE = '<path d="M5 20v-9a4 4 0 0 1 4-4h9M15 4l3 3-3 3"/>';
 const VERIFIE = '<circle cx="12" cy="12" r="8"/><path d="M8.3 12.3l2.6 2.6 5-5.2" stroke-width="2.4"/>';
