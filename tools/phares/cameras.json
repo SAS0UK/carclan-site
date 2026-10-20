@@ -1,0 +1,28 @@
+{
+  "d": {
+    "image": "public/carte/nuit.jpg",
+    "largeur": 2880,
+    "hauteur": 1800,
+    "centre_monde": [
+      0.5086946205741866,
+      0.33626561630560947
+    ],
+    "zoom_interne": 12.009489746896275,
+    "cap": -20.203674432100833,
+    "inclinaison": 40.21786556820791,
+    "champ": 36.84400986712154
+  },
+  "p": {
+    "image": "public/carte/nuit-portrait.jpg",
+    "largeur": 1170,
+    "hauteur": 2532,
+    "centre_monde": [
+      0.508665646365538,
+      0.33623812595020885
+    ],
+    "zoom_interne": 13.274590220261693,
+    "cap": 30.34282368259767,
+    "inclinaison": 38.81545265963268,
+    "champ": 38.819792775820275
+  }
+}

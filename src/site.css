@@ -1526,8 +1526,48 @@ html.js .ouverture .chapeau { animation-delay: 0.2s; }
 html.js .attente-ouverture { animation-delay: 0.3s; }
 @keyframes monte { from { opacity: 0; transform: translateY(14px); } }
 
-html.js .tel-ouverture { animation: leve 1.6s var(--expo) 0.25s both; }
-@keyframes leve { from { opacity: 0; transform: translateY(48px); } }
+/* Le téléphone du haut se lève, comme on sort son téléphone pour le
+   regarder : il monte du bas en se redressant, pivot au pied de la coque
+   (1,5 s, expo), visible dès 600 ms, puis la lampe passe sur la vitre
+   (1,5 s, main.js). Au défilement, il se range dans l'autre sens
+   (mouvement.js).
+   ⚠️ Pas d'écran qui « s'allume » en plus (essayé le 21 octobre 2026) : un
+   voile animé sur la vitre retardait le premier affichage d'un téléphone en
+   4G d'une demi-seconde, et une opacité animée sur l'image faisait mesurer
+   le plus grand élément de l'ordinateur à 1,5 s au lieu de 0,06 s. */
+html.js .tel-ouverture {
+  transform-origin: 50% 100%;
+  animation: telLeve 1.5s var(--expo) 0.25s both, telAllume 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.25s both;
+}
+@keyframes telLeve { from { transform: perspective(1100px) translateY(96px) rotateX(26deg) scale(0.94); } }
+@keyframes telAllume { from { opacity: 0; } }
+
+/* Au défilement, l'écran s'assombrit à mesure que le téléphone bascule
+   loin de la lampe (--range, posé par mouvement.js). */
+.tel-ouverture .tel-coque { transform-origin: 50% 100%; }
+.tel-ouverture .tel-vitre::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: #000;
+  opacity: calc(var(--range, 0) * 0.5);
+}
+
+/* Les phares de la carte du haut (mouvement.js) : une toile posée sur
+   l'image, sous les voiles, pour que le texte reste écrit sur de la nuit. */
+.phares { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* Ce qui pivote au défilement passe sur son propre calque d'avance. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .tel-ouverture .tel-coque,
+  html.js .tel-chapitre .tel-coque,
+  html.js .tel-visite .tel-coque,
+  html.js .appareil .tablette,
+  html.js .appareil .pliable,
+  html.js .appareil .montres { will-change: transform; }
+}
 
 html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s + var(--i, 0) * 0.18s); }
 @keyframes allume { from { opacity: 0; } }

@@ -4,6 +4,7 @@ import './tokens.css';
 import './site.css';
 import { mountIcons } from './icons.js';
 import { setupWaitlist, setupCompteur } from './waitlist.js';
+import './mouvement.js';
 
 // Le module a tourné : le filet de index.html (qui retire `js` au bout de
 // 3 s sans ce signal) n'a plus à intervenir.
@@ -389,7 +390,9 @@ function caler() {
   if (!portrait.matches) { ville.style.removeProperty('--dy'); return; }
   const plan = ville.querySelector('.ville-plan');
   const texte = (document.querySelector('.exemple-mobile') || document.querySelector('.attente-ouverture'))?.getBoundingClientRect();
-  const tel = document.querySelector('.tel-ouverture .tel-coque')?.getBoundingClientRect();
+  // La figure et non la coque : la coque se range au défilement (mouvement.js),
+  // la figure garde sa place.
+  const tel = document.querySelector('.tel-ouverture')?.getBoundingClientRect();
   if (!plan || !texte || !tel) return;
   const cadre = ville.getBoundingClientRect();
   const H = plan.offsetHeight;
@@ -413,7 +416,7 @@ function masquer(liste, obstacles) {
   });
 }
 
-const obstaclesHaut = () => [...document.querySelectorAll('.ouverture h1, .ouverture .chapeau, .attente-ouverture, .exemple-mobile, .tel-ouverture .tel-coque, .ouverture-mention')];
+const obstaclesHaut = () => [...document.querySelectorAll('.ouverture h1, .ouverture .chapeau, .attente-ouverture, .exemple-mobile, .tel-ouverture, .ouverture-mention')];
 const obstaclesRegion = () => [...document.querySelectorAll('.territoire-texte h2, .territoire-texte p')];
 
 const poserTout = () => {
