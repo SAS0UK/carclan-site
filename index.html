@@ -88,7 +88,7 @@
           "@type": "MobileApplication",
           "name": "CarClan",
           "applicationCategory": "SocialNetworkingApplication",
-          "operatingSystem": "iOS, Android",
+          "operatingSystem": "iOS, iPadOS, watchOS, Android, Wear OS",
           "description": "L'application des rassemblements automobiles : trouver les rassos autour de soi, s'inscrire, discuter en direct sur place, retrouver les photos après.",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
           "publisher": { "@id": "https://carclan.fr/#organisation" },
@@ -100,7 +100,7 @@
           "mainEntity": [
             { "@type": "Question", "name": "CarClan, c’est gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, et ça le restera. Télécharger l’app, trouver un rasso, t’y inscrire, publier le tien : tout est gratuit. CarClan n’encaisse rien. Quand un rasso est payant, tu paies l’organisateur, en dehors de l’app." } },
             { "@type": "Question", "name": "Ça sort quand ?", "acceptedAnswer": { "@type": "Answer", "text": "Cet hiver. Laisse ton adresse sur cette page : tu reçois un mail de confirmation, puis un mail le jour de la sortie. Rien d’autre." } },
-            { "@type": "Question", "name": "Sur quels téléphones ?", "acceptedAnswer": { "@type": "Answer", "text": "iPhone et Android. Le jour de la sortie, ce site renverra vers l’App Store et Google Play." } },
+            { "@type": "Question", "name": "Sur quels appareils ?", "acceptedAnswer": { "@type": "Answer", "text": "iPhone et Android. L’app s’adapte aussi à l’iPad, aux tablettes et aux téléphones pliables, et elle a sa place sur l’Apple Watch et les montres Wear OS, qui suivent ton téléphone. Le jour de la sortie, ce site renverra vers l’App Store et Google Play." } },
             { "@type": "Question", "name": "J’organise des rassos. Je les publie comment ?", "acceptedAnswer": { "@type": "Answer", "text": "Depuis l’app, une fois ton compte organisateur validé. Si ton rasso y est déjà parce que quelqu’un l’a ajouté, tape « C’est mon rasso » sur sa fiche : après vérification, elle passe sur ton compte et tu publies tes dates toi-même. En attendant la sortie, écris-nous." } },
             { "@type": "Question", "name": "Mon rasso doit être autorisé ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, et là-dessus on ne transige pas. Un rasso publié se tient dans un lieu privé, autorisé ou toléré : parking d’enseigne avec son accord, circuit, terrain privé, ou lieu couvert par une autorisation. L’organisateur le déclare au moment de publier. Courses, rodéos et conduite dangereuse sur la route sont interdits, et la fiche est retirée." } },
             { "@type": "Question", "name": "J’ai un garage, un atelier, une enseigne. On bosse ensemble ?", "acceptedAnswer": { "@type": "Answer", "text": "Carrément. Que tu prêtes ton parking le temps d’une soirée, que tu prépares des voitures ou que tu vendes des pièces, écris à contact@carclan.fr. Le projet démarre, tout se construit maintenant." } },
@@ -149,6 +149,7 @@
       <nav class="menu-liens" aria-label="Menu principal">
         <a href="#application" data-ferme-menu>L’app</a>
         <a href="#onglets" data-ferme-menu>Les onglets</a>
+        <a href="#appareils" data-ferme-menu>Tous tes écrans</a>
         <a href="#affiches" data-ferme-menu>Les affiches</a>
         <a href="#organisateurs" data-ferme-menu>Organisateurs</a>
         <a href="#partenaires" data-ferme-menu>Partenaires</a>
@@ -400,6 +401,83 @@
         </div>
       </section>
 
+      <!-- Sur tous les écrans : l'iPad, l'iPhone Duo et la montre, regroupés
+           en une section courte, puisque le téléphone reste l'écran principal.
+           Les appareils sont dessinés en CSS, génériques : aucun rendu, aucune
+           photo ni aucun logo d'Apple ou de Google. Dans chacun, une vraie
+           capture de l'app, sur des données d'exemple (20 octobre 2026) :
+           - l'iPad couché et le Duo déplié : le banc de captures de l'app
+             (planche AppPreview, fenêtres de 1180 × 820 et 951 × 669 pt) ;
+           - l'Apple Watch : l'app de montre sur le simulateur watchOS 27,
+             lancée avec ses exemples (-exemples) ;
+           - Wear OS : l'aperçu de la tuile « Prochain rasso » du dépôt
+             CarClan (android/wear, capture de l'émulateur).
+           Ce que dit le texte se lit dans le code : FormeFenetre et
+           DeuxVolets (lib/app/theme, lib/shared/widgets), ios/CarClanWatch,
+           android/wear. La montre d'aujourd'hui seulement, sans la suite. -->
+      <section id="appareils" class="appareils" aria-labelledby="t-appareils">
+        <div class="appareils-tete" data-apparait>
+          <h2 id="t-appareils" class="t-affiche">Et sur tous tes écrans.</h2>
+          <p>Pensée d’abord pour ton téléphone, l’app s’adapte aussi aux grands écrans et à ton poignet. Mêmes rassos, même compte.</p>
+        </div>
+        <div class="appareils-grille">
+          <figure class="appareil appareil-tablette" data-apparait>
+            <div class="tablette">
+              <div class="tablette-vitre">
+                <picture>
+                  <source type="image/webp" srcset="/appareils/ipad-800.webp 800w, /appareils/ipad-1400.webp 1400w" sizes="(max-width: 700px) 90vw, (max-width: 1100px) 86vw, 600px" />
+                  <img src="/appareils/ipad-1400.jpg" srcset="/appareils/ipad-800.jpg 800w, /appareils/ipad-1400.jpg 1400w" sizes="(max-width: 700px) 90vw, (max-width: 1100px) 86vw, 600px" width="1400" height="974" alt="CarClan sur une tablette tenue couchée, avec des rassos d’exemple : la barre d’onglets à gauche, la liste des rassos au milieu, et la fiche de la Nocturne des Ateliers ouverte à côté." loading="lazy" decoding="async" />
+                </picture>
+              </div>
+            </div>
+            <figcaption>
+              <p class="appareil-nom">iPad et tablettes</p>
+              <p>Couchée, la barre passe à gauche&#8239;: la liste d’un côté, la fiche du rasso de l’autre. Debout, tout tient sur une colonne, la barre en bas.</p>
+            </figcaption>
+          </figure>
+          <figure class="appareil appareil-pliable" data-apparait>
+            <div class="pliable">
+              <div class="pliable-vitre">
+                <picture>
+                  <source type="image/webp" srcset="/appareils/duo-640.webp 640w, /appareils/duo-1100.webp 1100w" sizes="(max-width: 700px) 90vw, (max-width: 1100px) 44vw, 440px" />
+                  <img src="/appareils/duo-1100.jpg" srcset="/appareils/duo-640.jpg 640w, /appareils/duo-1100.jpg 1100w" sizes="(max-width: 700px) 90vw, (max-width: 1100px) 44vw, 440px" width="1100" height="774" alt="CarClan sur un téléphone pliable déplié, avec des messages d’exemple : la liste des conversations d’un côté du pli, la conversation ouverte de l’autre." loading="lazy" decoding="async" />
+                </picture>
+                <span class="pliable-pli" aria-hidden="true"></span>
+              </div>
+            </div>
+            <figcaption>
+              <p class="appareil-nom">iPhone&nbsp;Duo et pliables</p>
+              <p>Plié, c’est ton téléphone. Déplié, l’écran se partage au pli&#8239;: tes messages d’un côté, la conversation de l’autre.</p>
+            </figcaption>
+          </figure>
+          <figure class="appareil appareil-montres" data-apparait>
+            <div class="montres">
+              <div class="montre montre-carree">
+                <div class="montre-vitre">
+                  <picture>
+                    <source type="image/webp" srcset="/appareils/apple-watch-416.webp" />
+                    <img src="/appareils/apple-watch-416.jpg" width="416" height="496" alt="L’app CarClan sur une Apple Watch, avec un rasso d’exemple : « Ce soir », Nocturne des Ateliers, 21:30 · 3 km, 25 min de route, et les boutons Y aller et Je participe." loading="lazy" decoding="async" />
+                  </picture>
+                </div>
+              </div>
+              <div class="montre montre-ronde">
+                <div class="montre-vitre">
+                  <picture>
+                    <source type="image/webp" srcset="/appareils/wear-os-384.webp" />
+                    <img src="/appareils/wear-os-384.jpg" width="384" height="384" alt="La tuile Prochain rasso sur une montre Wear OS, avec un rasso d’exemple : son nom, 7:15 · 3 km, et le bouton Y aller." loading="lazy" decoding="async" />
+                  </picture>
+                </div>
+              </div>
+            </div>
+            <figcaption>
+              <p class="appareil-nom">Apple&nbsp;Watch et Wear&nbsp;OS</p>
+              <p>Ton prochain rasso au poignet, et «&#8239;Y&nbsp;aller&#8239;» lance l’itinéraire. Sur l’Apple&nbsp;Watch, les suivants à la couronne et «&#8239;Je&nbsp;participe&#8239;». La montre suit ton téléphone.</p>
+            </figcaption>
+          </figure>
+        </div>
+        <p class="appareils-note">Vraies captures de l’app, sur des rassos et des messages d’exemple. Les appareils, eux, sont dessinés.</p>
+      </section>
+
       <!-- Les affiches générées par l'application : un rasso publié sans
            photo reçoit quand même la sienne. Elles viennent du produit, pas
            d'une banque d'images. -->
@@ -565,8 +643,8 @@
             <div class="qr-corps"><p>Cet hiver. Laisse ton adresse sur cette page&#8239;: tu reçois un mail de confirmation, puis un mail le jour de la sortie. Rien d’autre.</p></div>
           </details>
           <details class="qr">
-            <summary><span>Sur quels téléphones&#8239;?</span><span class="qr-signe" aria-hidden="true"></span></summary>
-            <div class="qr-corps"><p>iPhone et Android. Le jour de la sortie, ce site renverra vers l’App Store et Google Play.</p></div>
+            <summary><span>Sur quels appareils&#8239;?</span><span class="qr-signe" aria-hidden="true"></span></summary>
+            <div class="qr-corps"><p>iPhone et Android. L’app s’adapte aussi à l’iPad, aux tablettes et aux téléphones pliables, et elle a sa place sur l’Apple Watch et les montres Wear OS, qui suivent ton téléphone. Le jour de la sortie, ce site renverra vers l’App Store et Google Play.</p></div>
           </details>
           <details class="qr">
             <summary><span>J’organise des rassos. Je les publie comment&#8239;?</span><span class="qr-signe" aria-hidden="true"></span></summary>
@@ -647,6 +725,7 @@
         <nav aria-label="Pied de page">
           <a href="#application">L’app</a>
           <a href="#onglets">Les onglets</a>
+          <a href="#appareils">Tous tes écrans</a>
           <a href="#affiches">Les affiches</a>
           <a href="#organisateurs">Organisateurs</a>
           <a href="#partenaires">Partenaires</a>

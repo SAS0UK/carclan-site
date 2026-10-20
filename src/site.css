@@ -1025,6 +1025,211 @@ html.js .onglets-panneau[hidden].sort {
 }
 .depart-texte { font-size: 16px; line-height: 1.45; color: var(--bitume-clair); }
 
+/* ---- Sur tous tes écrans --------------------------------------------------
+   L'iPad, l'iPhone Duo et les montres, regroupés : ce ne sont pas les écrans
+   principaux, la section reste courte. Les appareils sont dessinés ici, en
+   CSS, et génériques (ni rendu ni logo de constructeur) : la même coque de
+   titane sombre que le téléphone, avec son filet de lumière ambre sur
+   l'arête haute. Chaque mesure suit la largeur de sa figure (`cqi`), pour
+   qu'un appareil garde ses proportions de 280 à 600 px. */
+
+.appareils { padding: clamp(80px, 14vh, 160px) 0 0; }
+
+.appareils-tete {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: 0 var(--page);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: var(--s-6);
+  align-items: end;
+}
+.appareils-tete .t-affiche { margin: 0; }
+.appareils-tete p { margin: 0; font-size: 18px; line-height: 1.55; color: var(--bitume-clair); max-width: 30em; }
+
+.appareils-grille {
+  max-width: var(--largeur);
+  margin: clamp(40px, 7vh, 72px) auto 0;
+  padding: 0 var(--page);
+  display: grid;
+  grid-template-columns: minmax(0, 1.42fr) minmax(0, 1.08fr) minmax(0, 0.9fr);
+  grid-template-rows: auto auto;
+  column-gap: clamp(28px, 4vw, 64px);
+  row-gap: var(--s-5);
+}
+
+/* Deux rangées partagées (subgrid) : les appareils posés sur une même ligne
+   de sol, les légendes qui commencent toutes à la même hauteur. */
+.appareil {
+  margin: 0;
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  gap: var(--s-5);
+  container-type: inline-size;
+  min-width: 0;
+}
+.appareil > div { align-self: end; }
+.appareil figcaption { padding-top: var(--s-4); border-top: 1px solid var(--filet-clair); }
+.appareil figcaption p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--bitume-clair); max-width: 30em; }
+.appareil figcaption .appareil-nom {
+  margin: 0 0 var(--s-2);
+  font-size: 12px;
+  line-height: 16px;
+  font-variation-settings: 'wght' 700, 'wdth' 75;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--craie);
+}
+
+/* La coque commune : celle du téléphone (.tel-coque), sans ses mesures. */
+.tablette, .pliable, .montre {
+  position: relative;
+  background:
+    linear-gradient(160deg, rgba(255, 226, 170, 0.2), rgba(255, 226, 170, 0) 22%),
+    linear-gradient(145deg, #34302b 0%, #1b1917 32%, #0d0c0b 58%, #26231f 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(243, 239, 232, 0.09),
+    inset 0 1.5px 0 rgba(226, 162, 31, 0.38),
+    0 2px 0 -1px #000,
+    0 50px 90px -30px rgba(0, 0, 0, 0.95),
+    0 24px 40px -24px rgba(0, 0, 0, 0.9);
+}
+
+.tablette-vitre, .pliable-vitre, .montre-vitre {
+  position: relative;
+  overflow: hidden;
+  background: #050505;
+  isolation: isolate;
+}
+.tablette-vitre img, .pliable-vitre img, .montre-vitre img,
+.tablette-vitre picture, .pliable-vitre picture, .montre-vitre picture { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Le reflet fixe de la vitre, du côté de la lampe (voir .tel-vitre::after). */
+.tablette-vitre::after, .pliable-vitre::after, .montre-vitre::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(128deg, rgba(255, 244, 222, 0.08) 0%, rgba(255, 244, 222, 0.02) 30%, rgba(255, 244, 222, 0) 46%);
+}
+
+/* La tablette couchée : un bord régulier, l'objectif au milieu du bord
+   gauche, là où il est quand on la tient en paysage. */
+.tablette { padding: 2.6cqi; border-radius: 4.4cqi; }
+.tablette-vitre { aspect-ratio: 1400 / 974; border-radius: 1.9cqi; clip-path: inset(0 round 1.9cqi); }
+.tablette::before {
+  content: '';
+  position: absolute;
+  left: 1.3cqi;
+  top: 50%;
+  width: 0.8cqi;
+  height: 0.8cqi;
+  border-radius: 50%;
+  background: #070707;
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 232, 0.07);
+  transform: translate(-50%, -50%);
+}
+
+/* Le pliable déplié : un bord fin, et le pli au milieu, là où l'app partage
+   l'écran (la coupure de DeuxVolets). Une ombre douce, pas une ligne. */
+.pliable { padding: 1.7cqi; border-radius: 4.2cqi; }
+.pliable-vitre { aspect-ratio: 1100 / 774; border-radius: 2.6cqi; clip-path: inset(0 round 2.6cqi); }
+.pliable-pli {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 2;
+  width: 5cqi;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.16) 38%,
+    rgba(255, 238, 205, 0.07) 50%,
+    rgba(0, 0, 0, 0.16) 62%,
+    rgba(0, 0, 0, 0) 100%);
+}
+/* La charnière, vue sur la tranche haute et basse. */
+.pliable::before, .pliable::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 3.2cqi;
+  height: 1.7cqi;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #0b0a09, #2c2824 50%, #0b0a09);
+}
+.pliable::before { top: 0; border-radius: 0 0 2px 2px; }
+.pliable::after { bottom: 0; border-radius: 2px 2px 0 0; }
+
+/* Les montres : un boîtier carré, un rond, chacun avec sa couronne, et le
+   départ du bracelet qui se perd dans la nuit. */
+.montres {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  gap: 11cqi;
+  align-items: center;
+  padding: 14cqi 8cqi 14cqi 1cqi;
+}
+.montre { isolation: isolate; }
+.montre::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 20%;
+  right: 20%;
+  top: -34%;
+  bottom: -34%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #121110, #1d1b18 50%, #121110);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+}
+.montre::after {
+  content: '';
+  position: absolute;
+  right: -5.5%;
+  width: 6.5%;
+  height: 17%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #3b362f, #1c1a17);
+  box-shadow: inset 0 1px 0 rgba(226, 162, 31, 0.25);
+}
+.montre-carree { padding: 7%; border-radius: 27% / 23%; }
+.montre-carree::after { top: 24%; }
+.montre-carree .montre-vitre { aspect-ratio: 416 / 496; border-radius: 20% / 17%; clip-path: inset(0 round 20% / 17%); }
+.montre-ronde { padding: 9%; border-radius: 50%; }
+.montre-ronde::before { left: 26%; right: 26%; }
+.montre-ronde::after { top: 41.5%; }
+.montre-ronde .montre-vitre { aspect-ratio: 1; border-radius: 50%; clip-path: circle(50%); }
+
+.appareils-note {
+  max-width: var(--largeur);
+  margin: var(--s-6) auto 0;
+  padding: 0 var(--page);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--bitume);
+}
+
+@media (max-width: 1100px) {
+  .appareils-grille { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto auto auto; }
+  .appareil-tablette { grid-column: 1 / -1; max-width: 720px; margin-bottom: var(--s-6); }
+}
+
+@media (max-width: 960px) {
+  .appareils-tete { grid-template-columns: 1fr; gap: var(--s-4); }
+}
+
+@media (max-width: 640px) {
+  .appareils-grille { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: var(--s-7); }
+  .appareil { grid-row: auto; grid-template-rows: auto auto; }
+  .appareil-tablette { margin-bottom: 0; }
+  .appareils-tete p { font-size: 17px; }
+  .appareil-montres .montres { max-width: 340px; }
+}
+
 /* ---- Organisateurs et partenaires ------------------------------------------ */
 
 .publics {
