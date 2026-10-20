@@ -32,6 +32,11 @@ Ce que fait l'application :
 - Organisateurs : chaque rassemblement publié a une page publique consultable
   sans compte, avec une adresse courte partageable. Un organisateur peut
   revendiquer une fiche saisie pour lui.
+- Appareils : iPhone et Android d'abord. Sur l'iPad, les tablettes et les
+  téléphones pliables (iPhone Duo compris), l'écran couché se partage en deux
+  volets, la liste et la fiche côte à côte. Au poignet, une app Apple Watch
+  (les prochains rassos, « Y aller », « Je participe ») et une tuile Wear OS
+  « Prochain rasso » ; la montre reçoit ses rassos du téléphone.
 
 ## Pages
 
