@@ -23,11 +23,14 @@
 // une inscription à la liste d'attente. Les textes du site ont changé le
 // 27 septembre 2026 (commit ca779d3) sans que cette date-ci suive : les pages
 // affichaient encore le 21.
+// Le 20 octobre 2026 : les appareils dessinés et les marques d'appareils
+// cités (mentions légales), ce que l'app garde sur le téléphone pour
+// s'ouvrir sans réseau (cookies).
 // Le 28 septembre 2026 à 16 h 30 : la durée de la liste d'attente décidée par
 // Mathys (jusqu'au site vitrine, au plus tard fin 2027) et l'export d'analyse
 // détruit après usage. Les inscrits d'avant gardent la durée qu'on leur avait
 // annoncée, que `consent_version` permet de retrouver.
-export const SITE_VERSION = '28 septembre 2026, 16 h 30';
+export const SITE_VERSION = '20 octobre 2026';
 
 const EDITEUR = 'Mathys Liénart';
 const VILLE = 'Tourcoing (France)';
@@ -90,7 +93,7 @@ export const PAGES = [
         blocs: [
           'Le nom CarClan, le logo, l’identité visuelle, les textes, les visuels créés pour ce site et le code de l’application appartiennent à l’éditeur. Ils ne peuvent être copiés, modifiés ou rediffusés sans accord écrit. Les fonds de carte font exception : leurs données appartiennent à leurs contributeurs (voir les crédits).',
           'Les affiches de rassemblement présentées sur ce site sont générées par l’application CarClan. Elles ne reprennent aucune photographie ni aucun modèle appartenant à un tiers. Les écrans de l’application montrés sur ce site portent des données d’exemple : les rassemblements, organisateurs et messages qu’on y lit sont fictifs.',
-          'Les marques et les noms de véhicules éventuellement cités appartiennent à leurs titulaires respectifs et ne sont mentionnés qu’à titre de référence.',
+          'Les marques et les noms de véhicules ou d’appareils éventuellement cités (iPhone, iPad, Apple Watch, App Store, Android, Wear OS, Google Play…) appartiennent à leurs titulaires respectifs et ne sont mentionnés qu’à titre de référence. Les appareils qui entourent les écrans de l’application sur ce site sont dessinés pour lui : ce ne sont ni des photographies ni des rendus de leurs fabricants.',
         ],
       },
       {
@@ -325,7 +328,7 @@ export const PAGES = [
       {
         titre: 'Et l’application ?',
         blocs: [
-          'L’application CarClan n’utilise ni cookie, ni outil publicitaire, ni outil de mesure d’audience tiers. Elle garde en revanche sur votre appareil votre session de connexion, un cache du fond de carte, la dernière liste des événements publics reçue, pour vous les montrer sans réseau, et, le temps d’un envoi, une copie des photos que vous choisissez. La [politique de confidentialité](/confidentialite/) le détaille dans sa section « Ce qui reste sur votre téléphone ».',
+          'L’application CarClan n’utilise ni cookie, ni outil publicitaire, ni outil de mesure d’audience tiers. Elle garde en revanche sur votre appareil votre session de connexion, un cache du fond de carte, la dernière liste des événements publics reçue, ainsi que votre profil et votre agenda, pour s’ouvrir sans réseau, et, le temps d’un envoi, une copie des photos que vous choisissez. La [politique de confidentialité](/confidentialite/) le détaille dans sa section « Ce qui reste sur votre téléphone ».',
         ],
       },
     ],
