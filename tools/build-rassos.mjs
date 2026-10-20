@@ -110,9 +110,12 @@ function formatDateLine(startsAt, endsAt) {
   const ends = endsAt ? new Date(endsAt) : null;
   if (ends && !Number.isNaN(ends.getTime())) {
     const short = (d) => fmt({ dateStyle: 'short' }).format(d);
-    long += short(ends) === short(starts)
-      ? ` à ${time(ends)}`
-      : `, jusqu’au ${fmt({ day: 'numeric', month: 'long' }).format(ends)} ${time(ends)}`;
+    const minuit = time(ends) === '00:00' && short(new Date(ends.getTime() - 60000)) === short(starts);
+    long += minuit
+      ? ' à minuit'
+      : short(ends) === short(starts)
+        ? ` à ${time(ends)}`
+        : `, jusqu’au ${fmt({ day: 'numeric', month: 'long' }).format(ends)} ${time(ends)}`;
   }
   const shortDay = capitalize(fmt({ weekday: 'short', day: 'numeric', month: 'short' }).format(starts));
   return { long, short: `${shortDay} ${time(starts)}` };
@@ -228,7 +231,9 @@ function libelleDeFin(starts, endsAt) {
   if (!ends || Number.isNaN(ends.getTime())) return null;
   const jour = (d) => fmt({ dateStyle: 'short' }).format(d);
   const minuit = time(ends) === '00:00';
-  if (jour(ends) === jour(starts)) return minuit ? 'jusqu’à minuit' : `jusqu’à ${time(ends)}`;
+  // Minuit tombe le lendemain : « jusqu'à minuit », comme dans l'app.
+  const finDuJour = minuit && jour(new Date(ends.getTime() - 60000)) === jour(starts);
+  if (jour(ends) === jour(starts) || finDuJour) return minuit ? 'jusqu’à minuit' : `jusqu’à ${time(ends)}`;
   return `jusqu’au ${fmt({ day: 'numeric', month: 'long' }).format(ends)}${minuit ? '' : ` ${time(ends)}`}`;
 }
 

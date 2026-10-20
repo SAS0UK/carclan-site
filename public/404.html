@@ -720,7 +720,11 @@
               // faire comprendre qu un rasso court sur deux jours.
               var memeJour = partie(fin, { dateStyle: 'short' }) === partie(debut, { dateStyle: 'short' });
               var minuit = heureDe(fin) === '00:00';
-              text('fin', memeJour
+              // Minuit tombe le lendemain : un rasso de 21:00 à minuit
+              // finit « à minuit », comme dans l'application, et non
+              // « jusqu'au » jour suivant.
+              var finDuJour = minuit && partie(new Date(fin.getTime() - 60000), { dateStyle: 'short' }) === partie(debut, { dateStyle: 'short' });
+              text('fin', memeJour || finDuJour
                 ? (minuit ? 'jusqu’à minuit' : 'jusqu’à ' + heureDe(fin))
                 : 'jusqu’au ' + partie(fin, { day: 'numeric', month: 'long' }) + (minuit ? '' : ' ' + heureDe(fin)));
               show('fin');
