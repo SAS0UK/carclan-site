@@ -22,7 +22,7 @@ Six à quatorze applis concurrentes, aucune avec de la traction. CarClan revendi
 
 ## Operating Context
 - Rassos : expos, rassos statiques, balades (convois), trackdays (piste), rallyes légaux, séances photo, rencontres de marque, rencontres de club, compétitions officielles, bourses d'échange, drift.
-- Onze types dans l'app, chacun avec son mot d'affiche : RASSO, COURSE, PISTE, EXPO, RALLYE, BALADE, PHOTO, MARQUE, CLUB, BOURSE (depuis la migration 0078 du 28 septembre 2026), DRIFT (version d'essai Sodium, 7 octobre 2026).
+- Treize types dans l'app, chacun avec son mot d'affiche : RASSO, COURSE, PISTE, EXPO, RALLYE, BALADE, PHOTO, MARQUE, CLUB, BOURSE (depuis la migration 0078 du 28 septembre 2026), DRIFT, CÔTE et SLALOM (migration 0106, ouverts le 9 octobre 2026).
 - Dans l'app : cinq onglets Rassos, Carte, Clan, Messages, Profil. « Je participe » devient « Vous y allez ». Itinéraire délégué à Waze, Google Maps ou Plans. Page publique d'un rasso sur carclan.fr/rasso/<id>, lien court carclan.fr/r/<code>, partage en story Instagram et Snapchat.
 
 ## Capabilities and Constraints
