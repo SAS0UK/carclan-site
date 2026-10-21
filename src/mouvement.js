@@ -245,61 +245,61 @@ const carteActive = (c) => c.toile && c.visible && !document.hidden;
 let derniereImagePhares = 0;
 
 // ---- Le téléphone du haut ------------------------------------------------------------
-// Il entre par le CSS (@keyframes telLeve, site.css). Au défilement, il se
-// range, de l'une des deux façons, à comparer sur la même page (demandé par
-// Mathys le 21 octobre 2026) : carclan.fr/?rangement=a ou /?rangement=b.
+// Il entre par le CSS (@keyframes telLeve, site.css). Au défilement, il bouge
+// aussi par le CSS, piloté par le défilement (animation-timeline) : le
+// navigateur le joue au rythme exact de la page, sans attendre ce script.
+// Refait le 21 octobre 2026 après « ça saccade, ce n'est pas beau, ça
+// disparaît bizarrement » : l'ancien rangement était recalculé ici à chaque
+// image, une image après le défilement, et le téléphone tremblait.
 //
-// A, « on range son téléphone » (par défaut) : l'écran se verrouille d'abord,
-// en un éclair, comme un appui sur le bouton ; puis le téléphone bascule un
-// peu en arrière et glisse vers le bas hors du cadre, comme dans une poche.
-// Le bord bas du premier écran est la poche.
-// B, plus sobre : le téléphone reste à sa place, à peine entraîné (parallaxe),
-// et la section suivante vient le recouvrir.
-//
-// Tout dépend de la position seule : en remontant, il ressort, et l'écran se
-// rallume au même endroit.
+// Ici, seulement des mesures, posées au chargement et au redimensionnement :
+// la hauteur du premier écran (--ouverture-h), et pour la proposition 3 le
+// chemin jusqu'au téléphone de la visite. Les trois propositions se comparent par l'adresse : ?telephone=1, 2, 3.
 
-const RANGEMENT = new URLSearchParams(location.search).get('rangement') === 'b' ? 'b' : 'a';
-document.documentElement.dataset.rangement = RANGEMENT;
-
-// Les étapes de A, en part du geste (le geste entier est la moitié de la
-// hauteur du premier écran : 488 px sur un téléphone de 390, 450 px sur un
-// ordinateur de 900 de haut).
-const RANGE_A = {
-  verrou: 0.1, // l'écran s'éteint en 120 ms à 10 % du geste…
-  deverrou: 0.06, // … et se rallume en 260 ms en repassant sous 6 % (l'écart évite qu'il clignote au seuil)
-  bascule: [0.12, 0.45], // il bascule de 0 à 10° en arrière, en douceur
-  basculeMax: 10,
-  glisse: [0.2, 1], // il glisse jusque sous le bord, de plus en plus vite, comme on le lâche dans la poche
-};
-// B : le téléphone suit le défilement à 55 % : il remonte deux fois moins vite
-// que la page, et le bord de la section suivante le recouvre. Une ombre douce
-// tombe sur lui depuis ce bord.
-const PARALLAXE_B = 0.55;
+const params = new URLSearchParams(location.search);
+const TELEPHONE = ['1', '2', '3'].includes(params.get('telephone')) ? params.get('telephone') : '1';
+document.documentElement.dataset.telephone = TELEPHONE;
+const defilementPilote = window.CSS?.supports?.('animation-timeline: scroll()');
 
 const figureHaut = document.querySelector('.tel-ouverture');
 const coqueHaut = figureHaut?.querySelector('.tel-coque');
-let hauteurOuverture = 0, partVisible = 0, verrouille = false, couvercle = null;
 
-function majRangement() {
-  if (!coqueHaut || !carteHaut) return;
-  const s = Math.max(0, window.scrollY);
-  const p = borne(s / (hauteurOuverture * 0.5 || 1));
-  if (RANGEMENT === 'b') {
-    const ty = Math.min(s, hauteurOuverture) * PARALLAXE_B;
-    coqueHaut.style.transform = ty ? `translateY(${ty.toFixed(1)}px)` : '';
-    if (couvercle) couvercle.style.opacity = lisse(0, 0.3, p).toFixed(3);
-    return;
+// La position d'un élément dans le document, sans ses transformations.
+function placeSansTransformation(el) {
+  let x = 0, y = 0;
+  for (let e = el; e; e = e.offsetParent) { x += e.offsetLeft; y += e.offsetTop; }
+  return { x, y };
+}
+
+function mesurerTelephone() {
+  if (!carteHaut || !coqueHaut) return;
+  const racine = document.documentElement;
+  racine.style.setProperty('--ouverture-h', `${carteHaut.section.offsetHeight}px`);
+  if (!defilementPilote) return;
+  const tel = placeSansTransformation(coqueHaut);
+  if (TELEPHONE === '3' && large.matches) {
+    // Le téléphone de la visite se colle en haut de l'écran quand le haut
+    // de sa colonne y arrive : c'est la fin du relais. Le téléphone du haut
+    // doit alors être exactement à sa place et à sa taille.
+    const corps = document.querySelector('.visite-corps');
+    const scene = document.querySelector('.visite-scene');
+    const telV = document.querySelector('.tel-visite');
+    const coqueV = telV?.querySelector('.tel-coque');
+    if (!corps || !scene || !telV || !coqueV) return;
+    const fin = placeSansTransformation(corps).y;
+    const cible = { x: scene.getBoundingClientRect().left + window.scrollX + telV.offsetLeft, y: telV.offsetTop };
+    racine.style.setProperty('--relais-fin', `${fin}px`);
+    coqueHaut.style.setProperty('--relais-x', `${(cible.x - tel.x).toFixed(1)}px`);
+    coqueHaut.style.setProperty('--relais-y', `${(cible.y - (tel.y - fin)).toFixed(1)}px`);
+    coqueHaut.style.setProperty('--relais-k', (coqueV.offsetWidth / coqueHaut.offsetWidth).toFixed(4));
+    // Son écran passe des Rassos à la Carte, le premier écran de la visite.
+    const vitre = coqueHaut.querySelector('.tel-vitre');
+    if (vitre && !vitre.querySelector('.ecran-relais')) {
+      const image = document.createElement('picture');
+      image.innerHTML = '<source type="image/avif" srcset="/ecrans/carte-1020-800.avif" /><img class="ecran-relais" src="/ecrans/carte-1020-800.jpg" width="402" height="874" alt="" decoding="async" />';
+      vitre.insertBefore(image, vitre.querySelector('.tel-lumiere'));
+    }
   }
-  if (!verrouille && p >= RANGE_A.verrou) { verrouille = true; coqueHaut.classList.add('verrouille'); }
-  else if (verrouille && p < RANGE_A.deverrou) { verrouille = false; coqueHaut.classList.remove('verrouille'); }
-  const b = lisse(RANGE_A.bascule[0], RANGE_A.bascule[1], p);
-  const g = borne((p - RANGE_A.glisse[0]) / (RANGE_A.glisse[1] - RANGE_A.glisse[0])) ** 2;
-  if (!b && !g) { coqueHaut.style.transform = ''; return; }
-  // Il descend de toute sa part visible, plus 24 px : à la fin du geste, il
-  // est entièrement sous le bord.
-  const ty = g * (partVisible + 24);
-  coqueHaut.style.transform = `perspective(1100px) translateY(${ty.toFixed(1)}px) rotateX(${(b * RANGE_A.basculeMax).toFixed(2)}deg)`;
 }
 
 // ---- Les pivots ----------------------------------------------------------------------
@@ -339,8 +339,11 @@ function poserPivot(p, vh) {
     const r = corpsVisite.getBoundingClientRect();
     const arrivee = 1 - (1 - borne((vh - r.top) / vh)) ** 3;
     const lecture = borne(-r.top / Math.max(1, r.height - vh));
-    const ry = -10 + 20 * lecture - 16 * (1 - arrivee) + p.cy;
-    const rx = 3 + 9 * (1 - arrivee) + p.cx;
+    // En relais (proposition 3), il arrive de face, à la place exacte du
+    // téléphone du haut, puis pivote au fil des chapitres.
+    const relais = TELEPHONE === '3' && defilementPilote;
+    const ry = (relais ? 12 * lecture : -10 + 20 * lecture - 16 * (1 - arrivee)) + p.cy;
+    const rx = (relais ? 0 : 3 + 9 * (1 - arrivee)) + p.cx;
     p.el.style.transform = `perspective(1200px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
     return;
   }
@@ -422,7 +425,6 @@ function image(maintenant) {
 
   if (defile) {
     defile = false;
-    majRangement();
     for (const p of pivots) if (p.visible) poserPivot(p, vh);
     if (visite.el && visite.visible) poserPivot(visite, vh);
   }
@@ -437,10 +439,7 @@ function image(maintenant) {
 }
 
 function mesurer() {
-  hauteurOuverture = carteHaut?.section.offsetHeight || window.innerHeight;
-  // La part du téléphone au-dessus du bord bas du premier écran, sans les
-  // transformations (offsetTop les ignore).
-  partVisible = figureHaut ? Math.max(0, hauteurOuverture - figureHaut.offsetTop) : 0;
+  mesurerTelephone();
   CARTES.forEach(dimensionner);
   derniereImagePhares = 0;
   defile = true;
@@ -458,12 +457,10 @@ function demarrer() {
     else window.addEventListener('load', go, { once: true });
   }
 
-  if (RANGEMENT === 'b' && carteHaut) {
-    couvercle = document.createElement('div');
-    couvercle.className = 'couvercle';
-    couvercle.setAttribute('aria-hidden', 'true');
-    carteHaut.section.append(couvercle);
-  }
+  // Les mesures du téléphone se reprennent quand les repères ont été recalés
+  // (main.js, 1,3 s et 9,2 s) et quand la ville a fini de se poser.
+  setTimeout(mesurerTelephone, 1500);
+  setTimeout(mesurerTelephone, 9600);
 
   if ('IntersectionObserver' in window) {
     for (const c of CARTES) {
@@ -519,11 +516,7 @@ function arreter() {
   rafId = 0;
   for (const c of CARTES) { c.toile?.remove(); c.toile = null; }
   for (const p of [...pivots, visite]) if (p.el) p.el.style.transform = '';
-  if (coqueHaut) {
-    coqueHaut.style.transform = '';
-    coqueHaut.classList.remove('verrouille');
-  }
-  couvercle?.remove();
+
 }
 
 if (!moins.matches) {

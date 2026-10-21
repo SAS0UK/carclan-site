@@ -1542,40 +1542,125 @@ html.js .tel-ouverture {
 @keyframes telLeve { from { transform: perspective(1100px) translateY(96px) rotateX(26deg) scale(0.94); } }
 @keyframes telAllume { from { opacity: 0; } }
 
-/* Le rangement A (mouvement.js) : au début du défilement, l'écran se
-   verrouille d'un coup, comme un appui sur le bouton, 120 ms et une courbe
-   qui accélère ; il se rallume en 260 ms en remontant. Le reflet de la vitre
-   reste par-dessus : c'est un écran noir, pas un trou. */
-.tel-ouverture .tel-coque { transform-origin: 50% 100%; }
-.tel-ouverture .tel-vitre::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: #000;
-  opacity: 0;
-  transition: opacity 0.26s cubic-bezier(0, 0, 0.2, 1);
-}
-.tel-ouverture .verrouille .tel-vitre::before {
-  opacity: 1;
-  transition-duration: 0.12s;
-  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
-}
+/* ---- Le premier écran au défilement ------------------------------------------
+   Refait le 21 octobre 2026 (« ça saccade, ce n'est pas beau, ça disparaît
+   bizarrement »). Tout ce qui suit le défilement dans le premier écran est
+   désormais une animation CSS pilotée par le défilement (animation-timeline) :
+   c'est le navigateur qui la joue, au rythme du défilement, sans attendre le
+   JavaScript, qui ne fait plus que poser des mesures au chargement et au
+   redimensionnement (mouvement.js). Avant, chaque image recalculait la
+   position en JavaScript, une image après le défilement : le téléphone
+   tremblait par rapport à la page. Chrome depuis la 115, Safari depuis la 26 ;
+   ailleurs, rien ne bouge au défilement, et la page reste juste.
 
-/* Le rangement B : l'ombre douce que le bord de la section suivante jette
-   sur le téléphone en le recouvrant (opacité posée par mouvement.js). */
-.couvercle {
+   Trois propositions à comparer, ?telephone=1, 2 ou 3 (mouvement.js) :
+   1. Parallaxe : le téléphone remonte moins vite que la page et la section
+      suivante passe devant lui ; il ne s'éteint ni ne disparaît.
+   2. Reposé sur la carte : l'inverse de son entrée. Il s'était levé de la
+      carte en arrivant ; en partant, il s'y recouche, à plat, et son écran
+      se fond dans la ville pendant que la caméra plonge sur Tourcoing.
+   3. Le relais (écran large) : le téléphone glisse jusqu'à la place du
+      téléphone de la visite et devient lui, son écran passant des Rassos à
+      la Carte. Sur un écran étroit, c'est la parallaxe.
+
+   La longueur du geste : --ouverture-h, la hauteur du premier écran, en px. */
+
+.tel-ouverture .tel-coque { transform-origin: 50% 50%; }
+
+/* Le bas du premier écran ne coupe plus le téléphone d'un trait : il le fond
+   dans la nuit, comme la carte derrière lui. */
+.ouverture-fondu {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 4;
-  height: 96px;
+  height: clamp(88px, 14vh, 150px);
   pointer-events: none;
-  opacity: 0;
-  background: linear-gradient(0deg, rgba(8, 7, 6, 0.72), rgba(8, 7, 6, 0.3) 45%, rgba(8, 7, 6, 0));
+  background: linear-gradient(0deg, var(--nuit) 0%, rgba(15, 14, 12, 0.82) 30%, rgba(15, 14, 12, 0.35) 62%, rgba(15, 14, 12, 0) 100%);
 }
+.ouverture-mention { z-index: 5; }
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* La caméra plonge sur Tourcoing (avant : main.js, à chaque image). */
+    html.js .ville {
+      transform-origin: var(--ville-ox, 50%) var(--ville-oy, 50%);
+      animation-name: villePlonge;
+      animation-duration: 1ms;
+      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+      animation-fill-mode: both;
+      animation-timeline: scroll(root);
+      animation-range: 0 var(--ouverture-h, 100vh);
+    }
+
+    /* 1. La parallaxe, et la parallaxe des écrans étroits pour le 3. */
+    html.js[data-telephone='1'] .tel-ouverture .tel-coque,
+    html.js[data-telephone='3'] .tel-ouverture .tel-coque {
+      animation-name: telParallaxe;
+      animation-duration: 1ms;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root);
+      animation-range: 0 var(--ouverture-h, 100vh);
+    }
+
+    /* 2. Reposé sur la carte : il bascule en arrière autour du milieu de sa
+       partie visible, jusqu'à se coucher dans le plan de la carte, et
+       s'efface dans la ville sur le dernier tiers. */
+    html.js[data-telephone='2'] .tel-ouverture .tel-coque {
+      transform-origin: 50% 40%;
+      animation-name: telRepose;
+      animation-duration: 1ms;
+      animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
+      animation-fill-mode: both;
+      animation-timeline: scroll(root);
+      animation-range: 0 calc(var(--ouverture-h, 100vh) * 0.6);
+    }
+
+    /* 3. Le relais, sur un écran large : le téléphone n'est plus tenu par le
+       bord du premier écran, il glisse jusqu'à la place du téléphone de la
+       visite (--relais-x, --relais-y, --relais-k, sur --relais-fin px de
+       défilement), puis lui cède la place, au même pixel. */
+    @media (min-width: 961px) {
+      html.js[data-telephone='3'] .ouverture { overflow: visible; z-index: 3; }
+      html.js[data-telephone='3'] .ouverture-fondu { display: none; }
+      html.js[data-telephone='3'] .tel-ouverture .tel-coque {
+        transform-origin: 0 0;
+        animation-name: telRelais;
+        animation-timing-function: linear;
+        animation-range: 0 var(--relais-fin, 100vh);
+      }
+      html.js[data-telephone='3'] .tel-ouverture .ecran-relais {
+        animation: relaisEcran 1ms linear both;
+        animation-timeline: scroll(root);
+        animation-range: calc(var(--relais-fin, 100vh) * 0.55) calc(var(--relais-fin, 100vh) * 0.9);
+      }
+      html.js[data-telephone='3'] .tel-visite {
+        animation: relaisVisite 1ms linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 var(--relais-fin, 100vh);
+      }
+    }
+  }
+}
+
+@keyframes villePlonge { to { transform: scale(1.12); } }
+@keyframes telParallaxe { to { transform: translateY(calc(var(--ouverture-h, 100vh) * 0.42)) scale(0.96); } }
+@keyframes telRepose {
+  0% { transform: perspective(1100px) rotateX(0deg) scale(1); opacity: 1; }
+  62% { transform: perspective(1100px) rotateX(52deg) scale(0.97); opacity: 1; }
+  100% { transform: perspective(1100px) rotateX(70deg) scale(0.93); opacity: 0; }
+}
+@keyframes telRelais {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  99.6% { transform: translate(var(--relais-x), var(--relais-y)) scale(var(--relais-k)); opacity: 1; }
+  100% { transform: translate(var(--relais-x), var(--relais-y)) scale(var(--relais-k)); opacity: 0; }
+}
+@keyframes relaisEcran { from { opacity: 0; } to { opacity: 1; } }
+@keyframes relaisVisite { 0%, 99.6% { opacity: 0; } 100% { opacity: 1; } }
+
+.tel-ouverture .ecran-relais { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
 
 /* Les phares de la carte du haut (mouvement.js) : une toile posée sur
    l'image, sous les voiles, pour que le texte reste écrit sur de la nuit. */
@@ -1629,6 +1714,12 @@ html.js .repere { animation: allume 0.6s ease both; animation-delay: calc(1.4s +
   .ouverture-corps { grid-template-columns: minmax(0, 1fr); gap: 0; align-items: start; }
   .ouverture-texte { padding-bottom: var(--s-6); }
   .tel-ouverture { --l: min(78vw, 340px); margin-bottom: calc(var(--l) * -1.1); }
+  /* Le téléphone passe sous le texte, au milieu : la mention de la carte
+     tomberait sur lui (capture de Mathys du 21 octobre 2026, Safari en
+     fenêtre de 840). Comme sur un téléphone : la phrase d'exemple sous le
+     formulaire, les crédits de la carte en bas de page. */
+  .ouverture-mention { display: none; }
+  .exemple-mobile { display: block; }
 
   .visite-corps { display: block; }
   .visite-scene { display: none; }
