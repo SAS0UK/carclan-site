@@ -10,7 +10,21 @@
     "zoom_interne": 12.009489746896275,
     "cap": -20.203674432100833,
     "inclinaison": 40.21786556820791,
-    "champ": 36.84400986712154
+    "champ": 36.84400986712154,
+    "tuiles": {
+      "zoom": 13,
+      "zone": [
+        50.55,
+        2.85,
+        50.82,
+        3.4
+      ]
+    },
+    "classes": [
+      "motorway",
+      "trunk"
+    ],
+    "points_par_px": 0.5
   },
   "p": {
     "image": "public/carte/nuit-portrait.jpg",
@@ -23,6 +37,46 @@
     "zoom_interne": 13.274590220261693,
     "cap": 30.34282368259767,
     "inclinaison": 38.81545265963268,
-    "champ": 38.819792775820275
+    "champ": 38.819792775820275,
+    "tuiles": {
+      "zoom": 13,
+      "zone": [
+        50.55,
+        2.85,
+        50.82,
+        3.4
+      ]
+    },
+    "classes": [
+      "motorway",
+      "trunk"
+    ],
+    "points_par_px": 0.4666666666666667
+  },
+  "r": {
+    "image": "public/carte/region.jpg",
+    "largeur": 2880,
+    "hauteur": 1800,
+    "centre_monde": [
+      0.5074698090013864,
+      0.33711131579941434
+    ],
+    "zoom_interne": 8.00473016143379,
+    "cap": 0.004835924491155623,
+    "inclinaison": 0.5216389726390052,
+    "champ": 40.98559356748608,
+    "tuiles": {
+      "zoom": 8,
+      "zone": [
+        49.3,
+        0.5,
+        51.7,
+        5.2
+      ]
+    },
+    "classes": [
+      "motorway"
+    ],
+    "points_par_px": 0.5
   }
 }

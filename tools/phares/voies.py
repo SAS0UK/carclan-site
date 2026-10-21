@@ -1,5 +1,6 @@
-# Écrit src/phares-voies.js : les grands axes de la carte du haut, où roulent
-# les phares (src/mouvement.js), en dix-millièmes de chaque image.
+# Écrit src/phares-voies.js (la carte du haut) et src/phares-region.js (la
+# carte du bas) : les grands axes où roulent les phares (src/mouvement.js),
+# en dix-millièmes de chaque image.
 #
 #   python3 tools/phares/voies.py
 #
@@ -23,11 +24,13 @@ from geo import projeter, routes, telecharger  # noqa: E402
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 RACINE = os.path.dirname(os.path.dirname(ICI))
-TUILES = os.environ.get('TUILES', '/tmp/carclan-tuiles-13')
+TUILES = os.environ.get('TUILES', '/tmp/carclan-tuiles')
 
-# Pixels d'image par point CSS, là où l'image est affichée : 1440 points de
-# large pour nuit.jpg, 546 pour nuit-portrait.jpg sur un téléphone de 390.
-POINTS = {'d': 2880 / 1440, 'p': 1170 / 546}
+# Pour chaque carte (cameras.json) : l'image, sa caméra, les tuiles qui l'ont
+# dessinée (zoom et zone), les classes de routes qui portent des phares, et
+# combien de points CSS fait un pixel d'image là où elle s'affiche (1440
+# points de large pour nuit.jpg et region.jpg sur un ordinateur, 546 pour
+# nuit-portrait.jpg sur un téléphone de 390).
 ESPACEMENT = 200
 
 
@@ -107,26 +110,39 @@ def voies(cam, morceaux, minimum):
     return [rdp(l, 0.7) / [W, H] for l in gardees]
 
 
-telecharger(13, 50.55, 2.85, 50.82, 3.40, TUILES)
-morceaux = [r['pts'] for r in routes(TUILES, {'motorway', 'trunk'})]
 cams = json.load(open(f'{ICI}/cameras.json'))
-sortie = [
-    "// Les grands axes de la carte du haut, là où roulent les phares (mouvement.js).",
+ENTETE = [
     "// Fichier GÉNÉRÉ par tools/phares/voies.py : ne pas le modifier à la main.",
     "//",
-    "// Chaque voie est une chaussée d'autoroute ou de voie rapide (classes",
-    "// « motorway » et « trunk » d'OpenMapTiles, sans les bretelles), raccordée",
-    "// bout à bout dans le sens où l'on y roule. Les points sont en dix-millièmes",
-    "// de l'image : x de gauche à droite, y de haut en bas.",
-    "// `d` : /carte/nuit.jpg (2880 × 1800), `p` : /carte/nuit-portrait.jpg (1170 × 2532),",
-    "// projetées par la caméra retrouvée sur chaque image (tools/phares/cameras.json).",
-    "export const VOIES = {",
+    "// Chaque voie est une chaussée, sans les bretelles, raccordée bout à bout dans",
+    "// le sens où l'on y roule, projetée par la caméra retrouvée sur l'image",
+    "// (tools/phares/cameras.json). Les points sont en dix-millièmes de l'image :",
+    "// x de gauche à droite, y de haut en bas.",
 ]
-for cle in ('d', 'p'):
-    sortie.append(f'  {cle}: [')
-    for l in voies(cams[cle], morceaux, ESPACEMENT * POINTS[cle]):
-        sortie.append('    [' + ','.join(str(round(float(x) * 10000)) for x in l.ravel()) + '],')
-    sortie.append('  ],')
-sortie.append('};')
-open(f'{RACINE}/src/phares-voies.js', 'w').write('\n'.join(sortie) + '\n')
-print('src/phares-voies.js écrit', file=sys.stderr)
+FICHIERS = {
+    'src/phares-voies.js': (
+        ["// Les grands axes de la carte du haut, là où roulent les phares (mouvement.js)."] + ENTETE + [
+            "// `d` : /carte/nuit.jpg (2880 × 1800), `p` : /carte/nuit-portrait.jpg (1170 × 2532) :",
+            "// autoroutes et voies rapides (classes « motorway » et « trunk » d'OpenMapTiles).",
+        ], ('d', 'p')),
+    'src/phares-region.js': (
+        ["// Les autoroutes de la carte du bas (« Né à Tourcoing »), là où roulent les phares."] + ENTETE + [
+            "// `r` : /carte/region.jpg (2880 × 1800) : autoroutes seules (« motorway »), comme",
+            "// dans l'app ; à cette échelle, les voies rapides ne sont que des bouts épars.",
+        ], ('r',)),
+}
+for fichier, (tete, cles) in FICHIERS.items():
+    sortie = tete + ['export const VOIES = {']
+    for cle in cles:
+        cam = cams[cle]
+        z = cam['tuiles']['zoom']
+        dossier = f'{TUILES}-{z}'
+        telecharger(z, *cam['tuiles']['zone'], dossier)
+        morceaux = [r['pts'] for r in routes(dossier, set(cam['classes']))]
+        sortie.append(f'  {cle}: [')
+        for l in voies(cam, morceaux, ESPACEMENT / cam['points_par_px']):
+            sortie.append('    [' + ','.join(str(round(float(x) * 10000)) for x in l.ravel()) + '],')
+        sortie.append('  ],')
+    sortie.append('};')
+    open(f'{RACINE}/{fichier}', 'w').write('\n'.join(sortie) + '\n')
+    print(fichier, 'écrit', file=sys.stderr)

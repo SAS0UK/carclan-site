@@ -1542,8 +1542,10 @@ html.js .tel-ouverture {
 @keyframes telLeve { from { transform: perspective(1100px) translateY(96px) rotateX(26deg) scale(0.94); } }
 @keyframes telAllume { from { opacity: 0; } }
 
-/* Au défilement, l'écran s'assombrit à mesure que le téléphone bascule
-   loin de la lampe (--range, posé par mouvement.js). */
+/* Le rangement A (mouvement.js) : au début du défilement, l'écran se
+   verrouille d'un coup, comme un appui sur le bouton, 120 ms et une courbe
+   qui accélère ; il se rallume en 260 ms en remontant. Le reflet de la vitre
+   reste par-dessus : c'est un écran noir, pas un trou. */
 .tel-ouverture .tel-coque { transform-origin: 50% 100%; }
 .tel-ouverture .tel-vitre::before {
   content: '';
@@ -1552,7 +1554,27 @@ html.js .tel-ouverture {
   z-index: 2;
   pointer-events: none;
   background: #000;
-  opacity: calc(var(--range, 0) * 0.5);
+  opacity: 0;
+  transition: opacity 0.26s cubic-bezier(0, 0, 0.2, 1);
+}
+.tel-ouverture .verrouille .tel-vitre::before {
+  opacity: 1;
+  transition-duration: 0.12s;
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Le rangement B : l'ombre douce que le bord de la section suivante jette
+   sur le téléphone en le recouvrant (opacité posée par mouvement.js). */
+.couvercle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  height: 96px;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(0deg, rgba(8, 7, 6, 0.72), rgba(8, 7, 6, 0.3) 45%, rgba(8, 7, 6, 0));
 }
 
 /* Les phares de la carte du haut (mouvement.js) : une toile posée sur

@@ -11,6 +11,7 @@
 #
 #   python3 tools/phares/caler.py d      # recale la caméra de nuit.jpg
 #   python3 tools/phares/caler.py p      # celle de nuit-portrait.jpg
+#   python3 tools/phares/caler.py r      # celle de region.jpg (la carte du bas)
 #
 # Il part de cameras.json et l'y réécrit. Pour une image refaite de zéro,
 # mettre dans cameras.json un départ grossier (cap et inclinaison à 10° près,
@@ -30,7 +31,7 @@ from geo import nelder_mead, projeter, routes, telecharger  # noqa: E402
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 RACINE = os.path.dirname(os.path.dirname(ICI))
-TUILES = os.environ.get('TUILES', '/tmp/carclan-tuiles-13')
+TUILES = os.environ.get('TUILES', '/tmp/carclan-tuiles')
 
 cle = sys.argv[1]
 cams = json.load(open(f'{ICI}/cameras.json'))
@@ -38,13 +39,15 @@ cam = cams[cle]
 im = Image.open(f"{RACINE}/{cam['image']}").convert('L')
 W, H = im.size
 
-telecharger(13, 50.55, 2.85, 50.82, 3.40, TUILES)
-autoroutes = [r['pts'] for r in routes(TUILES, {'motorway'})]
+z = cam['tuiles']['zoom']
+dossier = f'{TUILES}-{z}'
+telecharger(z, *cam['tuiles']['zone'], dossier)
+autoroutes = [r['pts'] for r in routes(dossier, {'motorway'})]
 pts = []
 for l in autoroutes:
     l = np.array(l)
     for a, b in zip(l[:-1], l[1:]):
-        n = max(1, int(np.hypot(*(b - a)) / 6e-7))
+        n = max(1, int(np.hypot(*(b - a)) / (6e-7 * 2 ** (13 - z))))  # ~1 pixel d'image, quel que soit le zoom
         pts.append(a + (b - a) * np.linspace(0, 1, n, endpoint=False)[:, None])
 P = np.concatenate(pts)
 
@@ -79,5 +82,5 @@ for l in autoroutes:
     q, prof = projeter(cams[cle], np.array(l), W, H)
     if (prof > 0).all():
         d.line([tuple(x) for x in q], fill=(0, 200, 255), width=3)
-controle.save(f'{TUILES}/controle-{cle}.jpg', quality=82)
-print('caméra écrite dans cameras.json ; contrôle :', f'{TUILES}/controle-{cle}.jpg')
+controle.save(f'{dossier}/controle-{cle}.jpg', quality=82)
+print('caméra écrite dans cameras.json ; contrôle :', f'{dossier}/controle-{cle}.jpg')

@@ -1,19 +1,14 @@
 // Le mouvement de l'accueil, demandé par Mathys le 20 octobre 2026 : les
-// phares qui roulent sur la carte du haut « comme sur le téléphone », le
-// téléphone du haut qui se range quand on descend, et les appareils plus bas
-// qui pivotent.
+// phares qui roulent sur les cartes « comme sur le téléphone » (celle du haut,
+// et depuis le 21 octobre celle du bas, « Né à Tourcoing »), le téléphone du
+// haut qui se range quand on descend, et les appareils plus bas qui pivotent.
 //
 // Une seule boucle requestAnimationFrame pour tout. Elle ne tourne que s'il y
-// a quelque chose à faire : la carte du haut à l'écran, un défilement, un
-// survol qui n'a pas fini de se poser. Onglet caché ou carte hors de l'écran,
-// elle s'arrête. Que des transformations et des opacités, jamais une
-// propriété qui redessine la page. Et rien du tout si l'on a demandé moins
-// d'animations : la page est la même, immobile.
-
-// Les tracés des voies (6 Ko compressés) arrivent à part, après la page :
-// ils ne retardent ni le premier affichage ni le formulaire, et les phares
-// ne se lèvent qu'à 1,6 s.
-let VOIES = null;
+// a quelque chose à faire : une carte à l'écran, un défilement, un survol qui
+// n'a pas fini de se poser. Onglet caché ou cartes hors de l'écran, elle
+// s'arrête. Que des transformations et des opacités, jamais une propriété qui
+// redessine la page. Et rien du tout si l'on a demandé moins d'animations :
+// la page est la même, immobile.
 
 const moins = matchMedia('(prefers-reduced-motion: reduce)');
 const large = matchMedia('(min-width: 961px)');
@@ -23,9 +18,6 @@ const pointeurFin = matchMedia('(hover: hover) and (pointer: fine)');
 const borne = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const lisse = (a, b, x) => { const t = borne((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 const debut = performance.now();
-// L'instant où la circulation commence à se lever, depuis `debut` : 1,6 s,
-// ou plus tard si la page a mis plus longtemps à charger.
-let departPhares = 1600;
 
 // ---- Les phares ---------------------------------------------------------------------
 // Les mêmes que sur la carte de l'app (phares_autoroutes.dart, réglés avec
@@ -33,14 +25,15 @@ let departPhares = 1600;
 // lumières craie qui roulent le long des grands axes, sans les bretelles, une
 // tous les 200 points, à 10 points par seconde quel que soit l'écran.
 //
-// Un écart avec l'app, voulu : elles roulent aussi sur les voies rapides
-// (la VRU, la rocade), pas seulement sur les autoroutes. Sur un téléphone,
-// l'A22 passe tout entière sous le texte ; sans les voies rapides, la bande
-// de carte visible entre le formulaire et le téléphone n'aurait aucune
-// lumière (mesuré le 20 octobre 2026).
+// Un écart avec l'app, voulu, sur la carte du haut seulement : elles roulent
+// aussi sur les voies rapides (la VRU, la rocade). Sur un téléphone, l'A22
+// passe tout entière sous le texte ; sans les voies rapides, la bande de carte
+// visible entre le formulaire et le téléphone n'aurait aucune lumière (mesuré
+// le 20 octobre 2026). Sur la carte du bas, toute la région, ce sont les
+// autoroutes seules, comme dans l'app.
 //
 // Et un emprunt à l'écran d'accueil de l'app (_horsLecture) : une lumière
-// s'efface en approchant d'un texte. Le titre et le formulaire restent
+// s'efface en approchant d'un texte. Les titres et le formulaire restent
 // écrits sur de la nuit immobile.
 
 const PHARES = {
@@ -52,19 +45,16 @@ const PHARES = {
   alphaHalo: 0.34,
   fonduBout: 12, // elles s'éteignent sur 12 points au bout d'une autoroute qui s'arrête (_fonduDeBout)
   cadence: 1000 / 30, // trente images par seconde, comme l'app : à 10 points par seconde, l'œil n'en voit pas plus
-  // Le départ, dans la chorégraphie du premier écran : les lampes de la
-  // ville chauffent pendant 2,6 s (@keyframes chauffe), la circulation
-  // s'y lève à partir de 1,6 s, voie après voie, chacune en 600 ms.
-  naissance: 1600, // au plus tôt ; plus tard si la page charge plus lentement (departPhares)
+  // La circulation se lève voie après voie (départs étalés sur 700 ms),
+  // chacune en 600 ms : sur la carte du haut à partir de 1,6 s, quand les
+  // lampes de la ville ont presque fini de chauffer (@keyframes chauffe) ; sur
+  // celle du bas, 250 ms après qu'elle entre dans l'écran.
   decalage: 700,
   fondu: 600,
   // La marge de lecture : éteinte à 4 points d'un texte, pleine à 28.
   lectureProche: 4,
   lectureLoin: 28,
 };
-
-// Ce qui se lit sur la carte du haut : une lumière n'y passe pas.
-const LECTURE = '.ouverture h1 .ligne, .ouverture .chapeau, .attente-ouverture, .exemple-mobile, .ouverture-mention, [data-barre]';
 
 // Le halo d'un phare : un disque de rayon `halo` flouté par une gaussienne,
 // comme le MaskFilter de l'app. Calculé une fois, point par point, plutôt
@@ -85,8 +75,10 @@ function profilHalo() {
 }
 
 let profil = null;
+const sprites = new Map();
 
-function faireSprite(dpr) {
+function sprite(dpr) {
+  if (sprites.has(dpr)) return sprites.get(dpr);
   profil ??= profilHalo();
   const rayon = PHARES.halo + 2.2 * PHARES.flou; // au-delà, le halo est sous 1 %
   const n = Math.ceil(rayon * 2 * dpr) + 2;
@@ -108,6 +100,7 @@ function faireSprite(dpr) {
   g.beginPath();
   g.arc(centre, centre, PHARES.coeur * dpr, 0, Math.PI * 2);
   g.fill();
+  sprites.set(dpr, c);
   return c;
 }
 
@@ -125,7 +118,7 @@ function preparer(pts, w, h, i) {
     x, y, cumul,
     longueur: cumul[cumul.length - 1],
     phase: ((i * nombreDOr) % 1) * PHARES.espacement,
-    naitA: departPhares + ((i * 0.37) % 1) * PHARES.decalage,
+    decalage: ((i * 0.37) % 1) * PHARES.decalage,
   };
 }
 
@@ -134,29 +127,6 @@ function pointA(v, s) {
   while (b - a > 1) { const m = (a + b) >> 1; if (v.cumul[m] <= s) a = m; else b = m; }
   const t = (s - v.cumul[a]) / (v.cumul[b] - v.cumul[a] || 1);
   return [v.x[a] + (v.x[b] - v.x[a]) * t, v.y[a] + (v.y[b] - v.y[a]) * t];
-}
-
-const ouverture = document.querySelector('.ouverture');
-const plan = document.querySelector('.ouverture .ville-plan');
-let canvas = null, ctx = null, sprite = null, dpr = 1, voies = [], traces = [];
-let tRoule = 0, derniereImagePhares = 0, villeVisible = true;
-
-function dimensionner() {
-  if (!canvas) return;
-  const w = plan.offsetWidth, h = plan.offsetHeight;
-  if (!w || !h) return;
-  const d = Math.min(2, window.devicePixelRatio || 1);
-  const jeu = portrait.matches ? VOIES.p : VOIES.d;
-  if (canvas.width !== Math.round(w * d) || canvas.height !== Math.round(h * d) || d !== dpr || canvas.dataset.jeu !== (jeu === VOIES.p ? 'p' : 'd')) {
-    dpr = d;
-    canvas.width = Math.round(w * d);
-    canvas.height = Math.round(h * d);
-    canvas.dataset.jeu = jeu === VOIES.p ? 'p' : 'd';
-    sprite = faireSprite(d);
-    traces = [];
-  }
-  voies = jeu.map((pts, i) => preparer(pts, w, h, i));
-  derniereImagePhares = 0;
 }
 
 // La distance d'un point de la fenêtre au texte le plus proche, en points.
@@ -170,73 +140,166 @@ function distanceLecture(vx, vy, zones) {
   return d;
 }
 
-function dessinerPhares(maintenant) {
-  for (const r of traces) ctx.clearRect(r[0], r[1], r[2], r[3]);
-  traces = [];
+// Une carte qui porte des phares : sa section (pour savoir si elle est à
+// l'écran), son plan (l'image, que la toile épouse), ses textes, ses tracés
+// et le moment où sa circulation se lève.
+function carte({ section, plan, lecture, source, jeu }) {
+  const c = {
+    section: document.querySelector(section),
+    plan: document.querySelector(plan),
+    lecture, source, jeu,
+    voiesBrutes: null, voies: [], toile: null, ctx: null, dpr: 1, traces: [],
+    tRoule: 0, visible: false, depart: null, cle: null,
+  };
+  return c;
+}
+
+const CARTES = [
+  carte({
+    section: '.ouverture',
+    plan: '.ouverture .ville-plan',
+    lecture: '.ouverture h1 .ligne, .ouverture .chapeau, .attente-ouverture, .exemple-mobile, .ouverture-mention, [data-barre]',
+    source: () => import('./phares-voies.js'),
+    jeu: (V) => (portrait.matches ? ['p', V.p] : ['d', V.d]),
+  }),
+  carte({
+    section: '.territoire',
+    plan: '.territoire-plan:not(.ville-calque)',
+    lecture: '.territoire-texte h2, .territoire-texte p, [data-barre]',
+    source: () => import('./phares-region.js'),
+    jeu: (V) => ['r', V.r],
+  }),
+].filter((c) => c.section && c.plan);
+const carteHaut = CARTES.find((c) => c.section.matches('.ouverture'));
+const carteBas = CARTES.find((c) => c.section.matches('.territoire'));
+
+function poserToile(c) {
+  if (!actif || !c.voiesBrutes || c.toile) return;
+  c.toile = document.createElement('canvas');
+  c.toile.className = 'phares';
+  c.toile.setAttribute('aria-hidden', 'true');
+  c.plan.append(c.toile);
+  c.ctx = c.toile.getContext('2d');
+  dimensionner(c);
+  demander();
+}
+
+function dimensionner(c) {
+  if (!c.toile) return;
+  const w = c.plan.offsetWidth, h = c.plan.offsetHeight;
+  if (!w || !h) return;
+  const d = Math.min(2, window.devicePixelRatio || 1);
+  const [cle, jeu] = c.jeu(c.voiesBrutes);
+  if (c.toile.width !== Math.round(w * d) || c.toile.height !== Math.round(h * d) || d !== c.dpr || c.cle !== cle) {
+    c.dpr = d;
+    c.toile.width = Math.round(w * d);
+    c.toile.height = Math.round(h * d);
+    c.cle = cle;
+    c.traces = [];
+  }
+  c.voies = jeu.map((pts, i) => preparer(pts, w, h, i));
+}
+
+function dessinerPhares(c, maintenant) {
+  const { ctx, toile } = c;
+  for (const r of c.traces) ctx.clearRect(r[0], r[1], r[2], r[3]);
+  c.traces = [];
   const ecoule = maintenant - debut;
-  const taille = sprite.width;
+  const image = sprite(c.dpr);
+  const taille = image.width;
   const { espacement, fonduBout, fondu, lectureProche, lectureLoin } = PHARES;
   // Où la toile tombe dans la fenêtre à cet instant (la ville se pose et
   // plonge au défilement), et où sont les textes : lus avant toute écriture.
-  const cadre = canvas.getBoundingClientRect();
-  const k = cadre.width / (canvas.offsetWidth || 1);
+  const cadre = toile.getBoundingClientRect();
+  const k = cadre.width / (toile.offsetWidth || 1);
   const zones = [];
-  for (const el of document.querySelectorAll(LECTURE)) {
+  for (const el of document.querySelectorAll(c.lecture)) {
     const r = el.getBoundingClientRect();
     if (r.width && r.height) zones.push(r);
   }
-  for (const v of voies) {
-    const naissance = lisse(v.naitA, v.naitA + fondu, ecoule);
+  for (const v of c.voies) {
+    const naissance = c.depart == null ? 0 : lisse(c.depart + v.decalage, c.depart + v.decalage + fondu, ecoule);
     if (naissance <= 0) continue;
     // Toutes les lumières d'une voie avancent ensemble : leur place est la
     // phase de la voie, plus le chemin parcouru, plus un espacement par
     // lumière. Rien n'est tiré au hasard, rien ne saute.
-    for (let s = (v.phase + tRoule * PHARES.vitesse) % espacement; s < v.longueur; s += espacement) {
+    for (let s = (v.phase + c.tRoule * PHARES.vitesse) % espacement; s < v.longueur; s += espacement) {
       let eclat = naissance * Math.min(1, s / fonduBout, (v.longueur - s) / fonduBout);
       if (eclat <= 0.01) continue;
       const [x, y] = pointA(v, s);
-      const gx = x * dpr - taille / 2, gy = y * dpr - taille / 2;
-      if (gx < -taille || gy < -taille || gx > canvas.width || gy > canvas.height) continue;
+      const gx = x * c.dpr - taille / 2, gy = y * c.dpr - taille / 2;
+      if (gx < -taille || gy < -taille || gx > toile.width || gy > toile.height) continue;
       const vx = cadre.left + x * k, vy = cadre.top + y * k;
       if (vx < -20 || vy < -20 || vx > innerWidth + 20 || vy > innerHeight + 20) continue;
       eclat *= lisse(lectureProche, lectureLoin, distanceLecture(vx, vy, zones));
       if (eclat <= 0.01) continue;
       ctx.globalAlpha = eclat;
-      ctx.drawImage(sprite, gx, gy);
-      traces.push([Math.floor(gx) - 1, Math.floor(gy) - 1, taille + 3, taille + 3]);
+      ctx.drawImage(image, gx, gy);
+      c.traces.push([Math.floor(gx) - 1, Math.floor(gy) - 1, taille + 3, taille + 3]);
     }
   }
   ctx.globalAlpha = 1;
 }
 
-function pharesActifs() {
-  return canvas && villeVisible && !document.hidden;
-}
+const carteActive = (c) => c.toile && c.visible && !document.hidden;
+let derniereImagePhares = 0;
 
 // ---- Le téléphone du haut ------------------------------------------------------------
 // Il entre par le CSS (@keyframes telLeve, site.css). Au défilement, il se
-// range : il glisse vers le bas en basculant en arrière, comme un téléphone
-// qu'on glisse dans sa poche, et s'efface. Le bord bas du premier écran est
-// la poche. Tout dépend du défilement seul : en remontant, il ressort.
+// range, de l'une des deux façons, à comparer sur la même page (demandé par
+// Mathys le 21 octobre 2026) : carclan.fr/?rangement=a ou /?rangement=b.
+//
+// A, « on range son téléphone » (par défaut) : l'écran se verrouille d'abord,
+// en un éclair, comme un appui sur le bouton ; puis le téléphone bascule un
+// peu en arrière et glisse vers le bas hors du cadre, comme dans une poche.
+// Le bord bas du premier écran est la poche.
+// B, plus sobre : le téléphone reste à sa place, à peine entraîné (parallaxe),
+// et la section suivante vient le recouvrir.
+//
+// Tout dépend de la position seule : en remontant, il ressort, et l'écran se
+// rallume au même endroit.
 
-const coqueHaut = document.querySelector('.tel-ouverture .tel-coque');
-let hauteurOuverture = 0, hauteurCoque = 0;
+const RANGEMENT = new URLSearchParams(location.search).get('rangement') === 'b' ? 'b' : 'a';
+document.documentElement.dataset.rangement = RANGEMENT;
+
+// Les étapes de A, en part du geste (le geste entier est la moitié de la
+// hauteur du premier écran : 488 px sur un téléphone de 390, 450 px sur un
+// ordinateur de 900 de haut).
+const RANGE_A = {
+  verrou: 0.1, // l'écran s'éteint en 120 ms à 10 % du geste…
+  deverrou: 0.06, // … et se rallume en 260 ms en repassant sous 6 % (l'écart évite qu'il clignote au seuil)
+  bascule: [0.12, 0.45], // il bascule de 0 à 10° en arrière, en douceur
+  basculeMax: 10,
+  glisse: [0.2, 1], // il glisse jusque sous le bord, de plus en plus vite, comme on le lâche dans la poche
+};
+// B : le téléphone suit le défilement à 55 % : il remonte deux fois moins vite
+// que la page, et le bord de la section suivante le recouvre. Une ombre douce
+// tombe sur lui depuis ce bord.
+const PARALLAXE_B = 0.55;
+
+const figureHaut = document.querySelector('.tel-ouverture');
+const coqueHaut = figureHaut?.querySelector('.tel-coque');
+let hauteurOuverture = 0, partVisible = 0, verrouille = false, couvercle = null;
 
 function majRangement() {
-  if (!coqueHaut) return;
-  const p = borne(window.scrollY / (hauteurOuverture * 0.5 || 1));
-  const e = p * p * (3 - 2 * p);
-  if (e === 0) {
-    coqueHaut.style.transform = '';
-    coqueHaut.style.opacity = '';
-    coqueHaut.style.removeProperty('--range');
+  if (!coqueHaut || !carteHaut) return;
+  const s = Math.max(0, window.scrollY);
+  const p = borne(s / (hauteurOuverture * 0.5 || 1));
+  if (RANGEMENT === 'b') {
+    const ty = Math.min(s, hauteurOuverture) * PARALLAXE_B;
+    coqueHaut.style.transform = ty ? `translateY(${ty.toFixed(1)}px)` : '';
+    if (couvercle) couvercle.style.opacity = lisse(0, 0.3, p).toFixed(3);
     return;
   }
-  coqueHaut.style.transform = `perspective(1100px) translateY(${(e * 0.38 * hauteurCoque).toFixed(1)}px) rotateX(${(e * 24).toFixed(2)}deg) rotateZ(${(e * -5).toFixed(2)}deg) scale(${(1 - 0.05 * e).toFixed(4)})`;
-  // Il s'efface à partir du tiers du geste : quand il s'enfonce sous le bord
-  // du premier écran, il est déjà à moitié parti.
-  coqueHaut.style.opacity = (1 - lisse(0.3, 0.9, p)).toFixed(3);
-  coqueHaut.style.setProperty('--range', e.toFixed(3));
+  if (!verrouille && p >= RANGE_A.verrou) { verrouille = true; coqueHaut.classList.add('verrouille'); }
+  else if (verrouille && p < RANGE_A.deverrou) { verrouille = false; coqueHaut.classList.remove('verrouille'); }
+  const b = lisse(RANGE_A.bascule[0], RANGE_A.bascule[1], p);
+  const g = borne((p - RANGE_A.glisse[0]) / (RANGE_A.glisse[1] - RANGE_A.glisse[0])) ** 2;
+  if (!b && !g) { coqueHaut.style.transform = ''; return; }
+  // Il descend de toute sa part visible, plus 24 px : à la fin du geste, il
+  // est entièrement sous le bord.
+  const ty = g * (partVisible + 24);
+  coqueHaut.style.transform = `perspective(1100px) translateY(${ty.toFixed(1)}px) rotateX(${(b * RANGE_A.basculeMax).toFixed(2)}deg)`;
 }
 
 // ---- Les pivots ----------------------------------------------------------------------
@@ -344,13 +407,14 @@ function image(maintenant) {
   let encore = false;
   const vh = window.innerHeight;
 
-  if (pharesActifs()) {
-    tRoule += dt / 1000;
+  const actives = CARTES.filter(carteActive);
+  if (actives.length) {
+    for (const c of actives) c.tRoule += dt / 1000;
     // Trente images par seconde : une sur deux à 60 Hz, une sur quatre à
     // 120 Hz. La marge de 4 ms garde le rythme quand une image arrive un
     // peu tôt.
     if (maintenant - derniereImagePhares >= PHARES.cadence - 4) {
-      dessinerPhares(maintenant);
+      for (const c of actives) dessinerPhares(c, maintenant);
       derniereImagePhares = maintenant;
     }
     encore = true;
@@ -373,37 +437,48 @@ function image(maintenant) {
 }
 
 function mesurer() {
-  hauteurOuverture = ouverture?.offsetHeight || window.innerHeight;
-  hauteurCoque = coqueHaut?.offsetHeight || 0;
-  dimensionner();
+  hauteurOuverture = carteHaut?.section.offsetHeight || window.innerHeight;
+  // La part du téléphone au-dessus du bord bas du premier écran, sans les
+  // transformations (offsetTop les ignore).
+  partVisible = figureHaut ? Math.max(0, hauteurOuverture - figureHaut.offsetTop) : 0;
+  CARTES.forEach(dimensionner);
+  derniereImagePhares = 0;
   defile = true;
   demander();
 }
 
-function poserToile() {
-  if (!actif || !ouverture || !plan || !VOIES) return;
-  departPhares = Math.max(PHARES.naissance, performance.now() - debut + 100);
-  canvas = document.createElement('canvas');
-  canvas.className = 'phares';
-  canvas.setAttribute('aria-hidden', 'true');
-  plan.append(canvas);
-  ctx = canvas.getContext('2d');
-  dimensionner();
-  demander();
-}
-
 function demarrer() {
-  // Les phares attendent la fin du chargement : ni leurs tracés ni leur
-  // toile ne prennent de place au premier affichage d'un téléphone en 4G.
-  const charger = () => import('./phares-voies.js').then((m) => { VOIES = m.VOIES; poserToile(); }).catch(() => { /* sans tracés, pas de phares : la carte reste telle quelle */ });
-  if (ouverture && plan) {
-    if (document.readyState === 'complete') charger();
-    else window.addEventListener('load', charger, { once: true });
+  // Les phares du haut attendent la fin du chargement : ni leurs tracés ni
+  // leur toile ne prennent de place au premier affichage d'un téléphone en
+  // 4G. Ceux du bas, quand on approche de la carte du bas.
+  const charger = (c) => c.source().then((m) => { c.voiesBrutes = m.VOIES; poserToile(c); }).catch(() => { /* sans tracés, pas de phares : la carte reste telle quelle */ });
+  if (carteHaut) {
+    const go = () => { carteHaut.depart = Math.max(1600, performance.now() - debut + 100); charger(carteHaut); };
+    if (document.readyState === 'complete') go();
+    else window.addEventListener('load', go, { once: true });
+  }
+
+  if (RANGEMENT === 'b' && carteHaut) {
+    couvercle = document.createElement('div');
+    couvercle.className = 'couvercle';
+    couvercle.setAttribute('aria-hidden', 'true');
+    carteHaut.section.append(couvercle);
   }
 
   if ('IntersectionObserver' in window) {
-    if (ouverture) {
-      new IntersectionObserver(([e]) => { villeVisible = e.isIntersecting; demander(); }).observe(ouverture);
+    for (const c of CARTES) {
+      new IntersectionObserver(([e]) => {
+        c.visible = e.isIntersecting;
+        // La circulation de la carte du bas se lève quand on y arrive.
+        if (c !== carteHaut && c.visible && c.depart == null) c.depart = performance.now() - debut + 250;
+        demander();
+      }).observe(c.section);
+    }
+    if (carteBas) {
+      const approche = new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) { approche.disconnect(); charger(carteBas); }
+      }, { rootMargin: '1200px 0px' });
+      approche.observe(carteBas.section);
     }
     const io = new IntersectionObserver((entrees) => {
       for (const e of entrees) {
@@ -426,7 +501,10 @@ function demarrer() {
 
   window.addEventListener('scroll', () => { defile = true; demander(); }, { passive: true });
   window.addEventListener('resize', mesurer, { passive: true });
-  if ('ResizeObserver' in window && plan) new ResizeObserver(() => { dimensionner(); demander(); }).observe(plan);
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(() => mesurer());
+    CARTES.forEach((c) => ro.observe(c.plan));
+  }
   portrait.addEventListener?.('change', mesurer);
   large.addEventListener?.('change', mesurer);
   document.addEventListener('visibilitychange', () => { precedente = 0; demander(); });
@@ -434,19 +512,18 @@ function demarrer() {
 }
 
 // Moins d'animations demandé en cours de route : tout se fige et reprend sa
-// place, la carte sans ses phares.
+// place, les cartes sans leurs phares.
 function arreter() {
   actif = false;
   cancelAnimationFrame(rafId);
   rafId = 0;
-  canvas?.remove();
-  canvas = null;
+  for (const c of CARTES) { c.toile?.remove(); c.toile = null; }
   for (const p of [...pivots, visite]) if (p.el) p.el.style.transform = '';
   if (coqueHaut) {
     coqueHaut.style.transform = '';
-    coqueHaut.style.opacity = '';
-    coqueHaut.style.removeProperty('--range');
+    coqueHaut.classList.remove('verrouille');
   }
+  couvercle?.remove();
 }
 
 if (!moins.matches) {

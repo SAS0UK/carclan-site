@@ -1,12 +1,12 @@
 // Les grands axes de la carte du haut, là où roulent les phares (mouvement.js).
 // Fichier GÉNÉRÉ par tools/phares/voies.py : ne pas le modifier à la main.
 //
-// Chaque voie est une chaussée d'autoroute ou de voie rapide (classes
-// « motorway » et « trunk » d'OpenMapTiles, sans les bretelles), raccordée
-// bout à bout dans le sens où l'on y roule. Les points sont en dix-millièmes
-// de l'image : x de gauche à droite, y de haut en bas.
-// `d` : /carte/nuit.jpg (2880 × 1800), `p` : /carte/nuit-portrait.jpg (1170 × 2532),
-// projetées par la caméra retrouvée sur chaque image (tools/phares/cameras.json).
+// Chaque voie est une chaussée, sans les bretelles, raccordée bout à bout dans
+// le sens où l'on y roule, projetée par la caméra retrouvée sur l'image
+// (tools/phares/cameras.json). Les points sont en dix-millièmes de l'image :
+// x de gauche à droite, y de haut en bas.
+// `d` : /carte/nuit.jpg (2880 × 1800), `p` : /carte/nuit-portrait.jpg (1170 × 2532) :
+// autoroutes et voies rapides (classes « motorway » et « trunk » d'OpenMapTiles).
 export const VOIES = {
   d: [
     [9127,-189,8479,-41,8313,-12,8111,3,7498,16,7379,33,7274,63,7156,117,7065,180,6776,460,6686,534,6571,609,6275,781,6207,831,6133,900,6054,1000,5999,1097,5716,1819,5655,1949,5605,2036,5539,2130,5445,2243,5188,2485,5105,2576,5009,2708,4933,2846,4875,2986,4830,3143,4684,3883,4637,4074,4585,4222,4525,4368,4440,4625,4378,4763,4333,4839,4276,4917,4236,4960,4170,5014,3978,5122,3596,5353,3474,5439,3337,5555,3198,5687,3035,5862,2871,6024,2742,6164,2636,6263,2567,6316,2410,6372,2354,6410,2323,6447,2285,6510,2243,6589,2197,6704,2176,6782,2165,6841,2154,6965,2134,7115],
