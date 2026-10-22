@@ -1657,9 +1657,12 @@ html.js .tel-ouverture {
 
 @keyframes villePlonge { to { transform: scale(1.12); } }
 @keyframes telParallaxe { to { transform: translateY(calc(var(--ouverture-h, 100vh) * 0.42)) scale(0.96); } }
+/* Le mouvement va d'un trait jusqu'au bout ; seule l'opacité bascule sur les
+   derniers 0,4 % (5 px de défilement), quand les deux téléphones se
+   superposent déjà. */
 @keyframes telRelais {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  99.6% { transform: translate(var(--relais-x), var(--relais-y)) scale(var(--relais-k)); opacity: 1; }
+  99.6% { opacity: 1; }
   100% { transform: translate(var(--relais-x), var(--relais-y)) scale(var(--relais-k)); opacity: 0; }
 }
 @keyframes relaisEcran { from { opacity: 0; } to { opacity: 1; } }

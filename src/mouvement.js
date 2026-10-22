@@ -285,9 +285,17 @@ function mesurerTelephone() {
   const telV = document.querySelector('.tel-visite');
   const coqueV = telV?.querySelector('.tel-coque');
   if (!corps || !scene || !telV || !coqueV) return;
-  const tel = placeSansTransformation(coqueHaut);
-  const fin = placeSansTransformation(corps).y;
-  const cible = { x: scene.getBoundingClientRect().left + window.scrollX + telV.offsetLeft, y: telV.offsetTop };
+  // Les positions réelles, au pixel près : offsetTop arrondit chaque parent
+  // à l'entier. Le téléphone du haut se lit sur sa figure, dont la seule
+  // transformation est l'entrée ; tant qu'elle joue, on se contente des
+  // positions arrondies. La scène de la visite est collée en haut, mais le
+  // téléphone y garde la même place : la cible ne dépend pas du défilement.
+  const doc = (r) => ({ x: r.left + window.scrollX, y: r.top + window.scrollY });
+  const entreeFinie = figureHaut.getAnimations().every((a) => a.playState === 'finished');
+  const tel = entreeFinie ? doc(figureHaut.getBoundingClientRect()) : placeSansTransformation(coqueHaut);
+  const fin = doc(corps.getBoundingClientRect()).y;
+  const rs = scene.getBoundingClientRect(), rt = telV.getBoundingClientRect();
+  const cible = { x: rt.left + window.scrollX, y: rt.top - rs.top };
   racine.style.setProperty('--relais-fin', `${fin}px`);
   // La lecture des cinq chapitres, pendant laquelle le téléphone collé
   // pivote : du collage au décollage de sa colonne.
@@ -418,6 +426,8 @@ function demarrer() {
   // (main.js, 1,3 s et 9,2 s) et quand la ville a fini de se poser.
   setTimeout(mesurerTelephone, 1500);
   setTimeout(mesurerTelephone, 9600);
+  // Et dès que l'entrée du téléphone est finie : les positions exactes.
+  figureHaut?.addEventListener('animationend', (e) => { if (e.target === figureHaut) mesurerTelephone(); });
 
   if ('IntersectionObserver' in window) {
     for (const c of CARTES) {
