@@ -245,125 +245,95 @@ const carteActive = (c) => c.toile && c.visible && !document.hidden;
 let derniereImagePhares = 0;
 
 // ---- Le téléphone du haut ------------------------------------------------------------
-// Il entre par le CSS (@keyframes telLeve, site.css). Au défilement, il se
-// range, de l'une des deux façons, à comparer sur la même page (demandé par
-// Mathys le 21 octobre 2026) : carclan.fr/?rangement=a ou /?rangement=b.
+// Il entre par le CSS (@keyframes telLeve, site.css). Au défilement, il bouge
+// aussi par le CSS, piloté par le défilement (animation-timeline) : le
+// navigateur le joue au rythme exact de la page, sans attendre ce script.
+// Refait le 21 octobre 2026 après « ça saccade, ce n'est pas beau, ça
+// disparaît bizarrement » : l'ancien rangement était recalculé ici à chaque
+// image, une image après le défilement, et le téléphone tremblait. Choisi par
+// Mathys le même soir parmi trois propositions : « la 3 avec l'iPhone qui
+// descend », le relais. Sur un écran large, le téléphone du haut descend
+// jusqu'à la place du téléphone de la visite et devient lui ; sur un écran
+// étroit, il reste en arrière et la page passe devant (parallaxe).
 //
-// A, « on range son téléphone » (par défaut) : l'écran se verrouille d'abord,
-// en un éclair, comme un appui sur le bouton ; puis le téléphone bascule un
-// peu en arrière et glisse vers le bas hors du cadre, comme dans une poche.
-// Le bord bas du premier écran est la poche.
-// B, plus sobre : le téléphone reste à sa place, à peine entraîné (parallaxe),
-// et la section suivante vient le recouvrir.
-//
-// Tout dépend de la position seule : en remontant, il ressort, et l'écran se
-// rallume au même endroit.
+// Ici, seulement des mesures, posées au chargement et au redimensionnement :
+// la hauteur du premier écran (--ouverture-h), le chemin jusqu'au téléphone
+// de la visite (--relais-*), et la lecture de la visite (--visite-fin).
 
-const RANGEMENT = new URLSearchParams(location.search).get('rangement') === 'b' ? 'b' : 'a';
-document.documentElement.dataset.rangement = RANGEMENT;
-
-// Les étapes de A, en part du geste (le geste entier est la moitié de la
-// hauteur du premier écran : 488 px sur un téléphone de 390, 450 px sur un
-// ordinateur de 900 de haut).
-const RANGE_A = {
-  verrou: 0.1, // l'écran s'éteint en 120 ms à 10 % du geste…
-  deverrou: 0.06, // … et se rallume en 260 ms en repassant sous 6 % (l'écart évite qu'il clignote au seuil)
-  bascule: [0.12, 0.45], // il bascule de 0 à 10° en arrière, en douceur
-  basculeMax: 10,
-  glisse: [0.2, 1], // il glisse jusque sous le bord, de plus en plus vite, comme on le lâche dans la poche
-};
-// B : le téléphone suit le défilement à 55 % : il remonte deux fois moins vite
-// que la page, et le bord de la section suivante le recouvre. Une ombre douce
-// tombe sur lui depuis ce bord.
-const PARALLAXE_B = 0.55;
+const defilementPilote = window.CSS?.supports?.('animation-timeline: scroll()');
 
 const figureHaut = document.querySelector('.tel-ouverture');
 const coqueHaut = figureHaut?.querySelector('.tel-coque');
-let hauteurOuverture = 0, partVisible = 0, verrouille = false, couvercle = null;
 
-function majRangement() {
-  if (!coqueHaut || !carteHaut) return;
-  const s = Math.max(0, window.scrollY);
-  const p = borne(s / (hauteurOuverture * 0.5 || 1));
-  if (RANGEMENT === 'b') {
-    const ty = Math.min(s, hauteurOuverture) * PARALLAXE_B;
-    coqueHaut.style.transform = ty ? `translateY(${ty.toFixed(1)}px)` : '';
-    if (couvercle) couvercle.style.opacity = lisse(0, 0.3, p).toFixed(3);
-    return;
-  }
-  if (!verrouille && p >= RANGE_A.verrou) { verrouille = true; coqueHaut.classList.add('verrouille'); }
-  else if (verrouille && p < RANGE_A.deverrou) { verrouille = false; coqueHaut.classList.remove('verrouille'); }
-  const b = lisse(RANGE_A.bascule[0], RANGE_A.bascule[1], p);
-  const g = borne((p - RANGE_A.glisse[0]) / (RANGE_A.glisse[1] - RANGE_A.glisse[0])) ** 2;
-  if (!b && !g) { coqueHaut.style.transform = ''; return; }
-  // Il descend de toute sa part visible, plus 24 px : à la fin du geste, il
-  // est entièrement sous le bord.
-  const ty = g * (partVisible + 24);
-  coqueHaut.style.transform = `perspective(1100px) translateY(${ty.toFixed(1)}px) rotateX(${(b * RANGE_A.basculeMax).toFixed(2)}deg)`;
+// La position d'un élément dans le document, sans ses transformations.
+function placeSansTransformation(el) {
+  let x = 0, y = 0;
+  for (let e = el; e; e = e.offsetParent) { x += e.offsetLeft; y += e.offsetTop; }
+  return { x, y };
 }
 
-// ---- Les pivots ----------------------------------------------------------------------
+function mesurerTelephone() {
+  if (!carteHaut || !coqueHaut) return;
+  const racine = document.documentElement;
+  racine.style.setProperty('--ouverture-h', `${carteHaut.section.offsetHeight}px`);
+  if (!defilementPilote || !large.matches) return;
+  // Le téléphone de la visite se colle en haut de l'écran quand le haut de
+  // sa colonne y arrive : c'est la fin du relais. Le téléphone du haut doit
+  // alors être exactement à sa place et à sa taille.
+  const corps = document.querySelector('.visite-corps');
+  const scene = document.querySelector('.visite-scene');
+  const telV = document.querySelector('.tel-visite');
+  const coqueV = telV?.querySelector('.tel-coque');
+  if (!corps || !scene || !telV || !coqueV) return;
+  // Les positions réelles, au pixel près : offsetTop arrondit chaque parent
+  // à l'entier. Le téléphone du haut se lit sur sa figure, dont la seule
+  // transformation est l'entrée ; tant qu'elle joue, on se contente des
+  // positions arrondies. La scène de la visite est collée en haut, mais le
+  // téléphone y garde la même place : la cible ne dépend pas du défilement.
+  const doc = (r) => ({ x: r.left + window.scrollX, y: r.top + window.scrollY });
+  const entreeFinie = figureHaut.getAnimations().every((a) => a.playState === 'finished');
+  const tel = entreeFinie ? doc(figureHaut.getBoundingClientRect()) : placeSansTransformation(coqueHaut);
+  const fin = doc(corps.getBoundingClientRect()).y;
+  const rs = scene.getBoundingClientRect(), rt = telV.getBoundingClientRect();
+  const cible = { x: rt.left + window.scrollX, y: rt.top - rs.top };
+  racine.style.setProperty('--relais-fin', `${fin}px`);
+  // La lecture des cinq chapitres, pendant laquelle le téléphone collé
+  // pivote : du collage au décollage de sa colonne.
+  racine.style.setProperty('--visite-fin', `${Math.max(fin + 1, fin + corps.offsetHeight - window.innerHeight)}px`);
+  coqueHaut.style.setProperty('--relais-x', `${(cible.x - tel.x).toFixed(1)}px`);
+  coqueHaut.style.setProperty('--relais-y', `${(cible.y - (tel.y - fin)).toFixed(1)}px`);
+  coqueHaut.style.setProperty('--relais-k', (coqueV.offsetWidth / coqueHaut.offsetWidth).toFixed(4));
+  // Son écran passe des Rassos à la Carte, le premier écran de la visite.
+  const vitre = coqueHaut.querySelector('.tel-vitre');
+  if (vitre && !vitre.querySelector('.ecran-relais')) {
+    const image = document.createElement('picture');
+    image.innerHTML = '<source type="image/avif" srcset="/ecrans/carte-1020-800.avif" /><img class="ecran-relais" src="/ecrans/carte-1020-800.jpg" width="402" height="874" alt="" decoding="async" />';
+    vitre.insertBefore(image, vitre.querySelector('.tel-lumiere'));
+  }
+}
+
+// ---- Les pivots et le survol ----------------------------------------------------------
 // Les téléphones de la visite et les appareils de « Et sur tous tes écrans »
-// pivotent selon leur place dans la fenêtre : tournés de côté en arrivant
-// par le bas, bien de face au milieu, tournés de l'autre côté en partant par
-// le haut, comme un téléphone qu'on fait tourner dans la main. Au milieu de
-// l'écran, là où on lit, l'angle est presque nul. À la souris, ils
-// s'inclinent en plus vers le pointeur, avec un peu d'inertie.
+// pivotent selon leur place dans la fenêtre : c'est aussi du CSS piloté par
+// le défilement (site.css, pivotChapitre et les suivants), depuis le
+// 21 octobre 2026. Reste ici le survol, à la souris : la vitre penche du
+// côté du pointeur, 6 degrés au plus, avec un peu d'inertie. Il passe par la
+// propriété `rotate`, qui s'ajoute à la transformation de l'animation sans
+// la remplacer.
 
-// Amplitudes en degrés : rotation (Y, le pivot qu'on voit), basculement
-// (X, plus discret), et perspective en px. Les angles pleins ne se voient
-// qu'aux bords de la fenêtre ; au milieu, moins de 3 degrés.
-const GENRES = {
-  chapitre: { ax: 7, ay: 18, persp: 1000 },
-  tablette: { ax: 5, ay: 10, persp: 1600 },
-  pliable: { ax: 5, ay: 12, persp: 1400 },
-  montres: { ax: 6, ay: 14, persp: 1100 },
-};
+const pivots = [
+  ...[...document.querySelectorAll('.tel-chapitre .tel-coque')],
+  document.querySelector('.appareil .tablette'),
+  document.querySelector('.appareil .pliable'),
+  document.querySelector('.appareil .montres'),
+  document.querySelector('.tel-visite .tel-coque'),
+].filter(Boolean).map((el) => ({ el, hx: 0, hy: 0, cx: 0, cy: 0 }));
 
-const pivots = [];
-function ajouterPivot(el, mesure, genre) {
-  if (el && mesure) pivots.push({ el, mesure, genre, hx: 0, hy: 0, cx: 0, cy: 0, visible: false });
-}
-document.querySelectorAll('.tel-chapitre').forEach((f) => ajouterPivot(f.querySelector('.tel-coque'), f, 'chapitre'));
-ajouterPivot(document.querySelector('.appareil .tablette'), document.querySelector('.appareil-tablette'), 'tablette');
-ajouterPivot(document.querySelector('.appareil .pliable'), document.querySelector('.appareil-pliable'), 'pliable');
-ajouterPivot(document.querySelector('.appareil .montres'), document.querySelector('.appareil-montres'), 'montres');
-// Le téléphone collant de la visite, sur un écran large : il pivote au fil
-// des cinq chapitres, et arrive tourné, comme pris en main.
-const corpsVisite = document.querySelector('.visite-corps');
-const visite = { el: document.querySelector('.tel-visite .tel-coque'), mesure: document.querySelector('.visite-scene'), genre: 'visite', hx: 0, hy: 0, cx: 0, cy: 0, visible: false };
-
-function poserPivot(p, vh) {
-  if (p.genre === 'visite') {
-    if (!large.matches || !corpsVisite) { p.el.style.transform = ''; return; }
-    const r = corpsVisite.getBoundingClientRect();
-    const arrivee = 1 - (1 - borne((vh - r.top) / vh)) ** 3;
-    const lecture = borne(-r.top / Math.max(1, r.height - vh));
-    const ry = -10 + 20 * lecture - 16 * (1 - arrivee) + p.cy;
-    const rx = 3 + 9 * (1 - arrivee) + p.cx;
-    p.el.style.transform = `perspective(1200px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
-    return;
-  }
-  const g = GENRES[p.genre];
-  const r = p.mesure.getBoundingClientRect();
-  if (!r.height) { p.el.style.transform = ''; return; }
-  // De 1 (il entre par le bas) à -1 (il sort par le haut), 0 au milieu.
-  const v = borne((r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2), -1, 1);
-  const rx = v * g.ax + p.cx;
-  const ry = -v * g.ay + p.cy;
-  const s = 1 - 0.035 * Math.abs(v);
-  p.el.style.transform = `perspective(${g.persp}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${s.toFixed(4)})`;
-}
-
-// Le survol : la vitre penche du côté du pointeur, comme une pression du
-// doigt. 6 degrés au plus, et le retour se fait en douceur.
 let survolEnCours = false;
 function brancherSurvol(p) {
-  const zone = p.genre === 'visite' ? p.el : p.mesure.querySelector(':scope > div');
-  if (!zone) return;
-  zone.addEventListener('pointermove', (e) => {
+  p.el.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse' || !pointeurFin.matches) return;
-    const r = zone.getBoundingClientRect();
+    const r = p.el.getBoundingClientRect();
     const px = borne(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1);
     const py = borne(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
     p.hx = -py * 5;
@@ -371,30 +341,36 @@ function brancherSurvol(p) {
     survolEnCours = true;
     demander();
   });
-  zone.addEventListener('pointerleave', () => { p.hx = 0; p.hy = 0; survolEnCours = true; demander(); });
+  p.el.addEventListener('pointerleave', () => { p.hx = 0; p.hy = 0; survolEnCours = true; demander(); });
 }
 
-function majSurvol(dt, vh) {
+function poserSurvol(p) {
+  const angle = Math.hypot(p.cx, p.cy);
+  p.el.style.rotate = angle < 0.01 ? '' : `${p.cx.toFixed(3)} ${p.cy.toFixed(3)} 0 ${angle.toFixed(2)}deg`;
+}
+
+function majSurvol(dt) {
   let bouge = false;
   const k = 1 - Math.exp(-dt / 140);
-  for (const p of [...pivots, visite]) {
-    if (!p.el) continue;
+  for (const p of pivots) {
     const dx = p.hx - p.cx, dy = p.hy - p.cy;
     if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) {
-      if (dx || dy) { p.cx = p.hx; p.cy = p.hy; poserPivot(p, vh); }
+      if (dx || dy) { p.cx = p.hx; p.cy = p.hy; poserSurvol(p); }
       continue;
     }
     p.cx += dx * k;
     p.cy += dy * k;
-    poserPivot(p, vh);
+    poserSurvol(p);
     bouge = true;
   }
   return bouge;
 }
 
 // ---- La boucle -----------------------------------------------------------------------
+// Elle ne sert plus qu'aux phares (une carte à l'écran) et au survol qui se
+// pose : rien ne s'y calcule au défilement.
 
-let rafId = 0, precedente = 0, defile = true, actif = true;
+let rafId = 0, precedente = 0, actif = true;
 
 function demander() {
   if (actif && !rafId) rafId = requestAnimationFrame(image);
@@ -405,7 +381,6 @@ function image(maintenant) {
   const dt = precedente ? Math.min(100, maintenant - precedente) : 0;
   precedente = maintenant;
   let encore = false;
-  const vh = window.innerHeight;
 
   const actives = CARTES.filter(carteActive);
   if (actives.length) {
@@ -420,15 +395,8 @@ function image(maintenant) {
     encore = true;
   }
 
-  if (defile) {
-    defile = false;
-    majRangement();
-    for (const p of pivots) if (p.visible) poserPivot(p, vh);
-    if (visite.el && visite.visible) poserPivot(visite, vh);
-  }
-
   if (survolEnCours) {
-    survolEnCours = majSurvol(dt, vh);
+    survolEnCours = majSurvol(dt);
     encore ||= survolEnCours;
   }
 
@@ -437,13 +405,9 @@ function image(maintenant) {
 }
 
 function mesurer() {
-  hauteurOuverture = carteHaut?.section.offsetHeight || window.innerHeight;
-  // La part du téléphone au-dessus du bord bas du premier écran, sans les
-  // transformations (offsetTop les ignore).
-  partVisible = figureHaut ? Math.max(0, hauteurOuverture - figureHaut.offsetTop) : 0;
+  mesurerTelephone();
   CARTES.forEach(dimensionner);
   derniereImagePhares = 0;
-  defile = true;
   demander();
 }
 
@@ -458,12 +422,12 @@ function demarrer() {
     else window.addEventListener('load', go, { once: true });
   }
 
-  if (RANGEMENT === 'b' && carteHaut) {
-    couvercle = document.createElement('div');
-    couvercle.className = 'couvercle';
-    couvercle.setAttribute('aria-hidden', 'true');
-    carteHaut.section.append(couvercle);
-  }
+  // Les mesures du téléphone se reprennent quand les repères ont été recalés
+  // (main.js, 1,3 s et 9,2 s) et quand la ville a fini de se poser.
+  setTimeout(mesurerTelephone, 1500);
+  setTimeout(mesurerTelephone, 9600);
+  // Et dès que l'entrée du téléphone est finie : les positions exactes.
+  figureHaut?.addEventListener('animationend', (e) => { if (e.target === figureHaut) mesurerTelephone(); });
 
   if ('IntersectionObserver' in window) {
     for (const c of CARTES) {
@@ -480,26 +444,10 @@ function demarrer() {
       }, { rootMargin: '1200px 0px' });
       approche.observe(carteBas.section);
     }
-    const io = new IntersectionObserver((entrees) => {
-      for (const e of entrees) {
-        const p = e.target === visite.mesure ? visite : pivots.find((x) => x.mesure === e.target);
-        if (!p) continue;
-        p.visible = e.isIntersecting;
-      }
-      defile = true;
-      demander();
-    }, { rootMargin: '15% 0px' });
-    pivots.forEach((p) => io.observe(p.mesure));
-    if (visite.el && visite.mesure) io.observe(visite.mesure);
-  } else {
-    pivots.forEach((p) => { p.visible = true; });
-    visite.visible = true;
   }
 
   pivots.forEach(brancherSurvol);
-  if (visite.el) brancherSurvol(visite);
 
-  window.addEventListener('scroll', () => { defile = true; demander(); }, { passive: true });
   window.addEventListener('resize', mesurer, { passive: true });
   if ('ResizeObserver' in window) {
     const ro = new ResizeObserver(() => mesurer());
@@ -512,18 +460,14 @@ function demarrer() {
 }
 
 // Moins d'animations demandé en cours de route : tout se fige et reprend sa
-// place, les cartes sans leurs phares.
+// place, les cartes sans leurs phares (les animations du CSS s'arrêtent
+// d'elles-mêmes, elles sont sous prefers-reduced-motion: no-preference).
 function arreter() {
   actif = false;
   cancelAnimationFrame(rafId);
   rafId = 0;
   for (const c of CARTES) { c.toile?.remove(); c.toile = null; }
-  for (const p of [...pivots, visite]) if (p.el) p.el.style.transform = '';
-  if (coqueHaut) {
-    coqueHaut.style.transform = '';
-    coqueHaut.classList.remove('verrouille');
-  }
-  couvercle?.remove();
+  for (const p of pivots) p.el.style.rotate = '';
 }
 
 if (!moins.matches) {

@@ -432,9 +432,20 @@ poserTout();
 portrait.addEventListener?.('change', poserTout);
 window.addEventListener('resize', () => requestAnimationFrame(poserTout), { passive: true });
 document.fonts?.ready.then(poserTout);
-// Après les apparitions du premier écran et la pose de la ville.
-setTimeout(poserTout, 1300);
-setTimeout(poserTout, reduit ? 0 : 9200);
+// Après les apparitions du premier écran et la pose de la ville : recaler et
+// remasquer seulement. Reconstruire les repères à 9,2 s forçait la mise en
+// page de toute la page, souvent en plein défilement : jusqu'à 248 ms de
+// blocage sur un téléphone (mesuré le 21 octobre 2026).
+const recaler = () => {
+  caler();
+  requestAnimationFrame(() => {
+    masquer(document.querySelector('[data-reperes]'), obstaclesHaut());
+    masquer(document.querySelector('[data-reperes-region]'), obstaclesRegion());
+  });
+};
+const auRepos = (f) => (window.requestIdleCallback ? requestIdleCallback(f, { timeout: 1000 }) : setTimeout(f, 0));
+setTimeout(() => auRepos(recaler), 1300);
+setTimeout(() => auRepos(recaler), reduit ? 0 : 9200);
 
 // ---- Le tableau des départs ------------------------------------------------------
 // Sur un écran large, l'affiche du type survolé s'allume en grand à côté.
@@ -565,7 +576,21 @@ function majVille() {
   ville.style.transform = zoomEchelle === 1 ? '' : `scale(${zoomEchelle.toFixed(4)})`;
 }
 
-if (ville && ouverture && !reduit) {
+// Là où le navigateur sait piloter une animation par le défilement (Chrome
+// 115, Safari 26), la plongée est en CSS (site.css, villePlonge) : seul son
+// point d'origine se pose ici. Ailleurs, l'ancienne façon, image par image.
+const defilementPilote = window.CSS?.supports?.('animation-timeline: scroll()');
+if (ville && ouverture && !reduit && defilementPilote) {
+  const poserOrigine = () => {
+    const o = origineZoom();
+    if (!o) return;
+    ville.style.setProperty('--ville-ox', `${o.x.toFixed(1)}px`);
+    ville.style.setProperty('--ville-oy', `${o.y.toFixed(1)}px`);
+  };
+  window.addEventListener('resize', () => requestAnimationFrame(poserOrigine), { passive: true });
+  setTimeout(poserOrigine, 1400);
+  setTimeout(poserOrigine, 9400);
+} else if (ville && ouverture && !reduit) {
   ville.style.willChange = 'transform';
   const planifierVille = () => {
     if (zoomPlanifie || ouverture.classList.contains('hors-vue')) return;
