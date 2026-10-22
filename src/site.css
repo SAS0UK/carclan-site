@@ -1225,6 +1225,10 @@ html.js .onglets-panneau[hidden].sort {
 @media (max-width: 640px) {
   .appareils-grille { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: var(--s-7); }
   .appareil { grid-row: auto; grid-template-rows: auto auto; }
+  /* Sur téléphone, le nom et le texte passent au-dessus de leur appareil :
+     sous l'image, après le filet, ils semblaient présenter l'appareil suivant
+     (retour de Mathys du 22 oct, sur iPhone). */
+  .appareil figcaption { order: -1; }
   .appareil-tablette { margin-bottom: 0; }
   .appareils-tete p { font-size: 17px; }
   .appareil-montres .montres { max-width: 340px; }
