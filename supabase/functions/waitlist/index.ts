@@ -60,7 +60,7 @@ const ressembleAUnEmail = (v: string) =>
 // police chargee ne survit (Archivo est donc impossible, on tombe sur la
 // police systeme, SF Pro sur iPhone), et certains clients bloquent les images.
 // Le caractere vient donc de l'espace, de l'echelle, de l'ambre (le filet du
-// haut, le mot-symbole, le bouton) et d'UNE image : le Maillon en enseigne.
+// haut, le mot-symbole, le bouton) et d'UNE image : le Maillon sur sol mouille.
 // Elle n'est pas indispensable : bloquee, le mot-symbole et tout le texte
 // restent. Son adresse est fixe, la meme pour tout le monde, jamais une par
 // destinataire : ce n'est pas un pixel espion, la politique de
@@ -69,14 +69,12 @@ const P = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sa
 const NUIT = '#0f0e0c', CRAIE = '#f3efe8', BITUME = '#8e897f', BITUME_CLAIR = '#aba69c';
 const AMBRE = '#e2a21f', TRAIT = '#6e6a62', FILET = '#211f1d';
 
-// L'image vit sur le site, `public/email/logo.png` : le rendu « enseigne en
-// relief » du Maillon, valide par Mathys le 3 novembre 2026 pour l'app, le
-// site et l'e-mail (source : CarClan/01 Logo et identite/Refonte du rendu
-// 2026-11/E-mail/logo.png). 440 px de cote pour 220 affiches, bords
-// exactement NUIT et fondu rond, d'ou aucune arete sur le fond ; le reflet
-// s'eteint avant le bas, jamais coupe net. Un nouveau logo = un nouveau
-// fichier au meme chemin et une publication du site, sans toucher a cette
-// fonction.
+// L'image vit sur le site (`public/email/logo.png`, faite par
+// `tools/email-logo.py`). L'app et le site ont le rendu « enseigne en
+// relief » ; l'e-mail, et lui seul, garde le sol mouille : choix de Mathys
+// du 3 novembre 2026, apres avoir vu les deux dans l'e-mail. Un nouveau logo = un nouveau fichier au meme
+// chemin et une publication du site, sans toucher a cette fonction. Ses bords
+// sont exactement NUIT, d'ou aucune arete sur le fond.
 const LOGO = 'https://carclan.fr/email/logo.png';
 const LOGO_COTE = 220;
 
