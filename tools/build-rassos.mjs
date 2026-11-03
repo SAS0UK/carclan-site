@@ -24,10 +24,11 @@ const SUPABASE_KEY = 'sb_publishable_5BXrkwGrcB-YXA2uN5UqAA_mAY3iScd';
 const SITE_URL = 'https://carclan.fr';
 const DEFAULT_IMAGE = `${SITE_URL}/og.jpg`;
 const OUT_DIR = path.resolve('dist', 'rasso');
-// A remplacer par le vrai lien de la fiche App Store des la publication
-// (TestFlight puis App Store, prevue le 25 octobre 2026). Meme repli que
+// Les fiches des stores, a remplir le jour de la publication. Vides, on
+// reste sur la fiche avec un mot sur la sortie. Meme repli que
 // public/404.html.
-const APP_STORE_URL = SITE_URL;
+const APP_STORE_URL = '';
+const PLAY_STORE_URL = '';
 
 const TYPE_LABELS = {
   gathering: 'Rassemblement',
@@ -394,13 +395,15 @@ export function renderRassoPage(page) {
   </div>
 </main>
 <footer class="barre">
+  <p id="sans-app" class="sans-app" hidden role="status">CarClan arrive sur l’App Store et Google Play cet hiver. <a href="/#liste">Être prévenu de la sortie</a></p>
   <div class="barre-contenu">
     <a class="bouton bouton-ambre" id="open-app" href="carclan://events/${escapeHtml(page.id)}" rel="noopener">Ouvrir dans CarClan</a>
   </div>
 </footer>
 <script>
   // Ouvre l'app par son schema, et si rien n'a pris la main (la page reste
-  // visible passe un delai court), retombe sur l'App Store. Meme mecanique
+  // visible passe un delai court), retombe sur le store, ou sur le mot de la
+  // sortie tant qu'il n'y en a pas. Meme mecanique
   // que public/404.html, voir son commentaire pour le detail.
   (function () {
     var a = document.getElementById('open-app');
@@ -414,7 +417,12 @@ export function renderRassoPage(page) {
       window.location.href = scheme;
       setTimeout(function () {
         document.removeEventListener('visibilitychange', onHide);
-        if (!tookOver) window.location.href = ${JSON.stringify(APP_STORE_URL)};
+        if (tookOver) return;
+        var store = /android/i.test(navigator.userAgent)
+          ? ${JSON.stringify(PLAY_STORE_URL)}
+          : ${JSON.stringify(APP_STORE_URL)};
+        if (store) { window.location.href = store; return; }
+        document.getElementById('sans-app').hidden = false;
       }, 1500);
     });
   })();

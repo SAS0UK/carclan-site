@@ -405,6 +405,9 @@
       }
 
       .barre .bouton-ambre { flex: 1 1 auto; }
+      /* Le repli sans l app (build 16, lot 2) : on reste sur la fiche. */
+      .sans-app { max-width: var(--largeur); margin: 0 auto; padding: 12px var(--page) 0; font-size: 14px; line-height: 20px; color: var(--bitume); }
+      .sans-app a { color: var(--craie); }
 
       /* ---- Les etats sans fiche ------------------------------------------ */
 
@@ -498,6 +501,7 @@
     </div>
 
     <footer id="barre" class="barre" hidden>
+      <p id="sans-app" class="sans-app" hidden role="status">CarClan arrive sur l’App Store et Google Play cet hiver. <a href="/#liste">Être prévenu de la sortie</a></p>
       <div class="barre-contenu">
         <a id="partager" class="carre" href="#" hidden aria-label="Partager"></a>
         <a id="ouvrir" class="bouton bouton-ambre" rel="noopener">Ouvrir dans CarClan</a>
@@ -508,16 +512,23 @@
       (function () {
         var SUPABASE_URL = 'https://zheixbgssdfquresgtai.supabase.co';
         var SUPABASE_KEY = 'sb_publishable_5BXrkwGrcB-YXA2uN5UqAA_mAY3iScd';
-        // A remplacer par le vrai lien de la fiche App Store des la publication
-        // (TestFlight puis App Store, prevue le 25 octobre 2026). En attendant,
-        // quelqu'un sans l'app retombe sur le site plutot que sur une erreur.
-        var APP_STORE_URL = 'https://carclan.fr';
+        // Les fiches des stores, a remplir le jour de la publication. Vides,
+        // quelqu'un sans l'app reste sur la fiche avec un mot sur la sortie,
+        // au lieu d'etre renvoye a l'accueil (le P0 du 28 octobre 2026 : il
+        // retombait sur la page ou il etait deja).
+        var APP_STORE_URL = '';
+        var PLAY_STORE_URL = '';
+        var ANDROID = /android/i.test(navigator.userAgent);
         var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
         // Ouvre l'app par son schema `carclan://`, et si rien n'a pris la main
-        // (la page reste visible passe un delai court), retombe sur l'App
-        // Store. Aucun besoin d'Associated Domains ni de compte payant : c'est
-        // une bascule cote page web, pas un lien universel iOS. Le seul signal
+        // (la page reste visible passe un delai court), retombe sur le store
+        // ou, tant qu'il n'y en a pas, sur le mot de la sortie. Depuis le
+        // build 16, le lien universel (apple-app-site-association,
+        // assetlinks.json) ouvre deja l'app avant cette page quand elle est
+        // installee ; ce bouton reste pour les navigateurs internes
+        // (Instagram, Facebook) qui n'ouvrent jamais d'app par un lien https.
+        // Le seul signal
         // fiable sur iOS Safari est que l'onglet passe en arriere-plan quand
         // l'app prend le relais ; sans ce signal dans le delai, on suppose
         // qu'elle n'est pas installee.
@@ -528,7 +539,10 @@
           window.location.href = scheme;
           setTimeout(function () {
             document.removeEventListener('visibilitychange', onHide);
-            if (!tookOver) window.location.href = APP_STORE_URL;
+            if (tookOver) return;
+            var store = ANDROID ? PLAY_STORE_URL : APP_STORE_URL;
+            if (store) { window.location.href = store; return; }
+            byId('sans-app').hidden = false;
           }, 1500);
         }
 
