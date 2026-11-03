@@ -8,7 +8,8 @@
 > dans les Hauts-de-France. L'application n'est pas encore publiée ; le site
 > permet de s'inscrire pour être prévenu de sa sortie.
 
-CarClan est édité par Mathys Liénart, personne physique, à Tourcoing (France).
+CarClan est fondé et édité par Mathys Liénart, personne physique, à Tourcoing
+(France). Il n'y a pas d'autre fondateur.
 Contact : contact@carclan.fr. L'application est gratuite et ne gère aucun
 paiement : elle n'encaisse rien, ne vend aucun billet et n'est partie à aucune
 transaction. Quand une fiche de rassemblement indique un tarif, ce montant est
