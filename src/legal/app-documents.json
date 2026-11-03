@@ -1,12 +1,12 @@
 {
-  "updatedOn": "22 octobre 2026",
+  "updatedOn": "3 novembre 2026",
   "publisherName": "Mathys Liénart",
   "publisherCity": "Tourcoing (France)",
   "contactEmail": "contact@carclan.fr",
   "minimumAge": 15,
   "terms": {
     "title": "Conditions générales d’utilisation",
-    "updatedOn": "22 octobre 2026",
+    "updatedOn": "3 novembre 2026",
     "intro": "Ces conditions encadrent l’utilisation de l’application mobile CarClan. En créant un compte, vous les acceptez. Elles disent ce que CarClan fait pour vous, ce que vous vous engagez à respecter, et ce qui se passe quand ce n’est pas le cas.",
     "sections": [
       {
@@ -120,7 +120,7 @@
   },
   "privacy": {
     "title": "Politique de confidentialité",
-    "updatedOn": "22 octobre 2026",
+    "updatedOn": "3 novembre 2026",
     "intro": "Cette politique explique quelles données CarClan collecte, pourquoi, où elles sont stockées et comment exercer vos droits. Elle s’applique à l’application mobile CarClan et respecte le règlement général sur la protection des données (RGPD).",
     "sections": [
       {
@@ -321,7 +321,7 @@
   },
   "legalNotice": {
     "title": "Mentions légales et contact",
-    "updatedOn": "22 octobre 2026",
+    "updatedOn": "3 novembre 2026",
     "intro": "Qui édite CarClan, où sont hébergées les données, et comment nous écrire.",
     "sections": [
       {
