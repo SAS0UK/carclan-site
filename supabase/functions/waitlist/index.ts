@@ -78,6 +78,9 @@ const AMBRE = '#e2a21f', TRAIT = '#6e6a62', FILET = '#211f1d';
 // - chaque texte est enveloppe de deux calques fusionnes (ecran puis
 //   difference, sur du noir) que seul Gmail voit, grace au selecteur
 //   `u + .body` : Gmail inverse le texte, les calques le re-inversent.
+//   Gmail n'inverse que les gris et les blancs : un texte de couleur (l'ambre
+//   de CARCLAN) reste tel quel, et l'envelopper le rendait bleu (capture de
+//   Mathys, version 15). Seuls les textes neutres sont donc enveloppes.
 const plein = (c: string) => `background:${c};background-image:linear-gradient(${c},${c});`;
 const STYLE_GMAIL = `<style>
 u + .body .gm-ecran { background:#000000; mix-blend-mode:screen; }
@@ -150,7 +153,7 @@ const lueurHaut = () => LUEUR.map((fond, i) => bande(2 + Math.round(i / 3), fond
 const marque = () => `<tr><td align="center" style="padding:0 24px;font-size:0;line-height:0;">
 <img src="${LOGO}" width="${LOGO_COTE}" height="${LOGO_COTE}" alt="" style="display:block;margin:0 auto;width:${LOGO_COTE}px;height:${LOGO_COTE}px;border:0;outline:none;" />
 </td></tr>
-<tr><td align="center" style="padding:4px 24px 0;">${garde(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>`)}</td></tr>`;
+<tr><td align="center" style="padding:4px 24px 0;"><span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span></td></tr>`;
 
 const air = (h: number) => `<tr><td style="height:${h}px;font-size:0;line-height:${h}px;">&nbsp;</td></tr>`;
 
