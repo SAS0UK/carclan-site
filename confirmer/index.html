@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Confirmer ton adresse · CarClan</title>
+    <meta name="description" content="Confirme ton adresse pour entrer sur la liste d’attente de CarClan." />
+    <meta name="theme-color" content="#0f0e0c" />
+    <meta name="color-scheme" content="dark" />
+    <!-- Une page de passage, liée seulement depuis l'e-mail : rien à indexer,
+         et l'adresse porte le jeton, qui ne doit partir vers aucun site. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icone-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/Archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      html { background: #0f0e0c; }
+      body { margin: 0; }
+      .confirmer { max-width: 34rem; }
+      .confirmer .btn { margin-top: 32px; }
+      .confirmer [data-etat] { min-height: 24px; margin-top: 16px; }
+      /* Le focus va au titre pour le lecteur d écran, sans cadre à l écran. */
+      .confirmer [data-titre]:focus { outline: none; }
+    </style>
+    <script type="module" src="/src/confirmer.js"></script>
+  </head>
+  <body>
+    <header class="legal-topbar">
+      <a class="marque" href="/" aria-label="CarClan, accueil">
+        <img src="/le-maillon.svg" alt="" width="28" height="28" />
+        <span class="t-marque">CARCLAN</span>
+      </a>
+      <a class="retour" href="/"><svg class="ic" aria-hidden="true"><use href="#cc-suivant" /></svg>Retour au site</a>
+    </header>
+
+    <main id="doc" class="doc">
+      <div class="doc-tete confirmer">
+        <p class="t-surtitre">Liste d’attente</p>
+        <h1 class="t-affiche" data-titre tabindex="-1">Plus qu’un geste.</h1>
+        <p class="chapeau" data-chapeau>Touche le bouton pour entrer sur la liste d’attente. On t’écrira le jour où CarClan arrive sur iPhone et Android.</p>
+        <button class="btn btn-ambre" type="button" data-confirmer><span data-libelle>Confirmer mon adresse</span></button>
+        <p class="chapeau" data-etat aria-live="polite"></p>
+      </div>
+    </main>
+  </body>
+</html>

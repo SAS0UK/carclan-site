@@ -30,7 +30,11 @@
 // Mathys (jusqu'au site vitrine, au plus tard fin 2027) et l'export d'analyse
 // détruit après usage. Les inscrits d'avant gardent la durée qu'on leur avait
 // annoncée, que `consent_version` permet de retrouver.
-export const SITE_VERSION = '20 octobre 2026';
+// Le 3 novembre 2026 (build 16) : la double confirmation de la liste
+// d'attente, l'empreinte d'IP gardée deux jours pour les plafonds, l'adresse
+// non confirmée effacée à 30 jours. **Date à remettre au jour de la mise en
+// ligne**, ici et dans `src/legal-version.js`.
+export const SITE_VERSION = '3 novembre 2026';
 
 const EDITEUR = 'Mathys Liénart';
 const VILLE = 'Tourcoing (France)';
@@ -140,21 +144,23 @@ export const PAGES = [
       {
         titre: 'La liste d’attente',
         blocs: [
-          'C’est le seul formulaire du site. Quand vous y inscrivez votre adresse, trois informations sont enregistrées :',
+          'C’est le seul formulaire du site. Quand vous y inscrivez votre adresse, nous vous envoyons un lien pour la confirmer : **vous n’êtes sur la liste qu’une fois ce lien touché.** C’est ce qui garantit que personne ne peut y inscrire l’adresse d’un autre. Ces informations sont enregistrées :',
           {
             tableau: {
               entetes: ['Donnée', 'Pourquoi', 'Combien de temps'],
               lignes: [
-                ['Votre adresse e-mail', 'Vous envoyer un e-mail de confirmation au moment de l’inscription, puis un message le jour où CarClan sort, et rien d’autre.', 'Jusqu’à ce que le site devienne la vitrine de l’application sortie, et au plus tard le 31 décembre 2027.'],
-                ['La date de votre inscription', 'Prouver quand le consentement a été donné, comme le RGPD l’exige.', 'Idem.'],
-                ['La version de cette politique', 'Savoir quel texte vous aviez sous les yeux au moment de vous inscrire.', 'Idem.'],
+                ['Votre adresse e-mail', 'Vous envoyer le lien de confirmation, puis un message le jour où CarClan sort, et rien d’autre.', 'Confirmée : jusqu’à ce que le site devienne la vitrine de l’application sortie, et au plus tard le 31 décembre 2027. Jamais confirmée : 30 jours, puis elle est effacée.'],
+                ['La date de votre inscription, et celle de votre confirmation', 'Prouver quand le consentement a été donné, comme le RGPD l’exige.', 'Comme l’adresse.'],
+                ['La version de cette politique', 'Savoir quel texte vous aviez sous les yeux au moment de vous inscrire.', 'Comme l’adresse.'],
+                ['Une empreinte du lien de confirmation', 'Reconnaître le lien quand vous le touchez. Le lien lui-même n’est écrit que dans l’e-mail.', 'Comme l’adresse. Le lien ne marche que 7 jours.'],
+                ['Une empreinte de votre adresse IP, à chaque envoi', 'Limiter le nombre d’e-mails qu’une même connexion peut faire partir, pour que le formulaire ne serve pas à écrire à des inconnus. L’adresse IP elle-même n’est jamais gardée : seulement une empreinte chiffrée, impossible à retourner, qui ne sert qu’à compter.', '2 jours.'],
               ],
             },
           },
           'Si vous vous êtes inscrit avant le 28 septembre 2026 à 16 h 30, votre adresse suit la durée qui vous avait été annoncée : jusqu’à la sortie de l’application, puis trois mois au plus.',
           'Au terme de cette durée, la liste ne s’efface pas d’elle-même : aucun effacement automatique n’est programmé, c’est l’éditeur qui la supprime lui-même. Juste avant, il en tire un export qui sert à une seule chose : mesurer quand et d’où sont venues les inscriptions. Cet export n’est transmis à personne, ne sert à écrire à personne, et il est supprimé une fois cette mesure faite.',
           '**La base légale est votre consentement** : vous saisissez votre adresse vous-même, sous un texte qui dit à quoi elle sert. Vous pouvez le retirer à tout moment en écrivant à l’adresse de contact, ce qui entraîne l’effacement de votre adresse.',
-          'Ces adresses sont enregistrées dans une base exploitée par **Supabase** (Supabase Pte. Ltd, Singapour), sur des serveurs situés à Francfort, dans l’Union européenne, et ne sont lues que par l’éditeur. Les deux e-mails sont envoyés par **Resend** (Plus Five Five, Inc., États-Unis), qui reçoit pour cela votre adresse, le message et des données techniques d’envoi, et traite l’essentiel de ses données aux États-Unis. Ces transferts hors de l’Union sont détaillés [plus bas](#transferts-hors-de-l-union-europeenne). Votre adresse n’est jamais revendue, ni transmise à un annonceur, ni utilisée pour une lettre d’information.',
+          'Ces adresses sont enregistrées dans une base exploitée par **Supabase** (Supabase Pte. Ltd, Singapour), sur des serveurs situés à Francfort, dans l’Union européenne, et ne sont lues que par l’éditeur. Les deux e-mails (le lien de confirmation, puis celui de la sortie) sont envoyés par **Resend** (Plus Five Five, Inc., États-Unis), qui reçoit pour cela votre adresse, le message et des données techniques d’envoi, et traite l’essentiel de ses données aux États-Unis. Ces transferts hors de l’Union sont détaillés [plus bas](#transferts-hors-de-l-union-europeenne). Votre adresse n’est jamais revendue, ni transmise à un annonceur, ni utilisée pour une lettre d’information.',
           'Le formulaire porte un champ caché que seul un robot remplit. Sa valeur n’est jamais enregistrée : elle sert uniquement à écarter les envois automatiques.',
         ],
       },
@@ -169,7 +175,7 @@ export const PAGES = [
       {
         titre: 'Les e-mails que vous nous envoyez',
         blocs: [
-          `Quand vous écrivez à [${CONTACT}](mailto:${CONTACT}), directement ou en répondant à l’e-mail de confirmation de la liste d’attente, nous recevons votre adresse, votre nom s’il apparaît, et le contenu de votre message.`,
+          `Quand vous écrivez à [${CONTACT}](mailto:${CONTACT}), directement ou en répondant à un e-mail de la liste d’attente, nous recevons votre adresse, votre nom s’il apparaît, et le contenu de votre message.`,
           'Ces messages ne servent qu’à vous répondre et à suivre votre demande : une question, un partenariat, un rassemblement à publier, l’exercice de vos droits ou une inscription à la main sur la liste d’attente. Cela relève de notre intérêt légitime à répondre à qui nous écrit, et de nos obligations légales quand vous exercez vos droits. Une inscription à la liste d’attente demandée par e-mail repose, comme celle du formulaire, sur votre consentement.',
           'Cette boîte est hébergée par **OVH** (OVH SAS, France). Vos messages y restent le temps de traiter votre demande et d’en garder la trace. Nous ne vous annonçons pas de durée maximale : aucun effacement n’y est programmé, et un délai écrit ici serait une promesse que rien ne tient encore. Vous pouvez demander à tout moment l’effacement de vos messages, à la même adresse.',
         ],

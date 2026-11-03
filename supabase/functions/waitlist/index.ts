@@ -1,19 +1,32 @@
-// Inscription à la liste d'attente de CarClan, et accusé de réception.
+// Inscription à la liste d'attente de CarClan, avec double confirmation.
 //
-// Pourquoi une fonction plutôt que l'insertion directe d'avant : il faut un
-// secret (la clé Resend) pour envoyer le message, et un secret ne peut pas
-// vivre dans une page. L'insertion elle-même n'a pas changé de nature, elle
-// passe toujours par PostgREST avec la clé publiable, donc toujours sous les
-// règles RLS de la table : `waitlist` n'accepte que l'insertion de trois
-// colonnes, jamais la lecture.
+// Build 16 (faille haute de l'audit du 28 octobre 2026, décision de Mathys du
+// 3 novembre) : la fonction envoyait un accusé de réception à chaque adresse
+// neuve, sans aucune limite, sur le quota Resend des e-mails de connexion, et
+// disait si une adresse était déjà inscrite. Désormais :
 //
-// Règle qui tient tout le reste : l'e-mail est un supplément. Si Resend est
-// absent, en panne ou lent, l'inscription est quand même enregistrée et la
-// personne voit sa confirmation. On ne perd jamais une adresse pour un
-// message qui n'est pas parti.
+// - l'e-mail est un lien « Confirmez votre adresse » ; seule une adresse
+//   confirmée est sur la liste (et dans le compteur public), une adresse non
+//   confirmée est effacée au bout de 30 jours ;
+// - les plafonds (par IP, pour tout le site, par adresse) et le choix
+//   d'envoyer vivent dans la base, `waitlist_inscrire` (migration 0134), qui
+//   ne s'appelle qu'avec la clé de service ;
+// - la réponse au navigateur est la même que l'adresse soit neuve, déjà
+//   inscrite, confirmée ou plafonnée : `fait`. Plus d'oracle ;
+// - l'IP n'est jamais gardée : seulement son empreinte salée, deux jours.
+//
+// Deux appels, tous deux en POST depuis le site :
+//   { email, consent_version, website }  → s'inscrire ;
+//   { jeton }                            → confirmer (page /confirmer/).
+// Confirmer passe par un bouton de la page, jamais par la seule ouverture du
+// lien : les antivirus de messagerie ouvrent les liens tout seuls, et
+// confirmeraient à la place de la personne.
 
 const URL_SUPABASE = Deno.env.get('SUPABASE_URL')!;
-const CLE_PUBLIABLE = Deno.env.get('SUPABASE_ANON_KEY')!;
+const CLE_SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+// Le sel des empreintes d'IP. Sans secret dédié, la clé de service en tient
+// lieu : elle ne quitte jamais le serveur.
+const SEL_IP = Deno.env.get('WAITLIST_SEL') ?? CLE_SERVICE;
 const CLE_RESEND = Deno.env.get('RESEND_API_KEY') ?? '';
 // `noreply@carclan.fr` n'est PAS une boîte aux lettres : c'est une identité
 // d'expédition, autorisée parce que le domaine carclan.fr est vérifié chez
@@ -54,21 +67,26 @@ const P = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sa
 const NUIT = '#0f0e0c', CRAIE = '#f3efe8', BITUME = '#8e897f', BITUME_CLAIR = '#aba69c';
 const AMBRE = '#e2a21f', TRAIT = '#6e6a62', FILET = '#211f1d';
 
-const OBJET = "C’est noté, vous êtes sur la liste";
+const OBJET = 'Confirmez votre adresse pour CarClan';
 
-const TEXTE = `Bienvenue dans le clan.
+// Le lien vaut 7 jours (`waitlist_inscrire`).
+const LIEN = (jeton: string) => `https://carclan.fr/confirmer/?jeton=${jeton}`;
 
-Merci d’être là avant tout le monde. On vous écrit dès que CarClan arrive
-sur iPhone et Android.
+const TEXTE = (lien: string) => `Plus qu’un geste.
 
-Vous organisez des rassos, vous tenez un garage ou une enseigne ? Répondez
-simplement à ce message.
+Confirmez votre adresse pour entrer sur la liste d’attente de CarClan.
+On vous écrira le jour où l’application arrive sur iPhone et Android.
+
+Confirmer mon adresse :
+${lien}
+
+Le lien vaut 7 jours.
+
+Vous n’avez rien demandé ? Ignorez ce message : sans confirmation,
+l’adresse est effacée sous 30 jours et vous ne recevrez plus rien.
 
 https://carclan.fr
-Tous les rassos. Un seul clan.
-
-Vous recevez ce message parce que cette adresse a été laissée sur carclan.fr.
-Pour sortir de la liste, écrivez à contact@carclan.fr, l’adresse est effacée.`;
+Tous les rassos. Un seul clan.`;
 
 // Un filet d'un pixel, pas une bordure : les bordures de tableau se dedoublent
 // d'un client a l'autre, une rangee de 1 px de haut ne bouge jamais.
@@ -107,16 +125,16 @@ const lueurHaut = (marque: string) =>
 
 const air = (h: number) => `<tr><td style="height:${h}px;font-size:0;line-height:${h}px;">&nbsp;</td></tr>`;
 
-const html = () => `<!doctype html>
+const html = (lien: string) => `<!doctype html>
 <html lang="fr"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="color-scheme" content="dark" />
 <meta name="supported-color-schemes" content="dark" />
-<title>C’est not\u00e9</title>
+<title>Confirmez votre adresse</title>
 </head>
 <body style="margin:0;padding:0;background:${NUIT};">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">On vous \u00e9crit d\u00e8s que CarClan arrive sur iPhone et Android.</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">Un geste pour entrer sur la liste d\u2019attente de CarClan.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NUIT};">
 <tr><td style="height:3px;font-size:0;line-height:3px;background:${AMBRE};">&nbsp;</td></tr>
 ${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>`)}
@@ -130,19 +148,19 @@ ${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBR
 
   ${air(18)}
   <tr><td align="center" style="padding:0 20px;">
-    <h1 style="margin:0;font:700 36px/1.06 ${P};letter-spacing:-.03em;color:${CRAIE};">Bienvenue<br />dans le clan.</h1>
+    <h1 style="margin:0;font:700 36px/1.06 ${P};letter-spacing:-.03em;color:${CRAIE};">Plus qu’un<br />geste.</h1>
   </td></tr>
 
   ${air(22)}
   <tr><td align="center" style="padding:0 24px;">
-    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Merci d’\u00eatre l\u00e0 avant tout le monde. On vous \u00e9crit d\u00e8s que CarClan arrive sur iPhone et Android.</p>
+    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Confirmez votre adresse pour entrer sur la liste d’attente. On vous \u00e9crira le jour o\u00f9 CarClan arrive sur iPhone et Android.</p>
   </td></tr>
 
   ${air(38)}
   <tr><td align="center" style="padding:0 24px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
       <td align="center" bgcolor="${AMBRE}" style="border-radius:999px;">
-        <a href="https://carclan.fr" style="display:inline-block;padding:16px 34px;font:700 15px/1 ${P};letter-spacing:-.01em;color:#17140e;text-decoration:none;">Voir le site</a>
+        <a href="${lien}" style="display:inline-block;padding:16px 34px;font:700 15px/1 ${P};letter-spacing:-.01em;color:#17140e;text-decoration:none;">Confirmer mon adresse</a>
       </td>
     </tr></table>
   </td></tr>
@@ -151,7 +169,7 @@ ${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBR
   ${filet()}
   ${air(30)}
   <tr><td align="center" style="padding:0 28px;">
-    <p style="margin:0;font:400 15px/1.7 ${P};color:${BITUME};">Vous organisez des rassos, vous tenez un garage ou une enseigne&nbsp;? R\u00e9pondez simplement \u00e0 ce message.</p>
+    <p style="margin:0;font:400 15px/1.7 ${P};color:${BITUME};">Le lien vaut 7&nbsp;jours. Vous n’avez rien demand\u00e9&nbsp;? Ignorez ce message&nbsp;: sans confirmation, l’adresse est effac\u00e9e sous 30&nbsp;jours.</p>
   </td></tr>
 
   ${air(38)}
@@ -163,15 +181,16 @@ ${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBR
 
   ${air(18)}
   <tr><td align="center" style="padding:0 28px;">
-    <p style="margin:0;font:400 12px/1.8 ${P};color:${TRAIT};">Vous recevez ce message parce que cette adresse a \u00e9t\u00e9 laiss\u00e9e sur <a href="https://carclan.fr" style="color:${BITUME};text-decoration:none;">carclan.fr</a>. Pour sortir de la liste, \u00e9crivez \u00e0 <a href="mailto:contact@carclan.fr" style="color:${BITUME};text-decoration:none;">contact@carclan.fr</a>, l’adresse est effac\u00e9e.</p>
+    <p style="margin:0;font:400 12px/1.8 ${P};color:${TRAIT};">Vous recevez ce message parce que cette adresse a \u00e9t\u00e9 laiss\u00e9e sur <a href="https://carclan.fr" style="color:${BITUME};text-decoration:none;">carclan.fr</a>. Une question&nbsp;? \u00c9crivez \u00e0 <a href="mailto:contact@carclan.fr" style="color:${BITUME};text-decoration:none;">contact@carclan.fr</a>.</p>
   </td></tr>
 
 </table>
 </td></tr></table>
 </body></html>`;
 
-async function prevenir(email: string) {
+async function prevenir(email: string, jeton: string) {
   if (!CLE_RESEND) return { envoye: false, raison: 'RESEND_API_KEY absente' };
+  const lien = LIEN(jeton);
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -181,9 +200,8 @@ async function prevenir(email: string) {
         to: [email],
         reply_to: 'contact@carclan.fr',
         subject: OBJET,
-        text: TEXTE,
-        html: html(),
-        headers: { 'List-Unsubscribe': '<mailto:contact@carclan.fr?subject=Desinscription>' },
+        text: TEXTE(lien),
+        html: html(lien),
       }),
     });
     if (!res.ok) return { envoye: false, raison: `resend ${res.status} ${await res.text()}` };
@@ -193,67 +211,97 @@ async function prevenir(email: string) {
   }
 }
 
+const hex = (octets: ArrayBuffer) =>
+  Array.from(new Uint8Array(octets), (o) => o.toString(16).padStart(2, '0')).join('');
+
+const empreinte = async (texte: string) =>
+  hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texte)));
+
+// 32 octets au hasard, en hexadécimal : 64 caractères, sans rien à échapper
+// dans une adresse.
+const nouveauJeton = () => hex(crypto.getRandomValues(new Uint8Array(32)).buffer);
+
+const JETON_VALIDE = /^[0-9a-f]{64}$/;
+
+// L'IP vue par Supabase. `cf-connecting-ip` d'abord : c'est l'en-tête posé par
+// le réseau de Supabase, pas par le client. `x-forwarded-for` en repli, sa
+// première valeur.
+const ipDe = (req: Request) =>
+  req.headers.get('cf-connecting-ip') ??
+  req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+  'inconnue';
+
+const rpc = (nom: string, args: Record<string, unknown>) =>
+  fetch(`${URL_SUPABASE}/rest/v1/rpc/${nom}`, {
+    method: 'POST',
+    headers: {
+      apikey: CLE_SERVICE,
+      Authorization: `Bearer ${CLE_SERVICE}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  });
+
 Deno.serve(async (req: Request) => {
   const origine = req.headers.get('origin');
   const cors = entetes(origine);
+  const repondre = (etat: string, status = 200) =>
+    new Response(JSON.stringify({ etat }), { status, headers: cors });
 
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
-  if (req.method !== 'POST') return new Response('{"etat":"refus"}', { status: 405, headers: cors });
+  if (req.method !== 'POST') return repondre('refus', 405);
 
   let corps: Record<string, unknown>;
   try {
     corps = await req.json();
   } catch {
-    return new Response('{"etat":"refus"}', { status: 400, headers: cors });
+    return repondre('refus', 400);
+  }
+
+  // Confirmer, depuis le bouton de la page /confirmer/.
+  if (typeof corps.jeton === 'string') {
+    const jeton = corps.jeton.trim().toLowerCase();
+    if (!JETON_VALIDE.test(jeton)) return repondre('invalide');
+    const res = await rpc('waitlist_confirmer', { p_confirmation_hash: await empreinte(jeton) });
+    if (!res.ok) {
+      console.error('confirmation refusée', res.status, await res.text());
+      return repondre('echec', 502);
+    }
+    return repondre((await res.json()) === true ? 'confirme' : 'invalide');
   }
 
   // Le pot de miel du formulaire : un robot le remplit, une personne ne le
   // voit pas. On répond comme si tout allait bien, et rien ne part en base.
   if (typeof corps.website === 'string' && corps.website.trim() !== '') {
-    return new Response('{"etat":"fait"}', { status: 200, headers: cors });
+    return repondre('fait');
   }
 
   const email = String(corps.email ?? '').trim();
-  if (!ressembleAUnEmail(email)) {
-    return new Response('{"etat":"invalide"}', { status: 400, headers: cors });
-  }
+  if (!ressembleAUnEmail(email)) return repondre('invalide', 400);
 
   // `consent_version` dit quel texte la personne avait sous les yeux. On ne lui
   // invente pas de valeur par défaut : une preuve de consentement fabriquée ne
   // vaut rien, et la table la refuse déjà (NOT NULL, 1 à 32 caractères).
   const consentement = String(corps.consent_version ?? '').trim();
-  if (consentement.length < 1 || consentement.length > 32) {
-    return new Response('{"etat":"invalide"}', { status: 400, headers: cors });
-  }
+  if (consentement.length < 1 || consentement.length > 32) return repondre('invalide', 400);
 
-  const insertion = await fetch(`${URL_SUPABASE}/rest/v1/waitlist`, {
-    method: 'POST',
-    headers: {
-      apikey: CLE_PUBLIABLE,
-      Authorization: `Bearer ${CLE_PUBLIABLE}`,
-      'Content-Type': 'application/json',
-      Prefer: 'return=minimal',
-    },
-    // `source` est figé : la table a un CHECK qui n'accepte que 'site', et le
-    // laisser venir du client ne servait qu'à le faire refuser.
-    body: JSON.stringify({ email, source: 'site', consent_version: consentement }),
+  const jeton = nouveauJeton();
+  const res = await rpc('waitlist_inscrire', {
+    p_email: email,
+    p_consent_version: consentement,
+    p_ip_empreinte: await empreinte(`${SEL_IP}:${ipDe(req)}`),
+    p_confirmation_hash: await empreinte(jeton),
   });
-
-  // 409 : l'index unique sur lower(email). Déjà inscrite, donc pas de second
-  // message — le premier a déjà été envoyé le jour où elle s'est inscrite.
-  if (insertion.status === 409) {
-    return new Response('{"etat":"deja"}', { status: 200, headers: cors });
+  if (!res.ok) {
+    console.error('inscription refusée', res.status, await res.text());
+    return repondre('echec', 502);
   }
 
-  if (insertion.status !== 201 && insertion.status !== 204) {
-    console.error('insertion refusée', insertion.status, await insertion.text());
-    return new Response('{"etat":"echec"}', { status: 502, headers: cors });
+  // `rien` (déjà confirmée, déjà écrite dans les 24 h, plafond atteint) et
+  // `envoyer` répondent pareil au navigateur : c'est ce qui ferme l'oracle.
+  if ((await res.json()) === 'envoyer') {
+    const envoi = await prevenir(email, jeton);
+    if (!envoi.envoye) console.error('confirmation non envoyée', envoi.raison);
   }
-
-  // L'adresse est en base : à partir d'ici la personne est inscrite, quoi
-  // qu'il arrive au message. On l'attend quand même pour le tracer.
-  const envoi = await prevenir(email);
-  if (!envoi.envoye) console.error('accusé non envoyé', envoi.raison);
-
-  return new Response(JSON.stringify({ etat: 'fait', accuse: envoi.envoye }), { status: 200, headers: cors });
+  return repondre('fait');
 });

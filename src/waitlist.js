@@ -1,6 +1,6 @@
-// Liste d'attente : une insertion REST dans public.waitlist (migration 0046 du
-// dépôt CarClan). La clé publiable est publique par construction : la table
-// n'accepte que l'insertion de trois colonnes, sans lecture ni modification.
+// Liste d'attente : la fonction Edge `waitlist`, qui envoie un lien de
+// confirmation (double confirmation depuis le build 16, migration 0134 du
+// dépôt CarClan). La clé publiable ne sert plus qu'au compteur public.
 //
 // La version du consentement vient de `legal-version.js`, la même que celle
 // affichée en tête de la politique de confidentialité : c'est ce qui permet
@@ -28,9 +28,18 @@ const diagnostic = (v) => {
 
 // La confirmation rappelle l'adresse enregistrée : c'est la seule façon de
 // rattraper une faute de frappe une fois le champ effacé.
+// Depuis le build 16 (double confirmation, 3 novembre 2026), la fonction
+// répond `fait` dans tous les cas : adresse neuve, déjà inscrite, confirmée ou
+// plafonnée. Le site dit donc la seule chose vraie pour toutes : regarde ta
+// boîte. Le rappel de l'adresse rattrape une faute de frappe.
 const CONFIRMATION = {
-  fait: { titre: 'T’es sur la liste.', detail: (email) => (email ? `On écrit à ${email} le jour de la sortie.` : 'On t’écrit le jour de la sortie.') },
-  deja: { titre: 'T’es déjà sur la liste.', detail: (email) => (email ? `${email} est sur la liste depuis un moment. À bientôt.` : 'Cette adresse est déjà sur la liste. À bientôt.') },
+  fait: {
+    titre: 'Regarde ta boîte mail.',
+    detail: (email) =>
+      email
+        ? `Un lien part vers ${email}. Touche-le pour entrer sur la liste. Rien reçu\u00a0? Regarde dans les indésirables.`
+        : 'Un lien vient de partir. Touche-le pour entrer sur la liste.',
+  },
 };
 
 const ressembleAUnEmail = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
@@ -63,28 +72,6 @@ export async function setupCompteur(el) {
     el.hidden = false;
   } catch {
     // Le compteur est un supplément : son absence ne casse rien.
-  }
-}
-
-// Le chemin d'avant la fonction Edge, gardé comme filet. `waitlist` n'accepte
-// que l'insertion de trois colonnes sous RLS : la clé publiable ne donne rien
-// de plus ici que ce que le formulaire donne déjà.
-async function inscrireEnDirect(email, signal) {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-      method: 'POST',
-      signal,
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify({ email, source: 'site', consent_version: CONSENT_VERSION }),
-    });
-    return res.status === 201 || res.status === 204 || res.status === 409;
-  } catch {
-    return false;
   }
 }
 
@@ -158,13 +145,13 @@ export function setupWaitlist(form) {
     dire(MESSAGES.envoi);
 
     const controleur = new AbortController();
-    // 15 s : la fonction attend l'envoi de l'accusé de réception avant de
-    // répondre, et l'adresse est déjà en base à ce moment-là.
+    // 15 s : la fonction attend l'envoi du lien de confirmation avant de
+    // répondre.
     const minuteur = setTimeout(() => controleur.abort(), 15000);
 
     try {
-      // Voie normale : la fonction `waitlist` inscrit ET envoie l'accusé de
-      // réception. Elle seule détient la clé Resend, qui ne peut pas vivre ici.
+      // La fonction `waitlist` inscrit ET envoie le lien de confirmation.
+      // Elle seule détient la clé Resend, qui ne peut pas vivre ici.
       // ⚠️ Aucun en-tête `apikey` ni `Authorization` ici : la fonction ne
       // les demande pas (déployée sans vérification de jeton) et son CORS
       // n'autorise que `content-type`. Avec eux, le navigateur refusait la
@@ -184,32 +171,17 @@ export function setupWaitlist(form) {
 
       const etatRendu = res.ok ? (await res.json().catch(() => ({}))).etat : null;
 
-      if (etatRendu === 'fait' || etatRendu === 'deja') {
-        conclure(etatRendu, email);
-      } else if (await inscrireEnDirect(email, controleur.signal)) {
-        // Repli : la fonction est injoignable ou en panne. L'insertion directe
-        // marche toujours, elle ne perd simplement pas l'adresse pour un
-        // message qui n'est pas parti. Mieux vaut un inscrit sans accusé de
-        // réception qu'un formulaire qui refuse.
+      if (etatRendu === 'fait') {
         conclure('fait', email);
       } else {
+        // Plus de repli par l'insertion directe : la table ne l'accepte plus
+        // (0135), et une adresse sans lien de confirmation ne compterait pas.
         dire(MESSAGES.echec, true);
         occupe(false);
       }
     } catch {
-      // La fonction est injoignable (réseau, CORS, délai dépassé) : on tente
-      // l'insertion directe avec son propre délai avant de renoncer. Une
-      // adresse déjà inscrite répond 409, ce qui est un succès pour la
-      // personne.
-      const secours = new AbortController();
-      const minuteurSecours = setTimeout(() => secours.abort(), 9000);
-      if (await inscrireEnDirect(email, secours.signal)) {
-        conclure('fait', email);
-      } else {
-        dire(MESSAGES.echec, true);
-        occupe(false);
-      }
-      clearTimeout(minuteurSecours);
+      dire(MESSAGES.echec, true);
+      occupe(false);
     } finally {
       clearTimeout(minuteur);
     }

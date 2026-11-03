@@ -15,9 +15,9 @@
 // qu'on sache ce que la personne avait sous les yeux.
 
 export const APP_VERSION = '20 octobre 2026';
-export const SITE_VERSION = '20 octobre 2026';
+export const SITE_VERSION = '3 novembre 2026';
 
 // La même date, au format que la base attend (migration 0046 : au plus
 // 32 caractères, comparée telle quelle). L'heure départage deux versions
 // d'un même jour : '2026-09-28' reste celle des inscrits d'avant 16 h 30.
-export const CONSENT_VERSION = '2026-10-20';
+export const CONSENT_VERSION = '2026-11-03';
