@@ -20,7 +20,13 @@ import { homedir } from 'node:os';
 
 const RACINE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const JSON_SITE = resolve(RACINE, 'src/legal/app-documents.json');
-const DART_APP = resolve(homedir(), 'DEV/car_clan/lib/features/settings/domain/legal_documents.dart');
+// `CARCLAN_APP` : le dossier de l'app à comparer, quand le site part d'une
+// branche dont les textes ne sont pas encore dans `main` (build 16, 3 novembre
+// 2026). Par défaut, `~/DEV/car_clan`.
+const DART_APP = resolve(
+  process.env.CARCLAN_APP ?? resolve(homedir(), 'DEV/car_clan'),
+  'lib/features/settings/domain/legal_documents.dart',
+);
 
 if (!existsSync(JSON_SITE)) {
   console.error('légal : src/legal/app-documents.json est absent.');
