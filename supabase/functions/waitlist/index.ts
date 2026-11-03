@@ -69,6 +69,22 @@ const P = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sa
 const NUIT = '#0f0e0c', CRAIE = '#f3efe8', BITUME = '#8e897f', BITUME_CLAIR = '#aba69c';
 const AMBRE = '#e2a21f', TRAIT = '#6e6a62', FILET = '#211f1d';
 
+// Le fond noir partout, meme dans l'app Gmail sur iPhone en mode sombre : elle
+// INVERSE d'elle-meme un e-mail sombre (fond creme, texte fonce) mais laisse
+// les images telles quelles, d'ou le logo dans un carre noir (capture de
+// Mathys du 3 novembre 2026). Deux parades, neutres partout ailleurs :
+// - chaque fond plein est aussi pose en image de fond (un degrade d'une seule
+//   couleur), que Gmail n'inverse pas ;
+// - chaque texte est enveloppe de deux calques fusionnes (ecran puis
+//   difference, sur du noir) que seul Gmail voit, grace au selecteur
+//   `u + .body` : Gmail inverse le texte, les calques le re-inversent.
+const plein = (c: string) => `background:${c};background-image:linear-gradient(${c},${c});`;
+const STYLE_GMAIL = `<style>
+u + .body .gm-ecran { background:#000000; mix-blend-mode:screen; }
+u + .body .gm-diff { background:#000000; mix-blend-mode:difference; }
+</style>`;
+const garde = (texte: string) => `<div class="gm-ecran"><div class="gm-diff">${texte}</div></div>`;
+
 // L'image vit sur le site (`public/email/logo.png`, faite par
 // `tools/email-logo.py`). L'app et le site ont le rendu « enseigne en
 // relief » ; l'e-mail, et lui seul, garde le sol mouille : choix de Mathys
@@ -103,7 +119,7 @@ Tous les rassos. Un seul clan.`;
 // Un filet d'un pixel, pas une bordure : les bordures de tableau se dedoublent
 // d'un client a l'autre, une rangee de 1 px de haut ne bouge jamais.
 const filet = () =>
-  `<tr><td style="padding:0 32px;"><div style="height:1px;font-size:0;line-height:1px;background:${FILET};">&nbsp;</div></td></tr>`;
+  `<tr><td style="padding:0 32px;"><div style="height:1px;font-size:0;line-height:1px;${plein(FILET)}">&nbsp;</div></td></tr>`;
 
 // La lueur du lampadaire, en bandes de couleurs pleines. Gmail supprime les
 // degrades CSS et les images de fond : un vrai degrade est donc impossible.
@@ -125,7 +141,7 @@ const LUEUR = Array.from({ length: PAS }, (_, i) => melange(0.06 * (1 - i / (PAS
 // 21 px, la lueur trop sombre pour se voir laissait 300 px de noir sous
 // CARCLAN (retour de Mathys du 3 novembre 2026).
 const bande = (h: number, fond: string) =>
-  `<tr><td height="${h}" style="height:${h}px;font-size:0;line-height:${h}px;background:${fond};">&nbsp;</td></tr>`;
+  `<tr><td height="${h}" style="height:${h}px;font-size:0;line-height:${h}px;${plein(fond)}">&nbsp;</td></tr>`;
 
 const lueurHaut = () => LUEUR.map((fond, i) => bande(2 + Math.round(i / 3), fond)).join('\n');
 
@@ -134,7 +150,7 @@ const lueurHaut = () => LUEUR.map((fond, i) => bande(2 + Math.round(i / 3), fond
 const marque = () => `<tr><td align="center" style="padding:0 24px;font-size:0;line-height:0;">
 <img src="${LOGO}" width="${LOGO_COTE}" height="${LOGO_COTE}" alt="" style="display:block;margin:0 auto;width:${LOGO_COTE}px;height:${LOGO_COTE}px;border:0;outline:none;" />
 </td></tr>
-<tr><td align="center" style="padding:4px 24px 0;"><span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span></td></tr>`;
+<tr><td align="center" style="padding:4px 24px 0;">${garde(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>`)}</td></tr>`;
 
 const air = (h: number) => `<tr><td style="height:${h}px;font-size:0;line-height:${h}px;">&nbsp;</td></tr>`;
 
@@ -145,11 +161,12 @@ const html = (lien: string) => `<!doctype html>
 <meta name="color-scheme" content="dark" />
 <meta name="supported-color-schemes" content="dark" />
 <title>Confirmez votre adresse</title>
+${STYLE_GMAIL}
 </head>
-<body style="margin:0;padding:0;background:${NUIT};">
+<body class="body" style="margin:0;padding:0;${plein(NUIT)}">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">Un geste pour entrer sur la liste d\u2019attente de CarClan.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NUIT};">
-<tr><td style="height:3px;font-size:0;line-height:3px;background:${AMBRE};">&nbsp;</td></tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${plein(NUIT)}">
+<tr><td style="height:3px;font-size:0;line-height:3px;${plein(AMBRE)}">&nbsp;</td></tr>
 ${lueurHaut()}
 ${marque()}
 
@@ -157,23 +174,23 @@ ${marque()}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
 
   <tr><td align="center" style="padding:0 24px;">
-    <span style="font:600 11px/1 ${P};letter-spacing:.2em;text-transform:uppercase;color:${BITUME};">Liste d’attente</span>
+    ${garde(`<span style="font:600 11px/1 ${P};letter-spacing:.2em;text-transform:uppercase;color:${BITUME};">Liste d’attente</span>`)}
   </td></tr>
 
   ${air(18)}
   <tr><td align="center" style="padding:0 20px;">
-    <h1 style="margin:0;font:700 36px/1.06 ${P};letter-spacing:-.03em;color:${CRAIE};">Plus qu’un<br />geste.</h1>
+    ${garde(`<h1 style="margin:0;font:700 36px/1.06 ${P};letter-spacing:-.03em;color:${CRAIE};">Plus qu’un<br />geste.</h1>`)}
   </td></tr>
 
   ${air(22)}
   <tr><td align="center" style="padding:0 24px;">
-    <p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Confirmez votre adresse pour entrer sur la liste d’attente. On vous \u00e9crira le jour o\u00f9 CarClan arrive sur iPhone et Android.</p>
+    ${garde(`<p style="margin:0;font:400 17px/1.65 ${P};color:${BITUME_CLAIR};">Confirmez votre adresse pour entrer sur la liste d’attente. On vous \u00e9crira le jour o\u00f9 CarClan arrive sur iPhone et Android.</p>`)}
   </td></tr>
 
   ${air(38)}
   <tr><td align="center" style="padding:0 24px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td align="center" bgcolor="${AMBRE}" style="border-radius:999px;">
+      <td align="center" bgcolor="${AMBRE}" style="${plein(AMBRE)}border-radius:999px;">
         <a href="${lien}" style="display:inline-block;padding:16px 34px;font:700 15px/1 ${P};letter-spacing:-.01em;color:#17140e;text-decoration:none;">Confirmer mon adresse</a>
       </td>
     </tr></table>
@@ -183,19 +200,19 @@ ${marque()}
   ${filet()}
   ${air(30)}
   <tr><td align="center" style="padding:0 28px;">
-    <p style="margin:0;font:400 15px/1.7 ${P};color:${BITUME};">Le lien vaut 7&nbsp;jours. Vous n’avez rien demand\u00e9&nbsp;? Ignorez ce message&nbsp;: sans confirmation, l’adresse est effac\u00e9e sous 30&nbsp;jours.</p>
+    ${garde(`<p style="margin:0;font:400 15px/1.7 ${P};color:${BITUME};">Le lien vaut 7&nbsp;jours. Vous n’avez rien demand\u00e9&nbsp;? Ignorez ce message&nbsp;: sans confirmation, l’adresse est effac\u00e9e sous 30&nbsp;jours.</p>`)}
   </td></tr>
 
   ${air(38)}
   ${filet()}
   ${air(30)}
   <tr><td align="center" style="padding:0 24px;">
-    <span style="font:600 11px/1.6 ${P};letter-spacing:.2em;text-transform:uppercase;color:${TRAIT};">Tous les rassos. Un seul clan.</span>
+    ${garde(`<span style="font:600 11px/1.6 ${P};letter-spacing:.2em;text-transform:uppercase;color:${TRAIT};">Tous les rassos. Un seul clan.</span>`)}
   </td></tr>
 
   ${air(18)}
   <tr><td align="center" style="padding:0 28px;">
-    <p style="margin:0;font:400 12px/1.8 ${P};color:${TRAIT};">Vous recevez ce message parce que cette adresse a \u00e9t\u00e9 laiss\u00e9e sur <a href="https://carclan.fr" style="color:${BITUME};text-decoration:none;">carclan.fr</a>. Une question&nbsp;? \u00c9crivez \u00e0 <a href="mailto:contact@carclan.fr" style="color:${BITUME};text-decoration:none;">contact@carclan.fr</a>.</p>
+    ${garde(`<p style="margin:0;font:400 12px/1.8 ${P};color:${TRAIT};">Vous recevez ce message parce que cette adresse a \u00e9t\u00e9 laiss\u00e9e sur <a href="https://carclan.fr" style="color:${BITUME};text-decoration:none;">carclan.fr</a>. Une question&nbsp;? \u00c9crivez \u00e0 <a href="mailto:contact@carclan.fr" style="color:${BITUME};text-decoration:none;">contact@carclan.fr</a>.</p>`)}
   </td></tr>
 
 </table>
