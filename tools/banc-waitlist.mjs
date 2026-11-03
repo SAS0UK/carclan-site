@@ -1,5 +1,5 @@
 // Banc de la fonction Edge `waitlist` (build 16) : Deno, la base et Resend
-// simulés, 14 vérifications de ce que la fonction envoie et répond.
+// simulés, 15 vérifications de ce que la fonction envoie et répond.
 import { createHash } from 'node:crypto';
 const env = { SUPABASE_URL: 'https://base.test', SUPABASE_SERVICE_ROLE_KEY: 'cle-service', RESEND_API_KEY: 'cle-resend' };
 let handler;
@@ -27,6 +27,8 @@ ok(ins.p_confirmation_hash === sha(jeton), 'la base reçoit l empreinte du jeton
 ok(!JSON.stringify(ins).includes(jeton), 'le jeton ne part pas en base');
 ok(ins.p_ip_empreinte === sha('cle-service:1.2.3.4') && !JSON.stringify(ins).includes('1.2.3.4'), 'IP en empreinte salée seulement');
 ok(mail.html.includes(`https://carclan.fr/confirmer/?jeton=${jeton}`) && mail.subject.startsWith('Confirmez'), 'e-mail avec le lien');
+const images = [...mail.html.matchAll(/<img[^>]*src="([^"]+)"/g)].map((m) => m[1]);
+ok(images.length === 1 && images[0] === 'https://carclan.fr/email/logo.png' && !/url\(/.test(mail.html), 'une seule image, à adresse fixe : aucun pixel espion');
 ok(appels.find((a) => a.url.includes('inscrire')).init.headers.Authorization === 'Bearer cle-service', 'clé de service');
 
 appels.length = 0; reponseBase = 'rien';

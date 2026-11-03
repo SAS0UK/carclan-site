@@ -58,14 +58,23 @@ const ressembleAUnEmail = (v: string) =>
 
 // Le message. Deux contraintes d'e-mail commandent tout le reste : aucune
 // police chargee ne survit (Archivo est donc impossible, on tombe sur la
-// police systeme, SF Pro sur iPhone), et toute image est bloquee par defaut.
-// Le caractere ne peut donc venir ni de la typo ni d'un visuel : il vient de
-// l'espace, de l'echelle, et de l'ambre pose exactement trois fois — le filet
-// du haut, le mot-symbole, le bouton. Zero image aussi veut dire zero pixel
-// espion, ce que la politique de confidentialite promet deja.
+// police systeme, SF Pro sur iPhone), et certains clients bloquent les images.
+// Le caractere vient donc de l'espace, de l'echelle, de l'ambre (le filet du
+// haut, le mot-symbole, le bouton) et d'UNE image : le Maillon sur sol mouille.
+// Elle n'est pas indispensable : bloquee, le mot-symbole et tout le texte
+// restent. Son adresse est fixe, la meme pour tout le monde, jamais une par
+// destinataire : ce n'est pas un pixel espion, la politique de
+// confidentialite tient toujours.
 const P = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 const NUIT = '#0f0e0c', CRAIE = '#f3efe8', BITUME = '#8e897f', BITUME_CLAIR = '#aba69c';
 const AMBRE = '#e2a21f', TRAIT = '#6e6a62', FILET = '#211f1d';
+
+// L'image vit sur le site (`public/email/logo.png`, faite par
+// `tools/email-logo.py`). Un nouveau logo = un nouveau fichier au meme
+// chemin et une publication du site, sans toucher a cette fonction. Ses bords
+// sont exactement NUIT, d'ou aucune arete sur le fond.
+const LOGO = 'https://carclan.fr/email/logo.png';
+const LOGO_COTE = 220;
 
 const OBJET = 'Confirmez votre adresse pour CarClan';
 
@@ -109,19 +118,20 @@ const LUEUR = Array.from({ length: PAS }, (_, i) => melange(0.06 * (1 - i / (PAS
 
 // Les bandes s'epaississent en descendant : pres de la lampe la lumiere change
 // vite, loin d'elle elle traine. Des hauteurs egales donnaient une rampe qui
-// se terminait trop net.
+// se terminait trop net. Elles sont courtes (2 a 6 px, 56 en tout) : a 8 a
+// 21 px, la lueur trop sombre pour se voir laissait 300 px de noir sous
+// CARCLAN (retour de Mathys du 3 novembre 2026).
 const bande = (h: number, fond: string) =>
   `<tr><td height="${h}" style="height:${h}px;font-size:0;line-height:${h}px;background:${fond};">&nbsp;</td></tr>`;
 
-// Le mot-symbole vit dans le quatrieme palier, la ou la lumiere est encore
-// pleine sans ecraser l'ambre du texte.
-const RANG_MARQUE = 3;
-const lueurHaut = (marque: string) =>
-  LUEUR.map((fond, i) =>
-    i === RANG_MARQUE
-      ? `<tr><td align="center" style="padding:18px 24px 20px;background:${fond};">${marque}</td></tr>`
-      : bande(8 + i, fond),
-  ).join('\n');
+const lueurHaut = () => LUEUR.map((fond, i) => bande(2 + Math.round(i / 3), fond)).join('\n');
+
+// Le Maillon puis le mot-symbole, sous la lueur. `alt` vide : le mot-symbole
+// juste dessous dit deja CarClan, un lecteur d'ecran ne le lit pas deux fois.
+const marque = () => `<tr><td align="center" style="padding:0 24px;font-size:0;line-height:0;">
+<img src="${LOGO}" width="${LOGO_COTE}" height="${LOGO_COTE}" alt="" style="display:block;margin:0 auto;width:${LOGO_COTE}px;height:${LOGO_COTE}px;border:0;outline:none;" />
+</td></tr>
+<tr><td align="center" style="padding:4px 24px 0;"><span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span></td></tr>`;
 
 const air = (h: number) => `<tr><td style="height:${h}px;font-size:0;line-height:${h}px;">&nbsp;</td></tr>`;
 
@@ -137,9 +147,10 @@ const html = (lien: string) => `<!doctype html>
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">Un geste pour entrer sur la liste d\u2019attente de CarClan.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NUIT};">
 <tr><td style="height:3px;font-size:0;line-height:3px;background:${AMBRE};">&nbsp;</td></tr>
-${lueurHaut(`<span style="font:700 13px/1 ${P};letter-spacing:.24em;color:${AMBRE};">CARCLAN</span>`)}
+${lueurHaut()}
+${marque()}
 
-<tr><td align="center" style="padding:34px 12px 56px;">
+<tr><td align="center" style="padding:30px 12px 56px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
 
   <tr><td align="center" style="padding:0 24px;">
