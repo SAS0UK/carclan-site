@@ -72,9 +72,10 @@ const AMBRE = '#e2a21f', TRAIT = '#6e6a62', FILET = '#211f1d';
 // L'image vit sur le site (`public/email/logo.png`, faite par
 // `tools/email-logo.py`). L'app et le site ont le rendu « enseigne en
 // relief » ; l'e-mail, et lui seul, garde le sol mouille : choix de Mathys
-// du 3 novembre 2026, apres avoir vu les deux dans l'e-mail. Un nouveau logo = un nouveau fichier au meme
-// chemin et une publication du site, sans toucher a cette fonction. Ses bords
-// sont exactement NUIT, d'ou aucune arete sur le fond.
+// du 3 novembre 2026, apres avoir vu les deux dans l'e-mail. Un nouveau
+// logo = un nouveau fichier au meme chemin et une publication du site, sans
+// toucher a cette fonction. Ses bords sont exactement NUIT, d'ou aucune
+// arete sur le fond.
 const LOGO = 'https://carclan.fr/email/logo.png';
 const LOGO_COTE = 220;
 
@@ -120,7 +121,7 @@ const LUEUR = Array.from({ length: PAS }, (_, i) => melange(0.06 * (1 - i / (PAS
 
 // Les bandes s'epaississent en descendant : pres de la lampe la lumiere change
 // vite, loin d'elle elle traine. Des hauteurs egales donnaient une rampe qui
-// se terminait trop net. Elles sont courtes (2 a 6 px, 56 en tout) : a 8 a
+// se terminait trop net. Elles sont courtes (2 a 6 px, 58 en tout) : a 8 a
 // 21 px, la lueur trop sombre pour se voir laissait 300 px de noir sous
 // CARCLAN (retour de Mathys du 3 novembre 2026).
 const bande = (h: number, fond: string) =>
