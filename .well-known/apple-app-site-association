@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["TMCQM9NQ24.com.carclan.app"],
+        "appID": "TMCQM9NQ24.com.carclan.app",
+        "components": [
+          { "/": "/rasso/*", "comment": "La page publique d'un rasso" },
+          { "/": "/r/*", "comment": "Le lien court d'un rasso" }
+        ],
+        "paths": ["/rasso/*", "/r/*"]
+      }
+    ]
+  }
+}
