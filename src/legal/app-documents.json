@@ -1,12 +1,12 @@
 {
-  "updatedOn": "5 novembre 2026, 19 h",
+  "updatedOn": "6 novembre 2026",
   "publisherName": "Mathys Liénart",
   "publisherCity": "Tourcoing (France)",
   "contactEmail": "contact@carclan.fr",
   "minimumAge": 15,
   "terms": {
     "title": "Conditions générales d’utilisation",
-    "updatedOn": "5 novembre 2026, 19 h",
+    "updatedOn": "6 novembre 2026",
     "intro": "Ces conditions encadrent l’utilisation de l’application mobile CarClan. En créant un compte, vous les acceptez. Elles disent ce que CarClan fait pour vous, ce que vous vous engagez à respecter, et ce qui se passe quand ce n’est pas le cas.",
     "sections": [
       {
@@ -61,7 +61,7 @@
       {
         "heading": "À savoir avant de publier",
         "paragraphs": [
-          "Vos photos peuvent montrer votre plaque d’immatriculation. Ce n’est pas interdit : vous choisissez de la masquer ou non avant de publier.",
+          "Vos photos de voiture peuvent montrer votre plaque d’immatriculation. Quand vous en ajoutez une, CarClan la cache d’office sous une plaque aux couleurs de CarClan, posée dans l’image avant qu’elle quitte votre téléphone : la photo envoyée ne contient plus votre plaque. Vous pouvez ajuster le cache, indiquer qu’aucune plaque n’est visible, ou choisir de la laisser visible. La montrer n’est pas interdit, c’est votre choix.",
           "Vos photos sont en revanche débarrassées de leurs métadonnées avant de quitter votre téléphone, coordonnées GPS comprises. Le lieu où une photo a été prise ne part donc pas avec elle."
         ],
         "bullets": []
@@ -120,7 +120,7 @@
   },
   "privacy": {
     "title": "Politique de confidentialité",
-    "updatedOn": "5 novembre 2026, 19 h",
+    "updatedOn": "6 novembre 2026",
     "intro": "Cette politique explique quelles données CarClan collecte, pourquoi, où elles sont stockées et comment exercer vos droits. Elle s’applique à l’application mobile CarClan et respecte le règlement général sur la protection des données (RGPD).",
     "sections": [
       {
@@ -138,7 +138,8 @@
           "Profil : nom d’utilisateur et pseudo obligatoires ; prénom, nom, téléphone, ville, biographie, photo de profil et bannière facultatifs. Facultatifs aussi : vos pseudos Instagram, TikTok, YouTube et Facebook (un pseudo, jamais une adresse), et votre choix de les montrer ou non sur la fiche des rassos que vous organisez.",
           "Acceptations : la date à laquelle vous avez accepté les conditions et cette politique, la version que vous aviez sous les yeux, et votre déclaration d’avoir 15 ans ou plus.",
           "Questionnaire d’arrivée : votre réponse aux deux questions posées juste après la création du compte, celle de savoir comment vous avez connu CarClan et ce que vous venez y chercher. Elles sont enregistrées une seule fois et ne peuvent plus être modifiées. La première sert à mesurer les canaux qui amènent des membres, la seconde à choisir par quel écran commencer votre visite de découverte, et elle est comptée avec les autres pour savoir ce que les membres viennent chercher. Elles ne sont lues que par l’éditeur, jamais par les autres membres, et sont effacées avec votre compte.",
-          "Garage : vos véhicules, leurs caractéristiques, leur description et leurs photos. Quand vous ajoutez une voiture, l’application propose les marques les plus choisies : un nombre de voitures par marque, compté sur tous les garages, privés compris, sans jamais dire à qui elles sont, et une marque n’y paraît qu’à partir de trois voitures.",
+          "Garage : vos véhicules, leurs caractéristiques, leur description et leurs photos. Pour chaque photo, l’application retient aussi ce que vous avez choisi pour la plaque (cachée, aucune plaque visible, ou laissée visible), pour ne pas vous reposer la question. La plaque est repérée sur votre téléphone même, par la reconnaissance de texte d’Apple (Vision) sur iPhone et par la bibliothèque ML Kit de Google sur Android : la photo n’est envoyée ni à Apple ni à Google pour cela. Quand vous ajoutez une voiture, l’application propose les marques les plus choisies : un nombre de voitures par marque, compté sur tous les garages, privés compris, sans jamais dire à qui elles sont, et une marque n’y paraît qu’à partir de trois voitures.",
+          "Votre année CarClan et le résumé du mois : à partir de ce que CarClan garde déjà (les événements où vous étiez inscrit et ceux que vous avez organisés, vos nouveaux amis, vos clans et vos crews, vos voitures et leurs photos), l’application calcule pour vous seul le résumé de chaque mois écoulé et, du 1er décembre au 15 janvier, le bilan de votre année. Ce bilan peut montrer la photo de votre voiture et jusqu’à trois de vos publications qui ont reçu au moins un « j’aime » d’un autre membre, avec leur nombre de « j’aime », mais jamais le nom de qui a aimé. Ces résumés sont calculés quand vous les ouvrez, sans être enregistrés. Aucun autre membre ne les voit, sauf si vous les partagez vous-même, en image ou en vidéo, en story ou par la feuille de partage du téléphone. La vidéo est fabriquée sur votre téléphone et ne passe pas par nos serveurs. Vous pouvez couper Votre année CarClan dans Paramètres, rubrique Compte : il n’est alors plus calculé. Ce choix est enregistré avec votre compte et s’efface avec lui.",
           "Événements que vous créez : titre, description, adresse, position sur la carte, règlement, mode d’entrée et lien externe, prix indicatif, affiche, ce qu’est le lieu (terrain privé, parking d’enseigne, parking public déclaré ou réservé par arrêté) et, pour un parking public, la date du récépissé de sa déclaration ou le numéro de l’arrêté qui le réserve, et, si vous saisissez la fiche pour un autre organisateur, le nom public de celui-ci ; la répétition que vous choisissez (chaque semaine ou chaque mois : la date suivante est alors créée à la fin de la précédente) ; et le mot que vous joignez à un changement d’heure ou de lieu, que la fiche et la notification de vos inscrits montrent.",
           "Événements auxquels vous participez, la voiture que vous choisissez d’y amener, le cas échéant, et les règlements que vous acceptez pour y participer, avec le texte du règlement tel qu’il était au moment où vous l’avez accepté. Si un rasso est complet et que vous demandez à être prévenu, votre place dans sa liste d’attente et l’heure de votre demande : quand une place se libère, le premier de la liste est inscrit d’office et prévenu, et l’organisateur n’en voit que le nombre.",
           "Revendications : vos demandes d’attribution d’une fiche saisie pour vous (« C’est mon rasso »), le message que vous y joignez, et la décision prise. Elles sont effacées avec votre compte.",
@@ -177,6 +178,7 @@
         "bullets": [
           "Faire fonctionner le service que vous avez demandé : compte, profil, carte, événements et leur chat en direct, amis, clans et crews, messages, publications, avis, annonces et entraide (exécution du contrat).",
           "Assurer la sécurité de la communauté : modération, signalements, blocages, suspensions (intérêt légitime et obligations légales).",
+          "Vous montrer le résumé de votre mois et le bilan de votre année (intérêt légitime : ils ne sont visibles que de vous, et le bilan de l’année se coupe dans les paramètres).",
           "Vous envoyer les e-mails nécessaires au compte : confirmation, réinitialisation du mot de passe (exécution du contrat). Si vous demandez un nouveau mot de passe pour une adresse qui n’a pas de compte, un e-mail le dit à cette adresse ; pour ne pas l’envoyer deux fois dans la journée, nous en gardons l’empreinte (SHA-256), jamais l’adresse en clair, effacée à la première demande qui suit ses vingt-quatre heures (intérêt légitime).",
           "Savoir si l’application est utilisée : le relevé d’ouverture quotidien sert à compter combien de membres reviennent après un, sept et trente jours, rien de plus (intérêt légitime).",
           "Créditer l’organisateur réel d’un événement saisi pour lui, et lui remettre sa fiche s’il la revendique (intérêt légitime). Un organisateur crédité par son nom peut demander la modification ou le retrait de ce crédit à contact@carclan.fr.",
@@ -224,7 +226,7 @@
           "Apple (service WeatherKit), pour la météo d’un événement : CarClan envoie à Apple la position de l’événement, arrondie à environ un kilomètre, et l’heure qui l’intéresse. Rien sur vous ni sur votre position n’est transmis : l’appel part de nos serveurs, pas de votre téléphone.",
           "Anthropic (Anthropic PBC, États-Unis), pour « Lire mon affiche » : quand vous appuyez sur ce bouton, l’image de l’affiche est envoyée à Anthropic pour en lire le titre, la date, les heures, le lieu, le prix et les règles. CarClan ne garde ni l’image ni la réponse. Anthropic agit comme sous-traitant de CarClan, sous un accord de traitement des données. Elle efface l’image et sa lecture de ses serveurs dans les 30 jours, sauf si ses systèmes de sécurité signalent un abus (gardées alors jusqu’à deux ans), et ne s’en sert pas pour entraîner ses modèles. Le contrat est passé avec Anthropic Ireland Limited ; le traitement peut avoir lieu aux États-Unis, et ce transfert est encadré par les clauses contractuelles types de la Commission européenne.",
           "Google, pour les notifications sur Android : elles n’y sont pas encore ouvertes, et d’ici là l’application ne transmet rien à Google pour vous prévenir. Une fois ouvertes, si vous les autorisez, le service Firebase Cloud Messaging de Google les achemine jusqu’à votre téléphone. Google reçoit pour cela le jeton de votre appareil, lié à un identifiant d’installation de l’application, le texte de chaque notification, nom de l’auteur et aperçu du début d’un message compris, et des identifiants techniques qui servent à ouvrir le bon écran. Selon Google, cet identifiant d’installation est gardé jusqu’à ce que l’application demande son effacement : CarClan le demande quand vous vous déconnectez, si le réseau le permet, et Google l’efface alors sous 180 jours. CarClan n’utilise aucun autre service de Firebase. Google LLC est établie aux États-Unis : selon Google, ce transfert hors de l’Union européenne est encadré par le Data Privacy Framework.",
-          "Google, pour la lecture du laissez-passer sur Android : le code est lu sur le téléphone même, par la bibliothèque ML Kit de Google, utilisée seulement par l’écran de scan de l’espace organisateur. Selon Google, ML Kit lui envoie des informations techniques (fabricant, modèle et système du téléphone, version de l’application, performances, réglages de lecture, erreurs, et un identifiant propre à l’installation qui ne sert pas à identifier une personne ni un appareil), chiffrées, pour le diagnostic et des statistiques d’usage, sans les transmettre à des tiers. Google LLC est établie aux États-Unis : selon Google, ce transfert hors de l’Union européenne est encadré par le Data Privacy Framework.",
+          "Google, pour la lecture du laissez-passer et le repérage de la plaque sur Android : le code et la plaque sont lus sur le téléphone même, par la bibliothèque ML Kit de Google, utilisée seulement par l’écran de scan de l’espace organisateur et par l’écran qui cache la plaque de vos photos. Selon Google, ML Kit lui envoie des informations techniques (fabricant, modèle et système du téléphone, version de l’application, performances, réglages de lecture, erreurs, et un identifiant propre à l’installation qui ne sert pas à identifier une personne ni un appareil), chiffrées, pour le diagnostic et des statistiques d’usage, sans les transmettre à des tiers. Google LLC est établie aux États-Unis : selon Google, ce transfert hors de l’Union européenne est encadré par le Data Privacy Framework.",
           "Google, pour une montre Wear OS : l’application la renseigne par les services Google de votre téléphone. Quand le téléphone et la montre ne sont pas reliés en Bluetooth, ces données transitent par les serveurs de Google, chiffrées de bout en bout selon Google. Ce qu’elle envoie à la montre est dit dans « Ce qui reste sur votre téléphone ».",
           "Waze, Google Maps et Plans : quand vous appuyez sur « Y aller », CarClan ouvre l’application de guidage que vous choisissez avec les coordonnées de l’événement ou du commerce. Ce que vous y faites ensuite ne dépend plus de nous et relève de la politique de cette application.",
           "Les commerces partenaires, quand vous quittez CarClan pour eux : « Appeler », leur site, leur Instagram et « Ouvrir la boutique » ouvrent le composeur du téléphone, le navigateur ou Instagram. CarClan ne leur transmet rien ; le commerce ou le service concerné reçoit ce que votre geste implique, votre numéro si vous appelez, l’adresse IP de votre appareil si vous ouvrez un site, et en dispose selon ses propres règles.",
@@ -329,7 +331,7 @@
   },
   "legalNotice": {
     "title": "Mentions légales et contact",
-    "updatedOn": "5 novembre 2026, 19 h",
+    "updatedOn": "6 novembre 2026",
     "intro": "Qui édite CarClan, où sont hébergées les données, et comment nous écrire.",
     "sections": [
       {
