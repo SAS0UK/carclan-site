@@ -299,6 +299,17 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return repondre('refus', 405);
 
+  // SITE-5 : une page tierce pouvait faire poster un visiteur d'ici (un POST
+  // « simple » en text/plain passe sans préflight, et `req.json()` le lit).
+  // 403 si l'origine est présente et hors liste, et si le corps n'est pas du
+  // JSON déclaré : le site, lui, envoie toujours `application/json`. Sans
+  // `Origin` (appel hors navigateur) la requête passe : les plafonds la
+  // tiennent, et un attaquant écrirait l'en-tête de toute façon.
+  if (origine !== null && !ORIGINES.has(origine)) return repondre('refus', 403);
+  if (!(req.headers.get('content-type') ?? '').toLowerCase().startsWith('application/json')) {
+    return repondre('refus', 403);
+  }
+
   let corps: Record<string, unknown>;
   try {
     corps = await req.json();

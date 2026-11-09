@@ -84,3 +84,11 @@ await post({ email: 'xff@b.fr', consent_version: '2026-11-03' }, null, { 'x-forw
 const insXff = JSON.parse(appels.find((a) => a.url.includes('inscrire')).init.body);
 ok(insXff.p_ip_empreinte === sha('cle-service:inconnue'), 'sans cf-connecting-ip : x-forwarded-for ignoré (case « inconnue »)');
 
+// SITE-5 : origine et type de contenu vérifiés.
+appels.length = 0;
+r = await post({ email: 'o@b.fr', consent_version: '2026-11-03' }, '1.2.3.4', { origin: 'https://evil.example' });
+ok(r.status === 403 && appels.length === 0, 'origine tierce : 403, rien n appelle la base');
+r = await post({ email: 'o@b.fr', consent_version: '2026-11-03' }, '1.2.3.4', { 'content-type': 'text/plain' });
+ok(r.status === 403 && appels.length === 0, 'text/plain : 403, rien n appelle la base');
+r = await post({ email: 'o@b.fr', consent_version: '2026-11-03' }, '1.2.3.4', { 'content-type': 'application/json; charset=utf-8' });
+ok((await r.json()).etat === 'fait', 'application/json avec charset : accepté');
