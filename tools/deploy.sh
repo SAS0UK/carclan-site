@@ -4,6 +4,21 @@
 # Le jeton gh n'a pas le droit d'écrire des workflows Actions, d'où ce chemin.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+
+# La garde (SITE-9) : `git push -f` sur gh-pages remplace tout le site publié.
+# On ne publie que depuis `main` et un arbre propre : jamais une branche de
+# travail, ni des changements pas encore commités, ni le dépôt voisin
+# `~/DEV/carclan-site` (autre branche).
+BRANCHE=$(git rev-parse --abbrev-ref HEAD)
+if [ "$BRANCHE" != "main" ]; then
+  echo "refus : la branche est « $BRANCHE », la publication part de main." >&2
+  exit 1
+fi
+if [ -n "$(git status --porcelain)" ]; then
+  echo "refus : l'arbre n'est pas propre (git status). Commitez ou écartez d'abord." >&2
+  exit 1
+fi
+
 npm run build
 cd dist
 rm -rf .git
@@ -20,8 +35,11 @@ echo "déployé sur gh-pages"
 # Search Console qui fait ce travail de son côté. La clé est publique par
 # construction : elle ne prouve que la propriété du domaine, via le fichier
 # du même nom servi à la racine.
-CLE=$(basename "$(ls public/*.txt 2>/dev/null | head -1)" .txt || true)
-if [ -n "${CLE:-}" ] && [ "$CLE" != "llms" ] && [ "$CLE" != "robots" ]; then
+# La clé est nommée ici, pas devinée dans public/ : un second fichier .txt
+# aurait pu la remplacer sans bruit. Elle doit exister au même nom.
+CLE=fd51d69d8c3432250fce5ca682ae40cc
+[ -f "public/$CLE.txt" ] || CLE=""
+if [ -n "$CLE" ]; then
   curl -fsS -X POST "https://api.indexnow.org/IndexNow" \
     -H "Content-Type: application/json" \
     -d "{\"host\":\"carclan.fr\",\"key\":\"$CLE\",\"keyLocation\":\"https://carclan.fr/$CLE.txt\",\"urlList\":[\"https://carclan.fr/\",\"https://carclan.fr/mentions-legales/\",\"https://carclan.fr/confidentialite/\",\"https://carclan.fr/cgu/\",\"https://carclan.fr/cookies/\"]}" \
