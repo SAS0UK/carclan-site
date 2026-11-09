@@ -36,4 +36,30 @@ ecrire(d, 'index.html', h.replace("script-src 'self'", "script-src 'self' 'unsaf
 ok(verifierCsp(d).some((q) => /unsafe-inline/.test(q)), "'unsafe-inline' dans la politique : refusé");
 ecrire(d, 'index.html', h.replace('<body>', '<body><iframe src="https://x.test"></iframe>'));
 ok(verifierCsp(d).some((q) => /iframe/.test(q)), 'iframe : refusé');
+// Relecture adverse : fins de ligne CRLF (le navigateur hache en LF), charset commenté, ressource tierce.
+import { createHash } from 'node:crypto';
+d = dossier();
+ecrire(d, 'index.html', page().replace('window.__x=1', 'window.__x=1;\r\nwindow.__y=2').replace('a{color:red}', 'a{color:red;\r\nb:c}'));
+poserCsp(d);
+const crlf = readFileSync(join(d, 'index.html'), 'utf8');
+const lf = (t) => `'sha256-${createHash('sha256').update(t.replace(/\r\n?/g, '\n')).digest('base64')}'`;
+ok(crlf.includes(lf('window.__x=1;\nwindow.__y=2')) && crlf.includes(lf('a{color:red;\nb:c}')), 'CRLF : empreinte calculee sur le texte normalise (LF), comme le navigateur');
+
+d = dossier();
+ecrire(d, 'index.html', page().replace('<head>', '<head><!-- <meta charset="utf-8"> -->').replace('<meta charset="utf-8"><title>', '<title>'));
+// le seul charset est dans un commentaire : la CSP va juste apres <head>, et jamais dans le commentaire
+poserCsp(d);
+const c = readFileSync(join(d, 'index.html'), 'utf8');
+ok(c.indexOf('Content-Security-Policy') < c.indexOf('<!--') && verifierCsp(d).length === 0, 'charset commente : la CSP est posee apres <head>, hors du commentaire');
+
+d = dossier();
+ecrire(d, 'index.html', page());
+poserCsp(d);
+const base = readFileSync(join(d, 'index.html'), 'utf8');
+ecrire(d, 'index.html', base.replace('</head>', '<link rel="stylesheet" href="https://cdn.example/x.css"></head>'));
+ok(verifierCsp(d).some((q) => /hors de la politique/.test(q)), 'feuille de style tierce : refusee');
+ecrire(d, 'index.html', base.replace('<body>', '<body><img src="https://tiers.example/i.png"><a href="https://ok.example">lien</a>'));
+ok(verifierCsp(d).filter((q) => /hors de la politique/.test(q)).length === 1, 'image tierce refusee, simple lien <a> accepte');
+ecrire(d, 'index.html', base.replace('<body>', '<body><img src="https://zheixbgssdfquresgtai.supabase.co/storage/v1/object/public/x.jpg">'));
+ok(verifierCsp(d).length === 0, 'image du stockage Supabase : acceptee');
 process.exit(echec ? 1 : 0);
