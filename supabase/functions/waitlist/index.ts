@@ -266,13 +266,18 @@ const nouveauJeton = () => hex(crypto.getRandomValues(new Uint8Array(32)).buffer
 
 const JETON_VALIDE = /^[0-9a-f]{64}$/;
 
-// L'IP vue par Supabase. `cf-connecting-ip` d'abord : c'est l'en-tête posé par
-// le réseau de Supabase, pas par le client. `x-forwarded-for` en repli, sa
-// première valeur.
-const ipDe = (req: Request) =>
-  req.headers.get('cf-connecting-ip') ??
-  req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-  'inconnue';
+// L'IP vue par le réseau de Supabase : `cf-connecting-ip` SEULE, posée par
+// Cloudflare et non par le client. `x-forwarded-for` n'est plus lue : le
+// client peut y écrire ce qu'il veut, et chaque valeur inventée aurait donné
+// une case de plafond neuve (SITE-4). Même règle que `montre-connexion`
+// (0160). Absente : tous dans la case `inconnue`, donc plafonnés ensemble,
+// ce qui échoue du côté sûr ; l'avertissement le dit dans les journaux.
+const ipDe = (req: Request) => {
+  const ip = req.headers.get('cf-connecting-ip')?.trim();
+  if (ip) return ip;
+  console.warn('cf-connecting-ip absente : IP inconnue');
+  return 'inconnue';
+};
 
 const rpc = (nom: string, args: Record<string, unknown>) =>
   fetch(`${URL_SUPABASE}/rest/v1/rpc/${nom}`, {

@@ -77,3 +77,10 @@ for (const forge of ['a<victime@gmail.com>', 'Gagnez-un-iPhone<victime@exemple.f
 r = await post({ email: 'prenom.nom+rasso@sous.domaine.fr', consent_version: '2026-11-03' });
 ok((await r.json()).etat === 'fait', 'adresse normale avec + et sous-domaine acceptée');
 
+// SITE-4 : l'IP vient de cf-connecting-ip seule ; x-forwarded-for, que le
+// client écrit, ne compte jamais.
+appels.length = 0;
+await post({ email: 'xff@b.fr', consent_version: '2026-11-03' }, null, { 'x-forwarded-for': '9.9.9.9' });
+const insXff = JSON.parse(appels.find((a) => a.url.includes('inscrire')).init.body);
+ok(insXff.p_ip_empreinte === sha('cle-service:inconnue'), 'sans cf-connecting-ip : x-forwarded-for ignoré (case « inconnue »)');
+
