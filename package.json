@@ -7,7 +7,7 @@
     "build": "node tools/build-legal.mjs && vite build && node tools/build-rassos.mjs && node tools/check-trackers.mjs && node tools/check-alt.mjs && node tools/check-contrast.mjs && node tools/check-legal.mjs",
     "preview": "vite preview --port 4173",
     "deploy": "bash tools/deploy.sh",
-    "sync-legal": "$HOME/DEV/FLUTTER/flutter/bin/dart run tools/sync-legal.dart > src/legal/app-documents.json"
+    "sync-legal": "$HOME/DEV/FLUTTER/flutter/bin/dart run tools/sync-legal.dart | node tools/stamp-legal.mjs > src/legal/app-documents.json.tmp && mv src/legal/app-documents.json.tmp src/legal/app-documents.json"
   },
   "keywords": [],
   "author": "",

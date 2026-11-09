@@ -10,7 +10,7 @@
 // l'écran de l'application affiche.
 //
 // Lancement (depuis le dépôt du site) :
-//   ~/DEV/FLUTTER/flutter/bin/dart run tools/sync-legal.dart > src/legal/app-documents.json
+//   ~/DEV/FLUTTER/flutter/bin/dart run tools/sync-legal.dart | node tools/stamp-legal.mjs > src/legal/app-documents.json
 //
 // À relancer chaque fois que les documents de l'application changent. Le
 // build refuse de passer si la version du JSON ne correspond plus à celle

@@ -16,21 +16,19 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { homedir } from 'node:os';
+import { APP_PAR_DEFAUT, cheminDart, empreinteDe } from './legal-source.mjs';
 
 const RACINE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const JSON_SITE = resolve(RACINE, 'src/legal/app-documents.json');
+// `CARCLAN_LEGAL_JSON` : un autre JSON à comparer (le banc de ce contrôle).
+const JSON_SITE = process.env.CARCLAN_LEGAL_JSON ?? resolve(RACINE, 'src/legal/app-documents.json');
 // `CARCLAN_APP` : le dossier de l'app à comparer, quand le site part d'une
 // branche dont les textes ne sont pas encore dans `main` (build 16, 3 novembre
 // 2026). Par défaut, `~/DEV/car_clan`.
-const DART_APP = resolve(
-  process.env.CARCLAN_APP ?? resolve(homedir(), 'DEV/car_clan'),
-  'lib/features/settings/domain/legal_documents.dart',
-);
+const DART_APP = cheminDart(process.env.CARCLAN_APP ?? APP_PAR_DEFAUT);
 
 if (!existsSync(JSON_SITE)) {
   console.error('légal : src/legal/app-documents.json est absent.');
-  console.error('Relancez : dart run tools/sync-legal.dart > src/legal/app-documents.json');
+  console.error('Relancez : dart run tools/sync-legal.dart | node tools/stamp-legal.mjs > src/legal/app-documents.json');
   process.exit(1);
 }
 
@@ -53,8 +51,24 @@ if (!m) {
 if (m[1] !== site.updatedOn) {
   console.error(`légal : le site porte la version « ${site.updatedOn} », l’application « ${m[1]} ».`);
   console.error('Les textes de l’application ont changé. Relancez :');
-  console.error('  ~/DEV/FLUTTER/flutter/bin/dart run tools/sync-legal.dart > src/legal/app-documents.json');
+  console.error('  ~/DEV/FLUTTER/flutter/bin/dart run tools/sync-legal.dart | node tools/stamp-legal.mjs > src/legal/app-documents.json');
   process.exit(1);
 }
 
-console.log(`légal : site et application à la même version (${site.updatedOn})`);
+// L'empreinte (SITE-6) : la date seule ne voit pas une phrase qui change sans
+// elle. `sourceSha256` est celle du fichier de l'app au moment de la
+// synchronisation (`npm run sync-legal`).
+if (!site.sourceSha256) {
+  console.log(`légal : site et application à la même date (${site.updatedOn}), mais le JSON n’a pas d’empreinte :`);
+  console.log('  relancez `npm run sync-legal` pour que le texte, et plus seulement la date, soit contrôlé.');
+  process.exit(0);
+}
+
+const empreinte = empreinteDe(DART_APP);
+if (empreinte !== site.sourceSha256) {
+  console.error(`légal : la date est la même (${site.updatedOn}) mais le texte de l’application a changé depuis la dernière synchronisation.`);
+  console.error('Relancez :  npm run sync-legal');
+  process.exit(1);
+}
+
+console.log(`légal : site et application à la même version (${site.updatedOn}), même empreinte`);
