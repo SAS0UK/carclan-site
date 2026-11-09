@@ -232,7 +232,7 @@ ${marque()}
 </body></html>`;
 
 async function prevenir(email: string, jeton: string) {
-  if (!CLE_RESEND) return { envoye: false, raison: 'RESEND_API_KEY absente' };
+  if (!CLE_RESEND) return { envoye: false, rendable: true, raison: 'RESEND_API_KEY absente' };
   const lien = LIEN(jeton);
   try {
     const res = await fetch('https://api.resend.com/emails', {
@@ -247,10 +247,19 @@ async function prevenir(email: string, jeton: string) {
         html: html(lien),
       }),
     });
-    if (!res.ok) return { envoye: false, raison: `resend ${res.status} ${await res.text()}` };
-    return { envoye: true };
+    // Seule une panne de Resend (429, 5xx) rend la place : un refus 4xx
+    // (adresse rejetée) la garde, sinon une même IP ferait refuser des envois
+    // sans jamais user ses plafonds (relecture adverse du 9 nov 2026).
+    if (!res.ok) {
+      return {
+        envoye: false,
+        rendable: res.status === 429 || res.status >= 500,
+        raison: `resend ${res.status} ${await res.text()}`,
+      };
+    }
+    return { envoye: true, rendable: false };
   } catch (e) {
-    return { envoye: false, raison: String(e) };
+    return { envoye: false, rendable: true, raison: String(e) };
   }
 }
 
@@ -363,6 +372,8 @@ Deno.serve(async (req: Request) => {
     const envoi = await prevenir(email, jeton);
     if (!envoi.envoye) {
       console.error('confirmation non envoyée', envoi.raison);
+    }
+    if (!envoi.envoye && envoi.rendable) {
       // L'e-mail n'est pas parti : la place prise en base (un envoi sur les
       // trois, 24 h d'attente, un cran des plafonds) est rendue, sinon
       // l'adresse resterait bloquée un jour pour rien (SITE-2). La réponse au

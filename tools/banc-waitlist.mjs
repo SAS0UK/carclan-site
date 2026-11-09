@@ -4,13 +4,13 @@ import { createHash } from 'node:crypto';
 const env = { SUPABASE_URL: 'https://base.test', SUPABASE_SERVICE_ROLE_KEY: 'cle-service', RESEND_API_KEY: 'cle-resend' };
 let handler;
 globalThis.Deno = { env: { get: (k) => env[k] }, serve: (h) => { handler = h; } };
-const appels = []; let reponseBase = 'envoyer'; let resendEchoue = false;
+const appels = []; let reponseBase = 'envoyer'; let resendEchoue = false; let resendStatut = 429;
 globalThis.fetch = async (url, init) => {
   appels.push({ url, init });
   if (url.includes('/rpc/waitlist_inscrire')) return new Response(JSON.stringify(reponseBase), { status: 200 });
   if (url.includes('/rpc/waitlist_confirmer')) return new Response(JSON.stringify(JSON.parse(init.body).p_confirmation_hash === globalThis.bonHash), { status: 200 });
   if (url.includes('/rpc/waitlist_rendre_envoi')) return new Response('true', { status: 200 });
-  if (url.includes('resend')) return resendEchoue ? new Response('quota', { status: 429 }) : new Response('{}', { status: 200 });
+  if (url.includes('resend')) return resendEchoue ? new Response('refus', { status: resendStatut }) : new Response('{}', { status: 200 });
   throw new Error('appel inattendu ' + url);
 };
 // Usage : cp supabase/functions/waitlist/index.ts /tmp/wl.mts && node --experimental-strip-types tools/banc-waitlist.mjs /tmp/wl.mts
@@ -67,6 +67,12 @@ ok(rendu && corpsRendu.p_email === 'rate@b.fr' && corpsRendu.p_confirmation_hash
 appels.length = 0; resendEchoue = false;
 await post({ email: 'bon@b.fr', consent_version: '2026-11-03' });
 ok(!appels.some((a) => a.url.includes('/rpc/waitlist_rendre_envoi')), 'envoi réussi : rien n est rendu');
+// Un refus 4xx de Resend (adresse rejetée) ne rend pas la place : sinon une
+// même IP userait Resend sans jamais consommer ses plafonds.
+appels.length = 0; resendEchoue = true; resendStatut = 422;
+r = await post({ email: 'refus@b.fr', consent_version: '2026-11-03' }, '5.6.7.9');
+ok((await r.json()).etat === 'fait' && !appels.some((a) => a.url.includes('/rpc/waitlist_rendre_envoi')), 'refus 4xx de Resend : la place n est pas rendue');
+appels.length = 0; resendEchoue = false; resendStatut = 429;
 
 // SITE-3 : « nom<victime@…> » n'est pas une adresse.
 for (const forge of ['a<victime@gmail.com>', 'Gagnez-un-iPhone<victime@exemple.fr>', '"x"<victime@exemple.fr>', 'a(b)@exemple.fr', 'a,b@exemple.fr']) {
