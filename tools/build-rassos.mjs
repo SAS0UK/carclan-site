@@ -25,6 +25,7 @@ const SUPABASE_KEY = 'sb_publishable_5BXrkwGrcB-YXA2uN5UqAA_mAY3iScd';
 const SITE_URL = 'https://carclan.fr';
 const DEFAULT_IMAGE = `${SITE_URL}/og.jpg`;
 const OUT_DIR = path.resolve('dist', 'rasso');
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Les fiches des stores, a remplir le jour de la publication. Vides, on
 // reste sur la fiche avec un mot sur la sortie. Meme repli que
 // public/404.html.
@@ -262,11 +263,17 @@ export function renderRassoPage(page) {
   const ratingLabel = formatRating(page.average_rating, page.review_count);
   const mapsUrl = hasCoordinates ? `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}` : null;
 
+  // Une date illisible n'arrete pas le deploiement et ne devient pas 1970 :
+  // le champ est simplement omis du JSON-LD.
+  const iso = (valeur) => {
+    if (valeur === null || valeur === undefined || valeur === '') return null;
+    const d = new Date(valeur);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  };
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: title,
-    startDate: new Date(page.starts_at).toISOString(),
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     image: [image],
@@ -275,7 +282,8 @@ export function renderRassoPage(page) {
     isAccessibleForFree: page.is_free === true,
   };
   if (description) jsonLd.description = truncate(description, 500);
-  if (page.ends_at) jsonLd.endDate = new Date(page.ends_at).toISOString();
+  if (iso(page.starts_at)) jsonLd.startDate = iso(page.starts_at);
+  if (iso(page.ends_at)) jsonLd.endDate = iso(page.ends_at);
   if (page.address) {
     jsonLd.location = { '@type': 'Place', name: page.address, address: page.address };
     if (hasCoordinates) jsonLd.location.geo = { '@type': 'GeoCoordinates', latitude, longitude };
@@ -308,6 +316,9 @@ export function renderRassoPage(page) {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${escapeHtml(title)} · CarClan</title>
 <meta name="description" content="${escapeHtml(metaDescription)}">
+<!-- Comme public/404.html : la page sert l'apercu d'un lien partage, pas le
+     referencement (elle ne figure pas au sitemap). -->
+<meta name="robots" content="noindex">
 <meta name="theme-color" content="#0F0E0C">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/icone-32.png" type="image/png" sizes="32x32">
@@ -440,14 +451,27 @@ async function main() {
   }
 
   const ids = await rpc('list_public_event_ids');
+  if (!Array.isArray(ids)) throw new Error('list_public_event_ids : reponse inattendue');
   let written = 0;
   for (const row of ids) {
     const page = await rpc('public_event_page', { target_event_id: row.id });
-    if (!page || typeof page !== 'object' || !page.id) continue;
+    // Un rasso retire entre les deux appels revient nul : on le saute.
+    if (!page || typeof page !== 'object' || !page.id) {
+      console.warn(`[rassos] fiche ${row.id} absente, sautee`);
+      continue;
+    }
+    // L'identifiant devient un nom de dossier : jamais autre chose qu'un UUID.
+    if (!UUID.test(page.id)) throw new Error(`identifiant de rasso invalide : ${String(page.id).slice(0, 40)}`);
     const dir = path.join(OUT_DIR, page.id);
     await mkdir(dir, { recursive: true });
     await writeFile(path.join(dir, 'index.html'), renderRassoPage(page), 'utf8');
     written += 1;
+  }
+  // Une base qui repond « aucun rasso » alors que le deploiement les attend est
+  // une panne (regle d'acces cassee, migration), pas un site sans rasso : on
+  // ne publie pas, par push force, un site qui perd toutes ses fiches.
+  if (written === 0) {
+    throw new Error(`aucune fiche generee (${ids.length} identifiant(s) lu(s)) : la base ne repond pas comme attendu`);
   }
   console.log(`[rassos] ${written} page(s) statique(s) dans dist/rasso/`);
 }
