@@ -19,7 +19,12 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
-npm run build
+# SITE-10 : le déploiement génère les pages de rasso pré-rendues (aperçu
+# WhatsApp/Facebook sur /rasso/<id>). Elles ne sont pas mises à jour toutes
+# seules : une fiche annulée ou changée reste servie jusqu'au déploiement
+# suivant, d'où le redéploiement planifié (marche-finale.md, étape du site).
+# Si la base ne répond pas, le build échoue et rien n'est publié.
+RASSO_PAGES=1 npm run build
 cd dist
 rm -rf .git
 git init -q

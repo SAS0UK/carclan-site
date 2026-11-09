@@ -10,8 +10,9 @@
 // Supabase est payant. GitHub Pages, lui, sert du HTML gratuitement.
 //
 // Lance par `npm run build` apres Vite. Sans RASSO_PAGES=1, il ne fait rien
-// et le dit : tant que la base porte des rassos de demonstration, on ne les
-// publie pas sur carclan.fr. Lecture avec la cle publiable, par les deux
+// et le dit : un build local ne va pas lire la base. tools/deploy.sh exporte
+// RASSO_PAGES=1 (SITE-10) : les pages sont generees a chaque deploiement, et
+// une fiche annulee ou rendue privee disparait au deploiement suivant. Lecture avec la cle publiable, par les deux
 // fonctions de la base ouvertes a `anon` (migration 0048) : jamais la liste
 // des inscrits.
 
@@ -434,7 +435,7 @@ export function renderRassoPage(page) {
 
 async function main() {
   if (process.env.RASSO_PAGES !== '1') {
-    console.log('[rassos] pages statiques non generees (RASSO_PAGES=1 pour les publier ; pas tant que la base porte des rassos de demonstration).');
+    console.log('[rassos] pages statiques non generees (RASSO_PAGES=1 pour les publier ; tools/deploy.sh l exporte, un build local non).');
     return;
   }
 

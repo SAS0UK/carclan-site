@@ -6,7 +6,7 @@
 set -u
 SCRIPT="$(cd "$(dirname "${1:-$(dirname "$0")/deploy.sh}")" && pwd)/$(basename "${1:-deploy.sh}")"
 T=$(mktemp -d); mkdir -p "$T/bin" "$T/depot/tools"
-printf '#!/bin/sh\ntouch "%s/npm-appele"\nexit 1\n' "$T" > "$T/bin/npm"; chmod +x "$T/bin/npm"
+printf '#!/bin/sh\necho "$RASSO_PAGES" > "%s/npm-appele"\nexit 1\n' "$T" > "$T/bin/npm"; chmod +x "$T/bin/npm"
 cp "$SCRIPT" "$T/depot/tools/deploy.sh"
 cd "$T/depot"
 git init -q -b main; git config user.email t@t; git config user.name t
@@ -22,4 +22,7 @@ essai() { # nom, attendu (refus|passe)
 git checkout -q -b autre; essai "hors main : refusé avant le build" refus
 git checkout -q main; echo b >> f; essai "arbre sale : refusé avant le build" refus
 git checkout -q -- f; essai "main propre : le build démarre" passe
+# SITE-10 : le build du déploiement reçoit RASSO_PAGES=1 (pages de rasso générées).
+if [ "$(cat "$T/npm-appele" 2>/dev/null)" = 1 ]; then echo "ok deploy : le build reçoit RASSO_PAGES=1"
+else echo "ECHEC deploy : RASSO_PAGES=1 absent du build"; echec=1; fi
 exit $echec
