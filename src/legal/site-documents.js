@@ -19,8 +19,9 @@
 //
 // Balisage accepté dans les chaînes : **gras** et [texte](adresse).
 
-// Doit valoir SITE_VERSION de `src/legal-version.js`, qui part en base avec
-// une inscription à la liste d'attente. Les textes du site ont changé le
+// La date affichée en tête des textes du site. Elle va avec CONSENT_VERSION
+// de `src/legal-version.js`, qui part en base avec une inscription à la liste
+// d'attente : les deux changent le même jour. Les textes du site ont changé le
 // 27 septembre 2026 (commit ca779d3) sans que cette date-ci suive : les pages
 // affichaient encore le 21.
 // Le 20 octobre 2026 : les appareils dessinés et les marques d'appareils
@@ -33,7 +34,7 @@
 // Le 3 novembre 2026 (build 16) : la double confirmation de la liste
 // d'attente, l'empreinte d'IP gardée deux jours pour les plafonds, l'adresse
 // non confirmée effacée à 30 jours. **Date à remettre au jour de la mise en
-// ligne**, ici et dans `src/legal-version.js`.
+// ligne**, ici, et CONSENT_VERSION dans `src/legal-version.js`.
 export const SITE_VERSION = '3 novembre 2026';
 
 const EDITEUR = 'Mathys Liénart';

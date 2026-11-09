@@ -1,0 +1,12 @@
+# Réglages de déploiement des fonctions Edge de ce dépôt (projet CarClan
+# zheixbgssdfquresgtai). Lu par `supabase functions deploy`.
+
+# Nom local seulement (exigé par la CLI) ; le projet distant se donne par
+# `--project-ref zheixbgssdfquresgtai`.
+project_id = "carclan-site"
+
+[functions.waitlist]
+# Le formulaire du site appelle la fonction sans jeton de membre : la
+# vérification du JWT doit rester coupée, sinon toute inscription échoue
+# (le visiteur voit le message d'échec). Équivaut à `--no-verify-jwt`.
+verify_jwt = false

@@ -1,21 +1,16 @@
-// La version des textes juridiques du site.
+// La version du consentement à la liste d'attente du site.
 //
-// Les documents de l'application vivent dans le dépôt CarClan
-// (lib/features/settings/domain/legal_documents.dart, constante `updatedOn`)
-// et le site les reprend mot pour mot dans sa partie « L'application ».
-// tools/check-legal.mjs compare ces deux valeurs au build et refuse de
-// construire si elles divergent : un site qui affiche une version des CGU
-// et une application qui en affiche une autre, c'est une promesse qui ne
-// tient plus.
+// C'est la seule valeur de ce fichier : elle part en base avec une
+// inscription (`consent_version`, lue par `src/waitlist.js`), pour qu'on
+// sache quel texte la personne avait sous les yeux. La date affichée en tête
+// des textes du site est `SITE_VERSION`, dans `src/legal/site-documents.js` ;
+// celle des textes de l'application vient du JSON que `tools/check-legal.mjs`
+// compare au dépôt CarClan. Les deux anciennes copies (APP_VERSION,
+// SITE_VERSION) ne servaient à rien et sont parties le 9 novembre 2026
+// (relecture complète, SITE-7).
 //
-// APP_VERSION doit donc toujours valoir la constante du dépôt CarClan.
-// SITE_VERSION est propre aux textes du site (partie « Le site »), et ne
-// change que lorsque ces textes-là changent. C'est elle qui part en base
-// avec une inscription à la liste d'attente (`consent_version`), pour
-// qu'on sache ce que la personne avait sous les yeux.
-
-export const APP_VERSION = '3 novembre 2026';
-export const SITE_VERSION = '3 novembre 2026';
+// Quand les textes du site changent : changer SITE_VERSION dans
+// `site-documents.js` ET la date ci-dessous, le même jour.
 
 // La même date, au format que la base attend (migration 0046 : au plus
 // 32 caractères, comparée telle quelle). L'heure départage deux versions
