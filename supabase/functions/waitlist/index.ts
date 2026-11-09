@@ -51,10 +51,19 @@ const entetes = (origine: string | null) => ({
   'Content-Type': 'application/json',
 });
 
-// Les mêmes bornes que les contraintes CHECK de la table : mieux vaut répondre
-// « invalide » que laisser la base refuser et rendre un échec serveur.
+// Une adresse nue, sans nom affiché : « a<victime@gmail.com> » passait le
+// motif large (un @, pas d'espace) et se faisait lire par Resend comme
+// « nom <adresse> », donc livrer chez la victime sous une adresse que la base
+// ne reconnaissait pas (SITE-3). Partie locale en caractères d'adresse usuels
+// (lettres, chiffres, `.`, `_`, `%`, `+`, `-`), domaine en étiquettes
+// alphanumériques séparées par des points, extension d'au moins deux lettres.
+// Les mêmes bornes de longueur que les contraintes CHECK de la table : mieux
+// vaut répondre « invalide » que laisser la base refuser et rendre un échec
+// serveur.
 const ressembleAUnEmail = (v: string) =>
-  /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) && v.length >= 6 && v.length <= 254;
+  /^[A-Za-z0-9._%+-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/.test(v) &&
+  v.length >= 6 &&
+  v.length <= 254;
 
 // Le message. Deux contraintes d'e-mail commandent tout le reste : aucune
 // police chargee ne survit (Archivo est donc impossible, on tombe sur la

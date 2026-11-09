@@ -58,13 +58,22 @@ ok(r.status === 405, 'GET refusé');
 // SITE-2 : un envoi raté chez Resend rend la place (sinon l'adresse reste
 // bloquée 24 h et le site a dit « fait » pour rien). Réponse toujours uniforme.
 appels.length = 0; reponseBase = 'envoyer'; resendEchoue = true;
-r = await post({ email: 'raté@b.fr', consent_version: '2026-11-03' }, '5.6.7.8');
+r = await post({ email: 'rate@b.fr', consent_version: '2026-11-03' }, '5.6.7.8');
 ok((await r.json()).etat === 'fait', 'envoi raté : la réponse reste « fait »');
 const rendu = appels.find((a) => a.url.includes('/rpc/waitlist_rendre_envoi'));
 const inscrit = JSON.parse(appels.find((a) => a.url.includes('inscrire')).init.body);
 const corpsRendu = rendu ? JSON.parse(rendu.init.body) : {};
-ok(rendu && corpsRendu.p_email === 'raté@b.fr' && corpsRendu.p_confirmation_hash === inscrit.p_confirmation_hash && corpsRendu.p_ip_empreinte === inscrit.p_ip_empreinte, 'envoi raté : la place est rendue (même adresse, même jeton, même IP)');
+ok(rendu && corpsRendu.p_email === 'rate@b.fr' && corpsRendu.p_confirmation_hash === inscrit.p_confirmation_hash && corpsRendu.p_ip_empreinte === inscrit.p_ip_empreinte, 'envoi raté : la place est rendue (même adresse, même jeton, même IP)');
 appels.length = 0; resendEchoue = false;
 await post({ email: 'bon@b.fr', consent_version: '2026-11-03' });
 ok(!appels.some((a) => a.url.includes('/rpc/waitlist_rendre_envoi')), 'envoi réussi : rien n est rendu');
+
+// SITE-3 : « nom<victime@…> » n'est pas une adresse.
+for (const forge of ['a<victime@gmail.com>', 'Gagnez-un-iPhone<victime@exemple.fr>', '"x"<victime@exemple.fr>', 'a(b)@exemple.fr', 'a,b@exemple.fr']) {
+  appels.length = 0;
+  r = await post({ email: forge, consent_version: '2026-11-03' });
+  ok((await r.json()).etat === 'invalide' && appels.length === 0, `adresse forgée refusée : ${forge}`);
+}
+r = await post({ email: 'prenom.nom+rasso@sous.domaine.fr', consent_version: '2026-11-03' });
+ok((await r.json()).etat === 'fait', 'adresse normale avec + et sous-domaine acceptée');
 
