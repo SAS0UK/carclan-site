@@ -320,10 +320,11 @@ Deno.serve(async (req: Request) => {
   if (consentement.length < 1 || consentement.length > 32) return repondre('invalide', 400);
 
   const jeton = nouveauJeton();
+  const ipEmpreinte = await empreinte(`${SEL_IP}:${ipDe(req)}`);
   const res = await rpc('waitlist_inscrire', {
     p_email: email,
     p_consent_version: consentement,
-    p_ip_empreinte: await empreinte(`${SEL_IP}:${ipDe(req)}`),
+    p_ip_empreinte: ipEmpreinte,
     p_confirmation_hash: await empreinte(jeton),
   });
   if (!res.ok) {
@@ -335,7 +336,23 @@ Deno.serve(async (req: Request) => {
   // `envoyer` répondent pareil au navigateur : c'est ce qui ferme l'oracle.
   if ((await res.json()) === 'envoyer') {
     const envoi = await prevenir(email, jeton);
-    if (!envoi.envoye) console.error('confirmation non envoyée', envoi.raison);
+    if (!envoi.envoye) {
+      console.error('confirmation non envoyée', envoi.raison);
+      // L'e-mail n'est pas parti : la place prise en base (un envoi sur les
+      // trois, 24 h d'attente, un cran des plafonds) est rendue, sinon
+      // l'adresse resterait bloquée un jour pour rien (SITE-2). La réponse au
+      // navigateur reste `fait`, pour ne rien apprendre à personne.
+      try {
+        const rendu = await rpc('waitlist_rendre_envoi', {
+          p_email: email,
+          p_confirmation_hash: await empreinte(jeton),
+          p_ip_empreinte: ipEmpreinte,
+        });
+        if (!rendu.ok) console.error('place non rendue', rendu.status, await rendu.text());
+      } catch (e) {
+        console.error('place non rendue', String(e));
+      }
+    }
   }
   return repondre('fait');
 });

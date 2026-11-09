@@ -4,17 +4,18 @@ import { createHash } from 'node:crypto';
 const env = { SUPABASE_URL: 'https://base.test', SUPABASE_SERVICE_ROLE_KEY: 'cle-service', RESEND_API_KEY: 'cle-resend' };
 let handler;
 globalThis.Deno = { env: { get: (k) => env[k] }, serve: (h) => { handler = h; } };
-const appels = []; let reponseBase = 'envoyer';
+const appels = []; let reponseBase = 'envoyer'; let resendEchoue = false;
 globalThis.fetch = async (url, init) => {
   appels.push({ url, init });
   if (url.includes('/rpc/waitlist_inscrire')) return new Response(JSON.stringify(reponseBase), { status: 200 });
   if (url.includes('/rpc/waitlist_confirmer')) return new Response(JSON.stringify(JSON.parse(init.body).p_confirmation_hash === globalThis.bonHash), { status: 200 });
-  if (url.includes('resend')) return new Response('{}', { status: 200 });
+  if (url.includes('/rpc/waitlist_rendre_envoi')) return new Response('true', { status: 200 });
+  if (url.includes('resend')) return resendEchoue ? new Response('quota', { status: 429 }) : new Response('{}', { status: 200 });
   throw new Error('appel inattendu ' + url);
 };
 // Usage : cp supabase/functions/waitlist/index.ts /tmp/wl.mts && node --experimental-strip-types tools/banc-waitlist.mjs /tmp/wl.mts
 await import(process.argv[2]);
-const post = (corps, ip = '1.2.3.4') => handler(new Request('https://f/', { method: 'POST', headers: { origin: 'https://carclan.fr', 'cf-connecting-ip': ip, 'content-type': 'application/json' }, body: JSON.stringify(corps) }));
+const post = (corps, ip = '1.2.3.4', surcharge = {}) => handler(new Request('https://f/', { method: 'POST', headers: { origin: 'https://carclan.fr', ...(ip ? { 'cf-connecting-ip': ip } : {}), 'content-type': 'application/json', ...surcharge }, body: JSON.stringify(corps) }));
 const sha = (t) => createHash('sha256').update(t).digest('hex');
 const ok = (c, m) => { if (!c) { console.log('ECHEC', m); process.exitCode = 1; } else console.log('ok', m); };
 
@@ -53,3 +54,17 @@ r = await post({ jeton: 'abc' });
 ok((await r.json()).etat === 'invalide' && appels.length === 0, 'jeton mal formé : rien n appelle la base');
 r = await handler(new Request('https://f/', { method: 'GET' }));
 ok(r.status === 405, 'GET refusé');
+
+// SITE-2 : un envoi raté chez Resend rend la place (sinon l'adresse reste
+// bloquée 24 h et le site a dit « fait » pour rien). Réponse toujours uniforme.
+appels.length = 0; reponseBase = 'envoyer'; resendEchoue = true;
+r = await post({ email: 'raté@b.fr', consent_version: '2026-11-03' }, '5.6.7.8');
+ok((await r.json()).etat === 'fait', 'envoi raté : la réponse reste « fait »');
+const rendu = appels.find((a) => a.url.includes('/rpc/waitlist_rendre_envoi'));
+const inscrit = JSON.parse(appels.find((a) => a.url.includes('inscrire')).init.body);
+const corpsRendu = rendu ? JSON.parse(rendu.init.body) : {};
+ok(rendu && corpsRendu.p_email === 'raté@b.fr' && corpsRendu.p_confirmation_hash === inscrit.p_confirmation_hash && corpsRendu.p_ip_empreinte === inscrit.p_ip_empreinte, 'envoi raté : la place est rendue (même adresse, même jeton, même IP)');
+appels.length = 0; resendEchoue = false;
+await post({ email: 'bon@b.fr', consent_version: '2026-11-03' });
+ok(!appels.some((a) => a.url.includes('/rpc/waitlist_rendre_envoi')), 'envoi réussi : rien n est rendu');
+
