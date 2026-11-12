@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.carclan.app",
+      "sha256_cert_fingerprints": [
+        "91:E2:3C:9F:DD:29:14:7D:73:D9:62:06:E2:E2:06:50:75:7F:A2:B7:9F:57:FF:E3:8D:DD:D0:40:85:F9:6D:63"
+      ]
+    }
+  }
+]
